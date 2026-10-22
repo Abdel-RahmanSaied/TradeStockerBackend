@@ -1,0 +1,23 @@
+# AGENTS.md
+
+Rules for any AI agent working in this project.
+
+## 1. Never add "Co-authored-by"
+
+- Never add a `Co-authored-by:` line to a git commit message.
+- Never add it to a pull request description, a code comment, or any other file.
+- Do not add other AI credit lines either (for example "Generated with ...").
+- This rule has no exceptions.
+
+## 2. Use simple language
+
+- Explain things in short, clear sentences.
+- Use common words. Avoid jargon. If you must use a technical term, explain it in plain words.
+- Prefer small examples over long theory.
+
+## 3. Check every fact before you say it
+
+- Before you tell the user something, check that it is true.
+- Check it against a real source: the code in this project, the official docs, or by running a command.
+- If you cannot check it, say so clearly (for example: "I could not verify this").
+- Never guess and present the guess as a fact.

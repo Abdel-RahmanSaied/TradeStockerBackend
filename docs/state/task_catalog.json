@@ -1,0 +1,3741 @@
+{
+  "schema_version": "1.0",
+  "plan_version": "1.0.0",
+  "project": "TradeStocker",
+  "created_date": "2026-10-23",
+  "notes": "Task specifications are canonical here. Sprint Markdown files are generated. Sizes S/M/L are relative work units, not time estimates. Task completion never activates advisory lanes.",
+  "sprints": [
+    {
+      "id": "S00",
+      "title": "Repository discovery, scope and external prerequisites",
+      "goal": "Inspect the actual repository before touching product code; establish verified boundaries and pursue data access early.",
+      "exit_gate": "A repository inventory, explicit scope, provider evidence and an actionable unresolved-decision register exist. No live lane is enabled.",
+      "optional": false,
+      "task_ids": [
+        "S00-T01",
+        "S00-T02",
+        "S00-T03",
+        "S00-T04",
+        "S00-T05",
+        "S00-T06"
+      ],
+      "title_ar": "اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية"
+    },
+    {
+      "id": "S01",
+      "title": "Repository foundation, security baseline and CI",
+      "goal": "Create three runnable deployables and repeatable developer/CI environments before business features.",
+      "exit_gate": "Go core, Go ingestion and Python worker boot locally; CI runs baseline checks; secrets and service identities are separated.",
+      "optional": false,
+      "task_ids": [
+        "S01-T01",
+        "S01-T02",
+        "S01-T03",
+        "S01-T04",
+        "S01-T05",
+        "S01-T06"
+      ],
+      "title_ar": "أساس المشروع والأمان وCI"
+    },
+    {
+      "id": "S02",
+      "title": "Canonical contracts, storage and event reliability",
+      "goal": "Establish stable identities, versioned contracts and durable idempotent workflows.",
+      "exit_gate": "Schema migrations, instrument/time rules and event contracts pass integration and duplicate-delivery tests.",
+      "optional": false,
+      "task_ids": [
+        "S02-T01",
+        "S02-T02",
+        "S02-T03",
+        "S02-T04",
+        "S02-T05",
+        "S02-T06"
+      ],
+      "title_ar": "العقود وقاعدة البيانات واعتمادية الأحداث"
+    },
+    {
+      "id": "S03",
+      "title": "US and EGX ingestion and point-in-time data quality",
+      "goal": "Build independent adapters and prevent stale, invalid or unlicensed data from feeding actionable recommendations.",
+      "exit_gate": "Synthetic adapters pass all gates; each real feed has separately recorded coverage, entitlements and validation evidence.",
+      "optional": false,
+      "task_ids": [
+        "S03-T01",
+        "S03-T02",
+        "S03-T03",
+        "S03-T04",
+        "S03-T05",
+        "S03-T06"
+      ],
+      "title_ar": "بيانات السوق الأمريكي والمصري وجودتها"
+    },
+    {
+      "id": "S04",
+      "title": "Portfolio ledger, executions and reconciliation",
+      "goal": "Build the authoritative financial state before personalized recommendations or goal optimization.",
+      "exit_gate": "Account-scoped cash, positions and manual fills reconcile; duplicate and concurrent events cannot create money or double-spend available cash.",
+      "optional": false,
+      "task_ids": [
+        "S04-T01",
+        "S04-T02",
+        "S04-T03",
+        "S04-T04",
+        "S04-T05",
+        "S04-T06"
+      ],
+      "title_ar": "سجل المحفظة والتنفيذ الفعلي والتسوية"
+    },
+    {
+      "id": "S05",
+      "title": "Deterministic policy kernel and recommendation lifecycle",
+      "goal": "Enforce all financial and human-only invariants before a recommendation can become actionable.",
+      "exit_gate": "Live and replay use the same risk implementation; stale/unfunded/unauthorized advice is rejected; pausing entries preserves position monitoring.",
+      "optional": false,
+      "task_ids": [
+        "S05-T01",
+        "S05-T02",
+        "S05-T03",
+        "S05-T04",
+        "S05-T05",
+        "S05-T06"
+      ],
+      "title_ar": "محرك المخاطر ودورة حياة التوصية"
+    },
+    {
+      "id": "S06",
+      "title": "Point-in-time simulator, baselines and evaluation gates",
+      "goal": "Build realistic replay and preregister evaluation criteria before tuning strategies or prompts.",
+      "exit_gate": "Leakage tests, deterministic baselines and realistic execution assumptions are documented; no result is treated as evidence of guaranteed returns.",
+      "optional": false,
+      "task_ids": [
+        "S06-T01",
+        "S06-T02",
+        "S06-T03",
+        "S06-T04",
+        "S06-T05",
+        "S06-T06"
+      ],
+      "title_ar": "المحاكاة التاريخية وخطوط الأساس والتقييم"
+    },
+    {
+      "id": "S07",
+      "title": "Financial statements, stock history and evidence intelligence",
+      "goal": "Make financial-statement and historical-behavior assessments mandatory inputs rather than optional summaries.",
+      "exit_gate": "Evidence-backed assessments exist with publication timing and accounting context; missing material inputs block new entries.",
+      "optional": false,
+      "task_ids": [
+        "S07-T01",
+        "S07-T02",
+        "S07-T03",
+        "S07-T04",
+        "S07-T05",
+        "S07-T06"
+      ],
+      "title_ar": "القوائم المالية وتاريخ السهم والأدلة"
+    },
+    {
+      "id": "S08",
+      "title": "Hierarchical advisory committee and model evaluation",
+      "goal": "Implement the agreed advisory roles with bounded, evidence-first workflows and independent control checks.",
+      "exit_gate": "Committee outputs are structured and auditable; no model output can mutate financial state or bypass policy.",
+      "optional": false,
+      "task_ids": [
+        "S08-T01",
+        "S08-T02",
+        "S08-T03",
+        "S08-T04",
+        "S08-T05",
+        "S08-T06"
+      ],
+      "title_ar": "لجنة المستشارين وتقييم النماذج"
+    },
+    {
+      "id": "S09",
+      "title": "Swing strategy lanes and position monitoring",
+      "goal": "Implement and evaluate distinct EGX and US swing strategies without changing the shared safety layer.",
+      "exit_gate": "Both swing lanes have reproducible evaluation artifacts; each remains disabled until its independent activation gates pass.",
+      "optional": false,
+      "task_ids": [
+        "S09-T01",
+        "S09-T02",
+        "S09-T03",
+        "S09-T04",
+        "S09-T05",
+        "S09-T06"
+      ],
+      "title_ar": "استراتيجيات Swing ومتابعة المراكز"
+    },
+    {
+      "id": "S10",
+      "title": "Telegram, human workflow and paper operations",
+      "goal": "Deliver transparent actionable/nonactionable messages and capture human execution without sending broker commands.",
+      "exit_gate": "Authenticated Telegram interactions, expiry, delivery ambiguity and paper-versus-actual separation pass end-to-end tests.",
+      "optional": false,
+      "task_ids": [
+        "S10-T01",
+        "S10-T02",
+        "S10-T03",
+        "S10-T04",
+        "S10-T05",
+        "S10-T06"
+      ],
+      "title_ar": "Telegram والتنفيذ البشري والتشغيل الورقي"
+    },
+    {
+      "id": "S11",
+      "title": "Trading Intelligence Division and intraday lanes",
+      "goal": "Add the five trading specialists and feasible intraday strategies without introducing scalping or automated orders.",
+      "exit_gate": "Intraday decisions respect real feeds, human latency, account eligibility and session cutoffs; EGX and US are evaluated separately.",
+      "optional": false,
+      "task_ids": [
+        "S11-T01",
+        "S11-T02",
+        "S11-T03",
+        "S11-T04",
+        "S11-T05",
+        "S11-T06"
+      ],
+      "title_ar": "Trading Intelligence واستراتيجيات Intraday"
+    },
+    {
+      "id": "S12",
+      "title": "Goals, feasibility and portfolio-level progress",
+      "goal": "Add goal-aware planning that cannot increase approved risk to chase a deadline.",
+      "exit_gate": "Goals are versioned, evidence-based and separated from forecasts; cash flows and actual performance are correctly attributed.",
+      "optional": false,
+      "task_ids": [
+        "S12-T01",
+        "S12-T02",
+        "S12-T03",
+        "S12-T04",
+        "S12-T05",
+        "S12-T06"
+      ],
+      "title_ar": "الأهداف والسيناريوهات وتخصيص رأس المال"
+    },
+    {
+      "id": "S13",
+      "title": "Dashboard, audit exploration and operating controls",
+      "goal": "Make the system operable and understandable without bypassing Go policy or Telegram safeguards.",
+      "exit_gate": "Owner can inspect actual state, evidence, goals, incidents and costs; access and mode separation are tested.",
+      "optional": false,
+      "task_ids": [
+        "S13-T01",
+        "S13-T02",
+        "S13-T03",
+        "S13-T04",
+        "S13-T05",
+        "S13-T06"
+      ],
+      "title_ar": "لوحة المتابعة والتشغيل وسجل المراجعة"
+    },
+    {
+      "id": "S14",
+      "title": "Production deployment, resilience and release engineering",
+      "goal": "Deploy safely and prove recovery under the chosen workload; hardening builds on controls already present since S01.",
+      "exit_gate": "Infrastructure, signed artifacts, migration strategy, backup restore and load/chaos tests pass independently reviewed release gates.",
+      "optional": false,
+      "task_ids": [
+        "S14-T01",
+        "S14-T02",
+        "S14-T03",
+        "S14-T04",
+        "S14-T05",
+        "S14-T06"
+      ],
+      "title_ar": "النشر الإنتاجي والتعافي واختبارات الاعتمادية"
+    },
+    {
+      "id": "S15",
+      "title": "Independent lane activation and post-release evaluation",
+      "goal": "Move each market/strategy through forward-paper and human-reviewed limited advisory gates, never from a calendar deadline.",
+      "exit_gate": "Each lane has a recorded GO or NO_GO; actual execution remains human-only; continuing evaluation and disable procedures are operational.",
+      "optional": false,
+      "task_ids": [
+        "S15-T01",
+        "S15-T02",
+        "S15-T03",
+        "S15-T04",
+        "S15-T05",
+        "S15-T06"
+      ],
+      "title_ar": "تفعيل كل سوق واستراتيجية بشكل مستقل"
+    },
+    {
+      "id": "S16",
+      "title": "Optional OpenClaw read-only interface",
+      "goal": "Add an optional explanation interface only after core operation is established and explicitly authorized.",
+      "exit_gate": "Removing or compromising the optional assistant cannot submit orders, change risk, mutate portfolio state or stop official notifications.",
+      "optional": true,
+      "task_ids": [
+        "S16-T01",
+        "S16-T02",
+        "S16-T03",
+        "S16-T04",
+        "S16-T05",
+        "S16-T06"
+      ],
+      "title_ar": "OpenClaw: طبقة اختيارية للقراءة فقط"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "S00-T01",
+      "sprint_id": "S00",
+      "title": "Inspect the actual repository and reconcile this plan",
+      "owner_role": "Tech Lead",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [],
+      "scope": "Inspect AGENTS instructions, Git branch/HEAD, dirty files, existing code, docs, CI and sibling services. This package has not inspected the user’s repository. Map proposed paths onto reality without moving or deleting existing work.",
+      "deliverables": [
+        "docs/evidence/repository-inventory.md",
+        "docs/sessions/<session-id>.md",
+        "docs/state/project_state.json"
+      ],
+      "acceptance_criteria": [
+        "Record exact repository root, HEAD, branch and working-tree state in a dated session handoff.",
+        "List existing implementations and conflicts; reuse verified work and create an ADR for material deviations.",
+        "Do not mark implementation tasks complete solely because files or prior chat claims exist.",
+        "Reconcile any existing ADR-011 before assigning or replacing its identifier."
+      ],
+      "validation": [
+        "Capture read-only Git inventory and discovered test commands.",
+        "Run the documentation validator; distinguish baseline tool tests from product tests."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S00-T02",
+      "sprint_id": "S00",
+      "title": "Confirm product boundaries, users and operating modes",
+      "owner_role": "Product + Tech Lead",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T01"
+      ],
+      "scope": "Convert approved scope into testable boundaries: private single-owner pilot, four independent market/strategy lanes, human-only execution, goal-aware risk constraints and later optional assistant integration.",
+      "deliverables": [
+        "docs/SOURCE_OF_TRUTH.md",
+        "docs/REQUIREMENTS_TRACEABILITY.md",
+        "docs/evidence/scope-review.md"
+      ],
+      "acceptance_criteria": [
+        "Map all requirements in REQUIREMENTS_TRACEABILITY.md.",
+        "Separate product approval from implementation/release approval.",
+        "Define operating modes OFFLINE_REPLAY, SHADOW, PAPER and LIVE_ADVISORY; production defaults disabled.",
+        "Keep broker order APIs, leverage, short selling, options and scalping outside the baseline."
+      ],
+      "validation": [
+        "Review scope against SOURCE_OF_TRUTH.md and detect conflicting statements."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-06",
+        "REQ-10",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S00-T03",
+      "sprint_id": "S00",
+      "title": "Qualify market-data vendors and document licensing",
+      "owner_role": "Data Engineering + Owner",
+      "priority": "P0",
+      "size": "L",
+      "depends_on": [
+        "S00-T01"
+      ],
+      "scope": "Start US and EGX procurement independently. Request sample payloads, exchange coverage, timestamps, corrections, historical depth, entitlements, retention and non-display/derived-data/LLM-use permissions. Marketing pages are not contracts.",
+      "deliverables": [
+        "docs/DATA_PROVIDER_MATRIX.md",
+        "docs/evidence/provider-<name>.md"
+      ],
+      "acceptance_criteria": [
+        "Produce one due-diligence record per candidate; label UNKNOWN rather than assume coverage.",
+        "Distinguish consolidated US coverage from a single venue; identify auction, quote/trade conditions and halt support.",
+        "Document EGX intraday history, same-session eligibility support, bid/ask coverage and actual L2 availability.",
+        "Record cost and technical evidence without storing credentials; a missing vendor does not block synthetic core development."
+      ],
+      "validation": [
+        "Parse a legitimately obtained sample or mark the sample gate BLOCKED.",
+        "Verify license scope with written provider evidence before any licensed production use."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-02"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S00-T04",
+      "sprint_id": "S00",
+      "title": "Define account, settlement and market-rule research",
+      "owner_role": "Domain Engineer + Owner",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T02"
+      ],
+      "scope": "Identify intended brokers and account types, then document how effective-dated exchange and broker rules will be sourced. Do not hard-code today’s rules or assume the same eligibility across EGX and US.",
+      "deliverables": [
+        "docs/evidence/broker-rules-research.md",
+        "docs/OPEN_DECISIONS.md"
+      ],
+      "acceptance_criteria": [
+        "Define unknown account types and settlement capabilities as explicit activation blockers.",
+        "Identify authoritative sources for sessions, holidays, halts, eligibility, fees and taxes; record verification owner and expiry.",
+        "Determine whether the pilot remains private and whether commercial advisory review is required.",
+        "Specify manual statements/imports or optional read-only account access; never request trading credentials."
+      ],
+      "validation": [
+        "Review one EGX and one US hypothetical account capability matrix without presenting it as verified broker behavior."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-08",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-03",
+        "D-08"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S00-T05",
+      "sprint_id": "S00",
+      "title": "Pin compatible toolchains and estimate workload/cost",
+      "owner_role": "Platform Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T01",
+        "S00-T02"
+      ],
+      "scope": "Run a compatibility spike for the chosen Go/Python/PostgreSQL/NATS libraries and migration tooling. Establish a measured load profile and an initial infrastructure/LLM/data budget, not a promised latency or return.",
+      "deliverables": [
+        "docs/evidence/compatibility-matrix.md",
+        "docs/evidence/load-and-cost-profile.md"
+      ],
+      "acceptance_criteria": [
+        "Choose supported stable versions after checking official documentation; pin modules, uv lockfile and container digests.",
+        "Document symbol count, feed event rate, concurrency, analysis budget and expected retention.",
+        "Select authentication provider and deployment approach through D-05/D-06; no custom token cryptography.",
+        "Record costs as dated estimates with source and currency; no production resources are created without approval."
+      ],
+      "validation": [
+        "Build and connect a disposable Go and Python client to PostgreSQL and JetStream.",
+        "Verify the selected LangGraph checkpointer can persist/resume on the pinned versions."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-12",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-05",
+        "D-06",
+        "D-07"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S00-T06",
+      "sprint_id": "S00",
+      "title": "Establish task ownership, review and session continuity",
+      "owner_role": "Tech Lead",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T01",
+        "S00-T02"
+      ],
+      "scope": "Adopt the supplied planning protocol and integrate its validator in repository automation. Define who reviews high-risk changes and how multiple agents coordinate.",
+      "deliverables": [
+        "AGENTS.md",
+        "docs/AGENT_PLAYBOOK.md",
+        "docs/tools/planctl.py"
+      ],
+      "acceptance_criteria": [
+        "Root AGENTS.md references this docs pack without erasing existing instructions.",
+        "Task definitions live in task_catalog.json; execution status lives only in project_state.json.",
+        "Every new session verifies Git state and existing claims before claiming a task.",
+        "Require evidence-backed handoffs; never reset in-progress work after context loss."
+      ],
+      "validation": [
+        "Exercise claim/block/review/done transitions on a disposable copy.",
+        "Validate the dependency graph and generated sprint documents."
+      ],
+      "requirement_ids": [
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S01-T01",
+      "sprint_id": "S01",
+      "title": "Create reconciled module boundaries and build commands",
+      "owner_role": "Go + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T01",
+        "S00-T05"
+      ],
+      "scope": "Create or adapt the monorepo skeleton. Keep Go business modules inside a single Go module initially; create one Python research package and generated-contract locations.",
+      "deliverables": [
+        "go.mod",
+        "cmd/platform-core/",
+        "cmd/market-ingestion/",
+        "internal/",
+        "research/pyproject.toml",
+        "Makefile"
+      ],
+      "acceptance_criteria": [
+        "Three independent entrypoints exist: platform-core, market-ingestion and research-worker.",
+        "Core domain code has no framework or network dependencies.",
+        "Document build/test commands and supported toolchains.",
+        "Do not create a service per advisory role."
+      ],
+      "validation": [
+        "Build both Go binaries and import the Python package in CI.",
+        "Check dependency direction and no import from Go domain into adapters."
+      ],
+      "requirement_ids": [
+        "REQ-01"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S01-T02",
+      "sprint_id": "S01",
+      "title": "Create local containers and deterministic fixtures",
+      "owner_role": "Platform Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S01-T01"
+      ],
+      "scope": "Define Compose services for app entrypoints, PostgreSQL and NATS; use synthetic data and an approved local S3 substitute or fixture adapter. Avoid unlicensed datasets in Git.",
+      "deliverables": [
+        "deploy/compose.yaml",
+        "fixtures/synthetic/",
+        "config/example.env"
+      ],
+      "acceptance_criteria": [
+        "One documented command starts dependencies with persistent development volumes and health checks.",
+        "Containers run as non-root where feasible; secrets are supplied outside tracked files.",
+        "Offline fixtures run without provider or LLM credentials.",
+        "Teardown is non-destructive by default; removing volumes is explicit."
+      ],
+      "validation": [
+        "Smoke-test clean startup, shutdown and restart with persisted fixtures.",
+        "Verify no live advisory delivery occurs in development defaults."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S01-T03",
+      "sprint_id": "S01",
+      "title": "Implement CI baseline and documentation drift checks",
+      "owner_role": "Platform Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T06",
+        "S01-T01"
+      ],
+      "scope": "Add incremental build/lint/test jobs and validate plan integrity, schemas and generated files. Use least-privilege workflow permissions and no secrets for untrusted pull requests.",
+      "deliverables": [
+        ".github/workflows/ci.yml",
+        "docs/evidence/ci-baseline.md"
+      ],
+      "acceptance_criteria": [
+        "Go format/vet/race tests and Python lint/type/unit tests run with pinned tooling.",
+        "Dependency/secret scans are enabled; explicit reviewed waivers have owners and expiry.",
+        "planctl validate and render --check run on docs changes.",
+        "CI reports test counts and unrun integration suites honestly."
+      ],
+      "validation": [
+        "Introduce intentional test, schema and docs drift failures in an isolated branch and confirm failure."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S01-T04",
+      "sprint_id": "S01",
+      "title": "Introduce identity, authorization and service credentials",
+      "owner_role": "Security + Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S01-T01",
+        "S00-T05"
+      ],
+      "scope": "Implement the approved identity approach with owner/reviewer/read-only roles and scoped service credentials. The private pilot is one owner, but every financial record is account-scoped.",
+      "deliverables": [
+        "internal/auth/",
+        "internal/http/middleware/",
+        "deploy/iam/"
+      ],
+      "acceptance_criteria": [
+        "Unauthenticated access to portfolio and research administration is denied.",
+        "Issuer/audience/expiry, CSRF or token handling and service-to-service authorization are tested for the chosen auth method.",
+        "DB roles separate core writes, ingestion writes and research writes; no shared superuser.",
+        "Credentials are not available to LLM tools or logs."
+      ],
+      "validation": [
+        "Negative auth tests, cross-account identifier tests and expired-token tests."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-12"
+      ],
+      "decision_dependencies": [
+        "D-05"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S01-T05",
+      "sprint_id": "S01",
+      "title": "Add observability and safe worker lifecycle",
+      "owner_role": "Platform + Backend Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S01-T01",
+        "S01-T02"
+      ],
+      "scope": "Instrument startup, health, traces and structured logs; enforce context cancellation, bounded worker pools, retry budgets and graceful shutdown.",
+      "deliverables": [
+        "internal/telemetry/",
+        "research/src/telemetry/",
+        "docs/evidence/lifecycle-tests.md"
+      ],
+      "acceptance_criteria": [
+        "Trace/correlation IDs survive HTTP and NATS boundaries.",
+        "Liveness differs from readiness; dependency outage changes readiness without leaking secrets.",
+        "Logs exclude bot tokens, account secrets and full licensed document content.",
+        "Cancellation drains or requeues work and never loses a financial transaction."
+      ],
+      "validation": [
+        "Kill/restart worker during a synthetic job and inspect its recovery.",
+        "Verify bounded concurrency under a slow-provider fixture."
+      ],
+      "requirement_ids": [
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S01-T06",
+      "sprint_id": "S01",
+      "title": "Create architecture-level threat and no-execution tests",
+      "owner_role": "Security + Tech Lead",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S01-T03",
+        "S01-T04"
+      ],
+      "scope": "Establish a maintained threat model and architectural guardrails covering human-only execution, data poisoning, prompt injection, SSRF, credentials and unauthorized goal changes.",
+      "deliverables": [
+        "docs/SECURITY_AND_OPERATIONS.md",
+        "tests/security/",
+        "tests/architecture/"
+      ],
+      "acceptance_criteria": [
+        "No broker order placement/cancel/amend capability exists in API contracts or service permissions.",
+        "Untrusted document fetches have allowlists, size limits and internal-network protection.",
+        "Production-risk settings cannot be changed by agents.",
+        "Negative tests are mandatory gates rather than documentation-only promises."
+      ],
+      "validation": [
+        "Test forbidden broker endpoints, private-network URLs and malicious document instructions."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S02-T01",
+      "sprint_id": "S02",
+      "title": "Implement OpenAPI and event-schema ownership",
+      "owner_role": "Backend Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S01-T01",
+        "S01-T03"
+      ],
+      "scope": "Turn CONTRACTS.md into executable OpenAPI and versioned JSON Schemas. Generate or validate Go and Python payload types from the same contracts.",
+      "deliverables": [
+        "contracts/openapi/",
+        "contracts/events/v1/",
+        "contracts/fixtures/"
+      ],
+      "acceptance_criteria": [
+        "Decimal values cross service boundaries as strings; timestamps are UTC RFC3339.",
+        "Envelope contains event/causation/correlation IDs, schema version and producer build.",
+        "Unknown enum values and breaking schema changes fail compatibility tests.",
+        "Execution-report endpoints record past human fills; no order-submission endpoint exists."
+      ],
+      "validation": [
+        "Cross-language round-trip golden fixtures and invalid-payload tests."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-06",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S02-T02",
+      "sprint_id": "S02",
+      "title": "Create database migrations, owners and index conventions",
+      "owner_role": "Go + Data Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T01",
+        "S01-T04"
+      ],
+      "scope": "Create core, market, research and audit schemas with least-privilege roles, migration locking, numeric precision choices and ownership boundaries.",
+      "deliverables": [
+        "db/migrations/",
+        "db/queries/",
+        "sqlc.yaml",
+        "docs/evidence/schema-baseline.md"
+      ],
+      "acceptance_criteria": [
+        "Fresh database migration and prior-version upgrade both succeed.",
+        "Foreign keys, uniqueness, account ownership and positive quantity checks are enforced where applicable.",
+        "Money uses exact numeric representation and documented rounding.",
+        "Migration rollout is expand/contract; irreversible data changes are not described as app rollback."
+      ],
+      "validation": [
+        "Test migration from empty and previous fixture DB; test constraints with invalid records."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-08",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S02-T03",
+      "sprint_id": "S02",
+      "title": "Build instrument master and effective-dated market rules",
+      "owner_role": "Data + Domain Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T02",
+        "S00-T04"
+      ],
+      "scope": "Use stable instrument IDs independent of ticker changes; version venues, currencies, calendars, settlement/eligibility and corporate-action mappings.",
+      "deliverables": [
+        "internal/instruments/",
+        "internal/marketcal/",
+        "db/queries/instruments.sql"
+      ],
+      "acceptance_criteria": [
+        "Ticker reuse, rename, dual listings, delistings and historical memberships have explicit identities.",
+        "US and Egyptian daylight-saving/session behavior use verified IANA zones and exchange calendars, not fixed UTC offsets.",
+        "Rule applicability is evaluated as of trade/event date and broker capability.",
+        "Unknown critical eligibility blocks the affected lane."
+      ],
+      "validation": [
+        "Holiday, half-day, DST, ticker-reuse and missing-rule fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S02-T04",
+      "sprint_id": "S02",
+      "title": "Implement outbox, inbox and replay-safe consumers",
+      "owner_role": "Go + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T01",
+        "S02-T02",
+        "S01-T05"
+      ],
+      "scope": "Add transactional outbox for domain writes, durable consumers, inbox identities and controlled retries. Treat transport and business idempotency as different boundaries.",
+      "deliverables": [
+        "internal/events/",
+        "research/src/events/",
+        "db/migrations/<outbox-inbox>.sql"
+      ],
+      "acceptance_criteria": [
+        "Domain row and outbox row commit atomically.",
+        "Crash after processing and before ACK cannot duplicate a ledger effect or recommendation.",
+        "Poison messages are quarantined after a bounded retry policy with replay tooling.",
+        "Consumer ordering/aggregate versions and inbox retention are explicitly documented."
+      ],
+      "validation": [
+        "Crash-window tests before/after DB commit, publish acknowledgment and consumer acknowledgment.",
+        "Replay the same batch repeatedly and verify stable business-state counts."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S02-T05",
+      "sprint_id": "S02",
+      "title": "Implement durable schedules, leases and workload isolation",
+      "owner_role": "Go + Platform Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T03",
+        "S02-T04"
+      ],
+      "scope": "Add scheduled job records keyed by job, market session and due time; use leased claims with fencing for duplicate runners. Separate live research from batch/replay consumers.",
+      "deliverables": [
+        "internal/scheduling/",
+        "deploy/nats/",
+        "docs/evidence/scheduler-tests.md"
+      ],
+      "acceptance_criteria": [
+        "Two scheduler instances cannot produce two logical jobs for one slot.",
+        "Expired owner cannot commit after lease takeover.",
+        "A missed run has an explicit catch-up/skip policy.",
+        "Replay subjects and storage cannot emit production Telegram effects."
+      ],
+      "validation": [
+        "Concurrent scheduler, clock-skew, lease-expiry and stale-owner tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-05",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S02-T06",
+      "sprint_id": "S02",
+      "title": "Persist raw evidence and dataset manifests",
+      "owner_role": "Data Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T02",
+        "S02-T04"
+      ],
+      "scope": "Persist immutable source objects, metadata, hashes, entitlements and versioned Parquet manifests. Large documents travel by references, not by event payload.",
+      "deliverables": [
+        "internal/evidence/",
+        "research/src/datasets/",
+        "contracts/datasets/"
+      ],
+      "acceptance_criteria": [
+        "Object checksum and source identity are stored with publication and ingestion times.",
+        "Corrections create linked versions rather than silently replacing historical evidence.",
+        "Retention/encryption/access reflect the provider contract.",
+        "A manifest deterministically identifies input files and adjustment versions."
+      ],
+      "validation": [
+        "Corrupt-object, missing-object and corrected-document fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-04",
+        "REQ-05",
+        "REQ-13"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S03-T01",
+      "sprint_id": "S03",
+      "title": "Define adapters and a synthetic/replay feed",
+      "owner_role": "Go Data Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T01",
+        "S02-T03",
+        "S02-T06"
+      ],
+      "scope": "Create a provider-neutral adapter interface for bars, quotes, trades, statuses and corporate actions. Declare capabilities explicitly rather than assuming identical feeds.",
+      "deliverables": [
+        "internal/providers/",
+        "fixtures/marketdata/"
+      ],
+      "acceptance_criteria": [
+        "Each capability specifies precision, timing, venue coverage and delay status.",
+        "Synthetic feeds include late, out-of-order, duplicate and corrected records.",
+        "Reconnect/backpressure policy is bounded and observable.",
+        "Only one active subscription owner exists per provider partition."
+      ],
+      "validation": [
+        "Adapter conformance suite and subscription takeover/fencing tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S03-T02",
+      "sprint_id": "S03",
+      "title": "Implement selected US feed adapter",
+      "owner_role": "Go Data Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S03-T01",
+        "S00-T03"
+      ],
+      "scope": "Implement the licensed US provider selected by D-01; retain venue provenance and distinguish quotes, trades, auctions and corrections.",
+      "deliverables": [
+        "internal/providers/us/",
+        "docs/evidence/us-feed-validation.md"
+      ],
+      "acceptance_criteria": [
+        "Adapter passes shared conformance suite using permitted samples.",
+        "Single-venue data is never labeled consolidated.",
+        "Historical and streaming symbols map to the same instrument master.",
+        "Production entitlement remains disabled until provider evidence is approved."
+      ],
+      "validation": [
+        "Provider sandbox/read-only integration tests and quota/reconnect tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-01"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S03-T03",
+      "sprint_id": "S03",
+      "title": "Implement selected EGX feed adapter",
+      "owner_role": "Go Data Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S03-T01",
+        "S00-T03"
+      ],
+      "scope": "Implement EGID or another contractually approved EGX source; document actual timing, historical intervals, book coverage and status messages without assuming L2.",
+      "deliverables": [
+        "internal/providers/egx/",
+        "docs/evidence/egx-feed-validation.md"
+      ],
+      "acceptance_criteria": [
+        "Arabic/English identifiers map without duplicating instruments.",
+        "Feed delay and trading-status/eligibility gaps are visible.",
+        "Missing L2 disables L2 strategies but does not fabricate book data.",
+        "Licensed history and current data share adjustment/version semantics."
+      ],
+      "validation": [
+        "Provider conformance, disconnect and out-of-session fixtures; real sample validation when access exists."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-02"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S03-T04",
+      "sprint_id": "S03",
+      "title": "Build normalization, quality scoring and freshness gates",
+      "owner_role": "Go Data Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S03-T01",
+        "S02-T03"
+      ],
+      "scope": "Validate timestamps, clock drift, crossed/invalid quotes, duplicate trades, gaps and schema drift; expose quality reasons and per-strategy freshness requirements.",
+      "deliverables": [
+        "internal/dataquality/",
+        "contracts/dataquality/"
+      ],
+      "acceptance_criteria": [
+        "Use event, publication, receipt and decision timestamps distinctly.",
+        "Unknown delay or stale critical data blocks new-entry qualification.",
+        "Missing intervals are not forward-filled as traded volume.",
+        "Data resumes only after bounded recovery checks; existing position monitoring continues in degraded mode."
+      ],
+      "validation": [
+        "Table-driven quality tests, stale-feed alarm and recovery hysteresis tests."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-11",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S03-T05",
+      "sprint_id": "S03",
+      "title": "Create historical backfill and corporate-action versions",
+      "owner_role": "Data + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S03-T01",
+        "S02-T06"
+      ],
+      "scope": "Backfill permitted history with resumable checkpoints and correction provenance; maintain raw prices, split-adjusted features and total-return series as distinct products.",
+      "deliverables": [
+        "research/src/history/",
+        "internal/backfill/",
+        "docs/evidence/history-coverage.md"
+      ],
+      "acceptance_criteria": [
+        "Dividend, split, rights issue and symbol-change fixtures are versioned and reproducible.",
+        "Raw executable prices are not confused with total-return adjusted prices.",
+        "Point-in-time universe includes delisted instruments where data permits.",
+        "Historical gaps are declared and propagate to eligibility."
+      ],
+      "validation": [
+        "Interrupted backfill resume, correction replay and manifest checksum tests."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-04",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S03-T06",
+      "sprint_id": "S03",
+      "title": "Measure feed readiness per market and capability",
+      "owner_role": "Data + QA Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S03-T01",
+        "S03-T04",
+        "S03-T05"
+      ],
+      "scope": "Create separate readiness reports for EGX and US and for EOD, intraday quotes/trades and optional L2. One blocked provider must not falsely qualify the other. Evaluate available feeds and record NO_GO for unavailable feeds; completion of this review never represents an unfinished adapter as implemented.",
+      "deliverables": [
+        "docs/evidence/data-readiness-egx.md",
+        "docs/evidence/data-readiness-us.md"
+      ],
+      "acceptance_criteria": [
+        "Report measured gap rates, delay distribution, timestamp quality and coverage against preregistered thresholds.",
+        "Maintain independent approval records; aggregate task completion is not live-lane activation.",
+        "Perform source spot checks and document entitlement expiry.",
+        "A missing provider leaves that market blocked, with independent-ready work continuing by approved task split if needed."
+      ],
+      "validation": [
+        "Run a complete sample trading session replay with injected outage."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-02",
+        "D-07"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S04-T01",
+      "sprint_id": "S04",
+      "title": "Implement ledger and exact monetary arithmetic",
+      "owner_role": "Go Domain Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T02",
+        "S02-T04"
+      ],
+      "scope": "Implement an immutable balanced ledger per currency with explicit accounts for cash, settlement, fees, dividends and adjustments; separate security quantity subledger where appropriate.",
+      "deliverables": [
+        "internal/ledger/",
+        "db/queries/ledger.sql",
+        "tests/ledger/"
+      ],
+      "acceptance_criteria": [
+        "Posted journals balance by currency; float conversion cannot silently change money.",
+        "Corrections use reversing/replacement entries with causal links.",
+        "An external event key cannot post twice.",
+        "Rebuild derived balances from journal entries and compare to projections."
+      ],
+      "validation": [
+        "Property tests for balance/conservation; retry and rollback tests."
+      ],
+      "requirement_ids": [
+        "REQ-08",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S04-T02",
+      "sprint_id": "S04",
+      "title": "Record human executions and partial fills",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T01",
+        "S02-T01"
+      ],
+      "scope": "Accept actual fills reported by the owner or imported from statements. Treat recommendation acknowledgment, simulated fill and actual execution as different records.",
+      "deliverables": [
+        "internal/executions/",
+        "internal/http/execution_reports/"
+      ],
+      "acceptance_criteria": [
+        "Capture account, instrument, side, quantity, price, fees, currency, occurred time and provenance.",
+        "Execution can be linked to a recommendation or independently entered; neither case sends an order.",
+        "Partial fills, corrections and multiple fee lines preserve immutable accounting.",
+        "Unauthorized and duplicate reports do not alter balances."
+      ],
+      "validation": [
+        "Concurrent duplicate submission, incorrect-account and partial-fill tests."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S04-T03",
+      "sprint_id": "S04",
+      "title": "Implement settlement, currency and buying-power views",
+      "owner_role": "Go Domain Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T02",
+        "S02-T03"
+      ],
+      "scope": "Derive settled/unsettled balances and broker-capability-aware cash availability. Maintain actual FX conversions separately from reporting currency marks.",
+      "deliverables": [
+        "internal/settlement/",
+        "internal/fx/",
+        "internal/portfolios/"
+      ],
+      "acceptance_criteria": [
+        "No borrowing or unapproved cross-account cash pooling.",
+        "Effective-dated rules determine when cash can fund the intended operation.",
+        "FX source/time and conversion fees are visible; stale FX blocks affected personalized sizing.",
+        "Deposits and withdrawals are not classified as trading profit."
+      ],
+      "validation": [
+        "Settlement holiday/DST, insufficient-cash, multicurrency and deposit attribution fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-08",
+        "REQ-10"
+      ],
+      "decision_dependencies": [
+        "D-03"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S04-T04",
+      "sprint_id": "S04",
+      "title": "Apply corporate actions to actual positions",
+      "owner_role": "Go + Data Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T03",
+        "S03-T05"
+      ],
+      "scope": "Apply effective-dated splits, cash distributions and supported rights events to the ledger/quantity records with entitlement/payable dates and audit links.",
+      "deliverables": [
+        "internal/corporateactions/",
+        "tests/portfolio/actions/"
+      ],
+      "acceptance_criteria": [
+        "Repeated events cannot double-credit a dividend or split.",
+        "Ex-date receivables differ from paid cash.",
+        "Raw execution history remains unchanged by chart adjustments.",
+        "Unsupported actions freeze affected sizing until manually reconciled, not silently approximated."
+      ],
+      "validation": [
+        "Split, dividend, reversal and unsupported-rights fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S04-T05",
+      "sprint_id": "S04",
+      "title": "Add statement import and reconciliation gates",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T02",
+        "S04-T03",
+        "S04-T04"
+      ],
+      "scope": "Provide validated statement/CSV import or approved read-only adapter; maintain import provenance, duplicate checks and discrepancy review.",
+      "deliverables": [
+        "internal/reconciliation/",
+        "docs/runbooks/reconciliation.md"
+      ],
+      "acceptance_criteria": [
+        "A preview shows changes before posting and has account-scoped authorization.",
+        "Unknown positions, unexplained balances and stale reconciliation have explicit states.",
+        "Unreconciled portfolio blocks new personalized entries but not existing-position alerts.",
+        "Raw files are protected; no broker trading permission is requested."
+      ],
+      "validation": [
+        "Duplicate import, invalid encoding, malicious spreadsheet-formula text and discrepancy tests."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-08",
+        "REQ-12"
+      ],
+      "decision_dependencies": [
+        "D-03"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S04-T06",
+      "sprint_id": "S04",
+      "title": "Implement atomic capital reservations and race tests",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T03",
+        "S02-T04"
+      ],
+      "scope": "Reserve advisory buying-power/risk budget for valid proposals to prevent mutually incompatible recommendations. Reservations are internal budgeting, never broker orders.",
+      "deliverables": [
+        "internal/allocations/",
+        "tests/integration/capital_races/"
+      ],
+      "acceptance_criteria": [
+        "Concurrent EGX/US or intraday/swing requests cannot allocate the same account cash twice.",
+        "Expiry releases only the reservation; uncertain actual fills trigger reconciliation rather than assumed release.",
+        "One account/instrument position owner strategy is enforced in the initial release.",
+        "All advisory budgets remain bounded by confirmed actual balances."
+      ],
+      "validation": [
+        "PostgreSQL parallel transaction tests for oversubscription, expiry and delayed fill reporting."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-08",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S05-T01",
+      "sprint_id": "S05",
+      "title": "Implement shared policy kernel and versioned risk configs",
+      "owner_role": "Go Domain Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T06",
+        "S02-T03"
+      ],
+      "scope": "Create a pure Go policy package plus a batch command usable by Python simulations. Version limits, broker/market rules and rounding semantics.",
+      "deliverables": [
+        "internal/policykernel/",
+        "cmd/policy-eval/",
+        "contracts/policy/"
+      ],
+      "acceptance_criteria": [
+        "No LLM/network access in policy evaluation.",
+        "Missing approved limits fail closed; historical example percentages are not defaults.",
+        "Inputs include portfolio revision, data snapshot, strategy and policy versions.",
+        "Decision returns structured pass/fail reasons and executable-size proposal, not an order."
+      ],
+      "validation": [
+        "Golden vectors compare Go API and batch runner results exactly for monetary outputs."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-06",
+        "REQ-10"
+      ],
+      "decision_dependencies": [
+        "D-04"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S05-T02",
+      "sprint_id": "S05",
+      "title": "Implement exposure, liquidity and loss gates",
+      "owner_role": "Go Domain Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S05-T01",
+        "S03-T04"
+      ],
+      "scope": "Apply cash, position, sector, correlated-risk, liquidity and daily/drawdown constraints; include costs and gap-aware scenario limitations.",
+      "deliverables": [
+        "internal/policykernel/rules/",
+        "tests/policy/"
+      ],
+      "acceptance_criteria": [
+        "Entry sizing respects all caps and min lot/tick constraints.",
+        "Expected stop loss is explicitly not a guaranteed maximum loss.",
+        "Missing bid/ask or other strategy-required capability blocks that strategy.",
+        "SELL/REDUCE proposals cannot exceed confirmed long holdings."
+      ],
+      "validation": [
+        "Boundary, rounding, missing-data, gap and cross-strategy exposure tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-05",
+        "REQ-06"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S05-T03",
+      "sprint_id": "S05",
+      "title": "Implement immutable recommendation revisions",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S05-T01",
+        "S02-T04"
+      ],
+      "scope": "Create recommendation revision records with entry range, invalidation, horizon, expiry, evidence and policy results. Keep delivery/response/fills in separate state machines.",
+      "deliverables": [
+        "internal/recommendations/",
+        "db/queries/recommendations.sql"
+      ],
+      "acceptance_criteria": [
+        "Updating a recommendation appends a revision and explicitly supersedes the old one.",
+        "Watchlist/insufficient-data decisions cannot be rendered as actionable buys.",
+        "Acknowledgment never marks execution; expiry does not close a real position.",
+        "Idempotent candidate/version keys prevent duplicate logical advice."
+      ],
+      "validation": [
+        "State transition, supersession, race and duplicate recommendation tests."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-06",
+        "REQ-07"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S05-T04",
+      "sprint_id": "S05",
+      "title": "Close the research-to-delivery race",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S05-T02",
+        "S05-T03",
+        "S04-T06"
+      ],
+      "scope": "Revalidate price, account revision, policy, market status and report validity immediately before committing an actionable recommendation and again before delivery where needed.",
+      "deliverables": [
+        "internal/recommendations/finalize/",
+        "tests/integration/toctou/"
+      ],
+      "acceptance_criteria": [
+        "A material new filing invalidates cached qualifying research.",
+        "Stale price or portfolio changes during committee work force recompute or rejection.",
+        "Final allocation and risk checks occur atomically for account-scoped budgets.",
+        "Expired advice cannot be revived by a delayed worker."
+      ],
+      "validation": [
+        "Concurrent fill during analysis, delayed publish and invalidated-report integration tests."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-04",
+        "REQ-05",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S05-T05",
+      "sprint_id": "S05",
+      "title": "Build entry pause, loss review and degraded-mode behavior",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S05-T03",
+        "S05-T04"
+      ],
+      "scope": "Implement scoped entry pause/global safe mode with audited human override rules. Keep critical monitoring and exit/reconciliation prompts operating where data permits.",
+      "deliverables": [
+        "internal/safety/",
+        "docs/runbooks/entry-pause.md"
+      ],
+      "acceptance_criteria": [
+        "Paused entries cannot be bypassed by chief agent, goal engine or Telegram button.",
+        "Existing positions remain tracked and no automatic exit is implied.",
+        "Stale market data is displayed explicitly in risk alerts.",
+        "Resuming entries requires defined checks, authorized approval and a new audit event."
+      ],
+      "validation": [
+        "Provider outage, loss-threshold, paused-entry and unauthorized-resume tests."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-06",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S05-T06",
+      "sprint_id": "S05",
+      "title": "Run financial invariant and adversarial integration suite",
+      "owner_role": "QA + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S05-T01",
+        "S05-T02",
+        "S05-T03",
+        "S05-T04",
+        "S05-T05"
+      ],
+      "scope": "Create a mandatory adversarial suite spanning contracts, events, ledger and recommendation state; review this kernel independently before strategy integration.",
+      "deliverables": [
+        "tests/invariants/",
+        "docs/evidence/risk-kernel-review.md"
+      ],
+      "acceptance_criteria": [
+        "No double-posting or duplicate allocation under injected failures.",
+        "No route can create broker execution or change risk from an LLM payload.",
+        "Four-lane identifiers and budgets remain distinct.",
+        "Independent review records exact commit, test commands/results and unresolved limits."
+      ],
+      "validation": [
+        "Run race/property/integration suites and contract-negative cases against PostgreSQL."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-02",
+        "REQ-05",
+        "REQ-06",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S06-T01",
+      "sprint_id": "S06",
+      "title": "Build point-in-time dataset loader",
+      "owner_role": "Python Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S03-T05",
+        "S02-T06"
+      ],
+      "scope": "Load only the information available at each historical decision time, including filings, revisions, instrument universe and macro vintages.",
+      "deliverables": [
+        "research/src/backtest/datasets/",
+        "tests/leakage/"
+      ],
+      "acceptance_criteria": [
+        "Economic period-end is never used as publication time.",
+        "Restatements and future-adjusted data cannot leak into earlier decisions.",
+        "Training, validation and holdout datasets have immutable manifests.",
+        "Unavailable history is explicitly excluded or marked, never reconstructed with future knowledge."
+      ],
+      "validation": [
+        "Inject future facts and verify rejection; test delisted/ticker-reused instruments."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-04",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S06-T02",
+      "sprint_id": "S06",
+      "title": "Implement event-driven fill and human-latency simulator",
+      "owner_role": "Python Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S06-T01",
+        "S05-T01"
+      ],
+      "scope": "Simulate decision time, alert delay, human response and feasible fills separately. Reuse policy-eval and market/account rules.",
+      "deliverables": [
+        "research/src/backtest/simulator/",
+        "fixtures/execution/"
+      ],
+      "acceptance_criteria": [
+        "Include bid/ask spread, slippage, fees, partial/non-fills, halts and limit states.",
+        "Bar-only tests use conservative ambiguity handling for stop/target in the same bar.",
+        "Intraday cutoff cannot guarantee an exit during a halt; carry residual exposure explicitly.",
+        "Avoid assuming fills at the signal bar close or prices before the user could act."
+      ],
+      "validation": [
+        "Golden scenarios for gaps, halt, delayed human, invalid order size and same-bar ambiguity."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-06",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S06-T03",
+      "sprint_id": "S06",
+      "title": "Establish simple baseline strategies and metrics",
+      "owner_role": "Python Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S06-T02"
+      ],
+      "scope": "Implement approved simple baselines, benchmark currency/return conventions and performance measurement independent of the LLM committee.",
+      "deliverables": [
+        "research/src/backtest/baselines/",
+        "research/src/performance/"
+      ],
+      "acceptance_criteria": [
+        "Report net return, drawdown, exposure, turnover, expectancy and uncertainty.",
+        "Include costs, idle cash, FX and withdrawals/deposits consistently.",
+        "Use suitable EGX/US benchmark definitions without assuming licensed total-return series availability.",
+        "Publish negative results and no-trade intervals."
+      ],
+      "validation": [
+        "Compare against hand-calculated small examples and a no-trade portfolio."
+      ],
+      "requirement_ids": [
+        "REQ-09",
+        "REQ-10"
+      ],
+      "decision_dependencies": [
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S06-T04",
+      "sprint_id": "S06",
+      "title": "Preregister holdouts, thresholds and trial accounting",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S06-T03",
+        "S00-T05"
+      ],
+      "scope": "Define walk-forward splits, purging/embargo where horizons overlap, experiment tracking and release thresholds before strategy selection.",
+      "deliverables": [
+        "research/experiments/",
+        "docs/evidence/evaluation-preregistration.md"
+      ],
+      "acceptance_criteria": [
+        "Every tested strategy/prompt/model configuration is counted, not only winners.",
+        "Sample-size and uncertainty criteria are approved per lane before unblinding holdouts.",
+        "No arbitrary win-rate number is presented as a release guarantee.",
+        "Threshold changes after results require a new experiment and new untouched evaluation data."
+      ],
+      "validation": [
+        "Validate manifest split overlap, embargo rules and rejected retrospective threshold edits."
+      ],
+      "requirement_ids": [
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-07",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S06-T05",
+      "sprint_id": "S06",
+      "title": "Build replay determinism and live-feature parity tests",
+      "owner_role": "Go + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S06-T02",
+        "S03-T04",
+        "S05-T01"
+      ],
+      "scope": "Run the same recorded events through live and replay feature/policy paths; record intentional numeric tolerances only for statistical outputs.",
+      "deliverables": [
+        "tests/parity/",
+        "research/src/replay/"
+      ],
+      "acceptance_criteria": [
+        "Policy outcomes and monetary values match exactly.",
+        "Indicator warmup, missing data and session reset rules match across execution modes.",
+        "No replay pipeline can send a production message.",
+        "Clock source and randomized seeds are controlled and recorded."
+      ],
+      "validation": [
+        "Byte/digest checks for deterministic outputs and approved numeric tolerance tests."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-09",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S06-T06",
+      "sprint_id": "S06",
+      "title": "Add paper ledger and evaluation reports",
+      "owner_role": "Python + Go Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S06-T03",
+        "S06-T04",
+        "S06-T05",
+        "S04-T01"
+      ],
+      "scope": "Persist simulated transactions in an isolated accounting namespace and produce reproducible run reports for all four lanes.",
+      "deliverables": [
+        "internal/paper/",
+        "research/src/reports/",
+        "docs/evidence/baseline-evaluation.md"
+      ],
+      "acceptance_criteria": [
+        "Paper and actual cash/positions are impossible to mix by account/mode identifiers and permissions.",
+        "Report input manifest, commit, strategy, policy, cost model and assumptions.",
+        "Separate recommendation quality from assumed fill performance.",
+        "Reports identify missing prerequisites and never silently promote a lane."
+      ],
+      "validation": [
+        "Isolation tests and reproducibility check from report manifest."
+      ],
+      "requirement_ids": [
+        "REQ-08",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S07-T01",
+      "sprint_id": "S07",
+      "title": "Ingest official financial filings and preserve provenance",
+      "owner_role": "Python Data Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T06",
+        "S06-T01"
+      ],
+      "scope": "Implement SEC structured filings and contractually accessible EGX/issuer documents. Preserve original documents, publication timestamps, amendments and hashes.",
+      "deliverables": [
+        "research/src/filings/",
+        "contracts/financials/"
+      ],
+      "acceptance_criteria": [
+        "Each filing records entity, period, publication time, accounting framework, currency and consolidation scope.",
+        "Quarterly, annual and year-to-date contexts are not conflated.",
+        "Amended filings remain linked to originals without rewriting earlier knowledge.",
+        "HTML/XBRL/PDF extraction uses a safe pipeline; OCR is fallback only and is flagged."
+      ],
+      "validation": [
+        "SEC fixture and permitted EGX document extraction tests with original-source references."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-04"
+      ],
+      "decision_dependencies": [
+        "D-02"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S07-T02",
+      "sprint_id": "S07",
+      "title": "Extract and reconcile financial facts",
+      "owner_role": "Python Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S07-T01"
+      ],
+      "scope": "Extract statements, notes and auditor findings into typed facts; derive ratios only from compatible contexts and verified arithmetic.",
+      "deliverables": [
+        "research/src/financials/",
+        "tests/financials/"
+      ],
+      "acceptance_criteria": [
+        "Balance sheet, cash-flow and unit checks flag inconsistent extraction.",
+        "Distinguish reported vs derived values and retain note/page/section references.",
+        "Bank and nonfinancial-company templates avoid inappropriate identical ratios.",
+        "Quality warnings, auditor issues and one-off gains are available to the committee."
+      ],
+      "validation": [
+        "Hand-reviewed golden documents, numeric reconciliation and incorrect-unit cases."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S07-T03",
+      "sprint_id": "S07",
+      "title": "Build financial-health and historical-behavior assessments",
+      "owner_role": "Python Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S07-T02",
+        "S06-T03",
+        "S03-T05"
+      ],
+      "scope": "Produce reusable financial health and stock-history reports including returns, volatility, drawdowns, liquidity and benchmark-relative behavior.",
+      "deliverables": [
+        "research/src/assessments/",
+        "contracts/assessments/"
+      ],
+      "acceptance_criteria": [
+        "Use five years of financials and five-to-ten years of price history as targets when available, not invented minimum history.",
+        "Short-history instruments expose limitations and pass only explicitly approved eligibility rules.",
+        "Raw/adjusted series choices are documented for each metric.",
+        "Assessments have validity conditions and explicit invalidation on material changes."
+      ],
+      "validation": [
+        "New listing, missing quarters, split/dividend and restatement assessment tests."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S07-T04",
+      "sprint_id": "S07",
+      "title": "Build macro, news and event intelligence pipeline",
+      "owner_role": "Go Ingestion + Python Research",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T06",
+        "S03-T04"
+      ],
+      "scope": "Ingest official Fed/economic/central-bank sources and licensed news; deduplicate stories and normalize catalysts with event, expected, published and received times.",
+      "deliverables": [
+        "internal/providers/news/",
+        "research/src/events/"
+      ],
+      "acceptance_criteria": [
+        "US and Egyptian macro/currency context remain distinct and can affect both markets.",
+        "Rumors, commentary and official disclosures have separate evidence classes.",
+        "Repeated syndication is not counted as independent corroboration.",
+        "Consensus expectations and revisions are used only with licensed point-in-time sources."
+      ],
+      "validation": [
+        "Duplicate-news, rumor-to-confirmation, revised macro and future-event cases."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-11",
+        "REQ-13"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S07-T05",
+      "sprint_id": "S07",
+      "title": "Implement evidence search and untrusted-content controls",
+      "owner_role": "Python + Security Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S07-T01",
+        "S07-T04",
+        "S01-T06"
+      ],
+      "scope": "Build evidence retrieval using metadata/full-text first; add semantic retrieval only on a measured need. Treat source documents as data, not agent instructions.",
+      "deliverables": [
+        "research/src/evidence/",
+        "tests/security/retrieval/"
+      ],
+      "acceptance_criteria": [
+        "Every material claim resolves to an accessible evidence ID and exact context.",
+        "Unsupported claims and fabricated citations fail validation.",
+        "Tool allowlists block code execution, secret access and arbitrary URL fetch from retrieved text.",
+        "LLM-use rights and redaction are checked before sending documents to a provider."
+      ],
+      "validation": [
+        "Prompt-injection corpus, citation mismatch and forbidden-exfiltration tests."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-11",
+        "REQ-12",
+        "REQ-13"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S07-T06",
+      "sprint_id": "S07",
+      "title": "Evaluate extraction quality and mandatory evidence gates",
+      "owner_role": "QA + Financial Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S07-T02",
+        "S07-T03",
+        "S07-T05"
+      ],
+      "scope": "Create a reviewed evaluation corpus for both markets with materiality-aware accuracy and missing-data behavior.",
+      "deliverables": [
+        "docs/evidence/financial-evidence-quality.md",
+        "research/evals/financials/"
+      ],
+      "acceptance_criteria": [
+        "No actionable new entry lacks current financial-health and historical-behavior assessments.",
+        "Numbers, units and timing have independently checked samples.",
+        "Material ambiguity yields INSUFFICIENT_DATA rather than guessed values.",
+        "Record dataset licenses, reviewer, commit and failure cases."
+      ],
+      "validation": [
+        "Run extraction/claim validation benchmarks and adversarial missing-input tests."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S08-T01",
+      "sprint_id": "S08",
+      "title": "Implement role contracts and conditional routing",
+      "owner_role": "Python AI Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S07-T06",
+        "S02-T01"
+      ],
+      "scope": "Implement the eighteen research/control roles as logical modules, with five trading specialists activated later only when relevant. Do not launch every role on every tick.",
+      "deliverables": [
+        "research/src/committee/roles/",
+        "research/src/committee/router/"
+      ],
+      "acceptance_criteria": [
+        "Role-to-data/capability requirements and cache invalidation are executable.",
+        "Financial, historical, evidence and risk gates are mandatory for new entries.",
+        "Logical role count is not represented as independent statistical evidence.",
+        "Deterministic calculations remain outside LLM-generated arithmetic."
+      ],
+      "validation": [
+        "Route selection and missing-capability tests across all four lanes."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S08-T02",
+      "sprint_id": "S08",
+      "title": "Implement independent analysis, challenge and synthesis",
+      "owner_role": "Python AI Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S08-T01",
+        "S07-T05"
+      ],
+      "scope": "Run independent first-pass assessments, bounded evidence-based challenge and synthesis. Preserve dissent and reasons to abstain.",
+      "deliverables": [
+        "research/src/committee/graph/",
+        "contracts/committee/"
+      ],
+      "acceptance_criteria": [
+        "First-pass outputs are isolated from other roles’ conclusions.",
+        "Debate has bounded rounds, tokens, concurrency and timeout.",
+        "Chair cannot override deterministic veto or manufacture numerical success probabilities.",
+        "Final assessment lists evidence, counterarguments, unknowns and invalidation conditions."
+      ],
+      "validation": [
+        "Conflicting-evidence, empty-consensus and majority-wrong fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S08-T03",
+      "sprint_id": "S08",
+      "title": "Add durable checkpoints and safe retries",
+      "owner_role": "Python AI Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S08-T02",
+        "S02-T04"
+      ],
+      "scope": "Persist LangGraph state with a production checkpointer and versioned model/prompt/tool configuration. Reconcile uncertain tool outcomes before retrying consequential effects.",
+      "deliverables": [
+        "research/src/committee/runtime/",
+        "tests/committee/recovery/"
+      ],
+      "acceptance_criteria": [
+        "Resume is tied to compatible workflow/config versions.",
+        "Retries do not create duplicate reports or completed jobs.",
+        "LLM-provider outage cannot bypass required research or stop deterministic position monitoring.",
+        "No secrets, uncontrolled tools or broker capabilities enter graph state."
+      ],
+      "validation": [
+        "Crash/resume before and after model call and report persistence; incompatible-version recovery."
+      ],
+      "requirement_ids": [
+        "REQ-11",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S08-T04",
+      "sprint_id": "S08",
+      "title": "Implement bounded caching, triggers and cost budgets",
+      "owner_role": "Python + Go Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S08-T03",
+        "S05-T04"
+      ],
+      "scope": "Cache company/sector research by evidence/config hash and trigger refresh only when material inputs change. Isolate live versus batch quotas.",
+      "deliverables": [
+        "research/src/committee/cache/",
+        "internal/researchjobs/"
+      ],
+      "acceptance_criteria": [
+        "TTL alone is insufficient when a material disclosure arrives; invalidate by event.",
+        "Cache keys contain model/prompt/data/strategy versions and as-of time.",
+        "Cost budget exhaustion yields defer/insufficient-data rather than silent weaker advice.",
+        "Per-candidate token/time/cost records support operational analysis."
+      ],
+      "validation": [
+        "Material-news invalidation, budget exhaustion and concurrent refresh tests."
+      ],
+      "requirement_ids": [
+        "REQ-03",
+        "REQ-11",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S08-T05",
+      "sprint_id": "S08",
+      "title": "Build committee evaluation and ablation suite",
+      "owner_role": "Quant + AI QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S08-T02",
+        "S06-T04"
+      ],
+      "scope": "Compare committee-assisted strategies to deterministic baselines and reduced-role variants without contaminating holdouts.",
+      "deliverables": [
+        "research/evals/committee/",
+        "docs/evidence/committee-evaluation.md"
+      ],
+      "acceptance_criteria": [
+        "Evaluate factuality, citation support, abstention, calibration where justified and incremental decision value.",
+        "Historical LLM pretraining knowledge is treated as possible leakage; historical outputs are not called leakage-free.",
+        "Forward shadow/paper evaluation is required for claims affected by model knowledge leakage.",
+        "Do not tune prompts on the final holdout."
+      ],
+      "validation": [
+        "Run red-team, ablation, cost-per-accepted-assessment and stability evaluation."
+      ],
+      "requirement_ids": [
+        "REQ-09",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S08-T06",
+      "sprint_id": "S08",
+      "title": "Integrate committee results through the Go decision gate",
+      "owner_role": "Go + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S08-T03",
+        "S08-T04",
+        "S08-T05",
+        "S05-T06"
+      ],
+      "scope": "Consume versioned research assessments and finalize only through Go policy checks and fresh portfolio/data snapshots.",
+      "deliverables": [
+        "internal/researchresults/",
+        "tests/integration/committee_core/"
+      ],
+      "acceptance_criteria": [
+        "Malformed/unsubstantiated assessment is quarantined.",
+        "Financial and historical inputs remain mandatory even for a high model score.",
+        "Decision stores assessment version, policy version and fresh revalidation result.",
+        "A completed graph alone cannot emit official actionable Telegram advice."
+      ],
+      "validation": [
+        "End-to-end synthetic assessment-to-recommendation tests with veto and stale-input scenarios."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-05",
+        "REQ-06",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S09-T01",
+      "sprint_id": "S09",
+      "title": "Specify two versioned swing configurations",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S06-T04",
+        "S08-T06"
+      ],
+      "scope": "Define entry, exit, time exit, catalyst, earnings exposure and liquidity logic separately for EGX_SWING and US_SWING.",
+      "deliverables": [
+        "strategies/egx_swing/",
+        "strategies/us_swing/"
+      ],
+      "acceptance_criteria": [
+        "Rules are executable and have evidence-backed rationale, not a vague composite score.",
+        "No forced minimum trade count or goal-driven risk increase.",
+        "Benchmarks, costs, horizon and instrument eligibility are fixed before evaluation.",
+        "Strategy config is immutable and approval-controlled."
+      ],
+      "validation": [
+        "Schema and boundary tests for both strategy configurations."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-05",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S09-T02",
+      "sprint_id": "S09",
+      "title": "Implement swing screening and candidate ranking",
+      "owner_role": "Go + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S09-T01",
+        "S03-T04",
+        "S07-T03"
+      ],
+      "scope": "Implement cheap deterministic screening followed by cached/deep research for qualifying candidates; rank opportunities after liquidity and cost constraints.",
+      "deliverables": [
+        "internal/signals/swing/",
+        "research/src/strategies/swing/"
+      ],
+      "acceptance_criteria": [
+        "Same input manifest/config produces stable candidate ordering.",
+        "A high score cannot bypass missing financial evidence.",
+        "Daily-bar finalization respects market calendar and late corrections.",
+        "No recommendation is inferred from an incomplete current-session bar unless explicitly designed and tested."
+      ],
+      "validation": [
+        "Screening golden fixtures, repeated event and late-bar correction tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-04",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S09-T03",
+      "sprint_id": "S09",
+      "title": "Implement swing lifecycle and event-driven re-evaluation",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S09-T02",
+        "S05-T05"
+      ],
+      "scope": "Monitor actual positions for invalidation, time exit, earnings/catalysts and portfolio risk changes; generate human-action alerts.",
+      "deliverables": [
+        "internal/monitoring/swing/",
+        "docs/runbooks/swing-monitoring.md"
+      ],
+      "acceptance_criteria": [
+        "Exit alerts reference confirmed holdings and latest reliable data.",
+        "Price/goal changes never automatically extend the strategy horizon.",
+        "Stop and target prices are not represented as guaranteed fills.",
+        "Monitoring continues if new entries are paused."
+      ],
+      "validation": [
+        "Gap, earnings, time-exit, stale-position and entry-pause tests."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-06",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S09-T04",
+      "sprint_id": "S09",
+      "title": "Evaluate US swing against preregistered gates",
+      "owner_role": "Quant + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S09-T02",
+        "S09-T03",
+        "S06-T06"
+      ],
+      "scope": "Run US_SWING training/validation and sealed holdout with licensed data, complete costs and human latency assumptions.",
+      "deliverables": [
+        "docs/evidence/us-swing-replay.md"
+      ],
+      "acceptance_criteria": [
+        "Publish wins, losses, no-trade intervals, sample adequacy and uncertainty.",
+        "Compare against baseline and reduced-agent configurations.",
+        "Record data coverage shortcomings and remaining activation blockers.",
+        "Do not alter thresholds after inspecting results."
+      ],
+      "validation": [
+        "Re-run from immutable manifest and verify report checksums."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S09-T05",
+      "sprint_id": "S09",
+      "title": "Evaluate EGX swing against preregistered gates",
+      "owner_role": "Quant + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S09-T02",
+        "S09-T03",
+        "S06-T06"
+      ],
+      "scope": "Run EGX_SWING with verified EGX eligibility, costs, liquidity and price-limit assumptions; avoid importing US execution assumptions.",
+      "deliverables": [
+        "docs/evidence/egx-swing-replay.md"
+      ],
+      "acceptance_criteria": [
+        "Low-liquidity non-fill and exit constraints are represented.",
+        "Currency/benchmark conventions are explicit.",
+        "Limited historical coverage cannot be hidden by pooled US results.",
+        "Lane remains blocked if data or evidence is inadequate."
+      ],
+      "validation": [
+        "Re-run EGX-specific gap/limit/holiday scenarios and holdout report."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09"
+      ],
+      "decision_dependencies": [
+        "D-02",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S09-T06",
+      "sprint_id": "S09",
+      "title": "Create swing research release and rollback manifest",
+      "owner_role": "Tech Lead + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S09-T01",
+        "S09-T02",
+        "S09-T03",
+        "S06-T06"
+      ],
+      "scope": "Freeze accepted configs or document rejection; prepare shadow-mode promotion without enabling real actionable advice. Assemble only the available lane evidence; missing evaluation produces a lane-specific NO_GO, not a cross-market implementation barrier.",
+      "deliverables": [
+        "docs/evidence/swing-release-candidate.md"
+      ],
+      "acceptance_criteria": [
+        "Release manifest pins code, data, prompt/model, fees and policy versions.",
+        "Rejected strategy has a documented reason and remains disabled.",
+        "Rollback restores compatible software/config, not historical executed trades.",
+        "Per-lane evidence is separate; one lane can proceed via a documented task split if the other is blocked."
+      ],
+      "validation": [
+        "Replay release manifest on a clean environment and exercise disable/restore."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S10-T01",
+      "sprint_id": "S10",
+      "title": "Register bot identities and secure incoming updates",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S01-T04",
+        "S05-T03"
+      ],
+      "scope": "Configure bot/webhook or approved polling mode, allowed user/chat identities and signed/opaque short-lived action references.",
+      "deliverables": [
+        "internal/telegram/",
+        "docs/runbooks/telegram.md"
+      ],
+      "acceptance_criteria": [
+        "Verify webhook secret header when using webhooks; deduplicate updates.",
+        "Only paired authorized Telegram identities may access account information.",
+        "Callback data never acts as authorization by itself.",
+        "Bot token is redacted and rotatable with an incident runbook."
+      ],
+      "validation": [
+        "Forged webhook, replay, wrong-chat and expired-action tests."
+      ],
+      "requirement_ids": [
+        "REQ-07",
+        "REQ-12"
+      ],
+      "decision_dependencies": [
+        "D-10"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S10-T02",
+      "sprint_id": "S10",
+      "title": "Implement notification outbox and ambiguous delivery handling",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S10-T01",
+        "S02-T04"
+      ],
+      "scope": "Persist delivery attempts and Telegram message identifiers. Distinguish unique logical recommendations from possibly duplicated external messages after timeout.",
+      "deliverables": [
+        "internal/notifications/",
+        "db/queries/delivery.sql"
+      ],
+      "acceptance_criteria": [
+        "Use PENDING/SENDING/SENT/UNKNOWN/FAILED states with bounded retries and rate-limit handling.",
+        "Do not claim end-to-end exactly-once delivery; timeout after send may be ambiguous.",
+        "Expose recommendation ID/revision in each message to identify repeats.",
+        "Expired entries are not resent as fresh actionable advice."
+      ],
+      "validation": [
+        "Timeout before/after remote acceptance, retry-after and process-crash tests."
+      ],
+      "requirement_ids": [
+        "REQ-07",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S10-T03",
+      "sprint_id": "S10",
+      "title": "Create advice, alert and status message templates",
+      "owner_role": "Go + Product Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S10-T02",
+        "S08-T06"
+      ],
+      "scope": "Render Arabic-first Telegram messages with instrument/venue, strategy, data time, entry range, invalidation, size cap, expiry, evidence and risk reasons.",
+      "deliverables": [
+        "internal/notifications/templates/",
+        "tests/telegram/golden/"
+      ],
+      "acceptance_criteria": [
+        "PAPER, SHADOW and LIVE_ADVISORY labels cannot be confused.",
+        "Watchlist/insufficient-data/exit alerts have different templates.",
+        "No unsupported probability or guaranteed target appears.",
+        "A stale recommendation is visibly expired and action links are disabled server-side."
+      ],
+      "validation": [
+        "Golden-message tests including Arabic/English symbols, escaping and length splitting."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-07"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S10-T04",
+      "sprint_id": "S10",
+      "title": "Implement human availability and actual-fill workflow",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S10-T03",
+        "S04-T02"
+      ],
+      "scope": "Provide acknowledge, ignore, watch and record-execution interactions; collect actual fill details and revalidate context without submitting an order.",
+      "deliverables": [
+        "internal/telegram/actions/",
+        "internal/availability/"
+      ],
+      "acceptance_criteria": [
+        "Record execution requires price, quantity, account and actual timestamp.",
+        "Acknowledgment is not a fill and does not debit the ledger.",
+        "User-unavailable mode suppresses time-critical new entries but not risk monitoring.",
+        "Late or partial execution triggers reconciliation and risk refresh."
+      ],
+      "validation": [
+        "Full message-to-manual-fill and wrong-account scenarios; prove no order network call occurs."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-07",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S10-T05",
+      "sprint_id": "S10",
+      "title": "Operate shadow/paper runs and collect latency observations",
+      "owner_role": "QA + Owner",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S10-T04",
+        "S06-T06",
+        "S09-T06"
+      ],
+      "scope": "Run controlled shadow and paper sessions with paired Telegram account; measure delivery and human response separately.",
+      "deliverables": [
+        "docs/evidence/swing-shadow-paper.md"
+      ],
+      "acceptance_criteria": [
+        "Actual and assumed fills remain separate in UI and reports.",
+        "Unknown delivery is visible rather than treated as confirmed reading.",
+        "Collect received/read-response/manual-fill times only where actually observable.",
+        "Forward-run evidence includes outages, skipped alerts and user absence."
+      ],
+      "validation": [
+        "Session rehearsal with disconnected bot, unavailable user and provider outage."
+      ],
+      "requirement_ids": [
+        "REQ-07",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-10"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S10-T06",
+      "sprint_id": "S10",
+      "title": "Review Telegram privacy, behavior and operational readiness",
+      "owner_role": "Security + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S10-T01",
+        "S10-T02",
+        "S10-T03",
+        "S10-T04",
+        "S10-T05"
+      ],
+      "scope": "Independent review of account data exposure, rate limits, failure modes and audit trace from message back to evidence.",
+      "deliverables": [
+        "docs/evidence/telegram-readiness.md"
+      ],
+      "acceptance_criteria": [
+        "No message content grants authority to alter limits or broker accounts.",
+        "Sensitive account details are minimized and retention is documented.",
+        "Every action/delivery is auditable by exact recommendation revision.",
+        "Review reports remaining risks and does not enable a lane implicitly."
+      ],
+      "validation": [
+        "Security/e2e suite and lost-token incident rehearsal."
+      ],
+      "requirement_ids": [
+        "REQ-07",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S11-T01",
+      "sprint_id": "S11",
+      "title": "Implement five specialist capability contracts",
+      "owner_role": "Go + Python Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S08-T01",
+        "S03-T04",
+        "S06-T05"
+      ],
+      "scope": "Implement T01 order-flow/book, T02 RVOL/VWAP/profile, T03 price-action/setup, T04 breadth/rotation and T05 execution-feasibility/human-latency modules.",
+      "deliverables": [
+        "internal/signals/intraday/",
+        "research/src/trading/"
+      ],
+      "acceptance_criteria": [
+        "Each specialist declares data granularity, venue coverage and warmup needs.",
+        "Deterministic features are computed by tested code; LLM only interprets supported outputs.",
+        "L2-specific signals remain disabled without licensed reconstructible L2.",
+        "Do not count overlap with existing liquidity/technical roles as independent votes."
+      ],
+      "validation": [
+        "Capability-matrix and absent-data routing tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-11"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S11-T02",
+      "sprint_id": "S11",
+      "title": "Build session-aware streaming features",
+      "owner_role": "Go Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S11-T01",
+        "S03-T01",
+        "S02-T03"
+      ],
+      "scope": "Implement bounded rolling features, same-time-of-day volume comparison, VWAP and quote/trade quality features. Only build book reconstruction when validated capabilities exist.",
+      "deliverables": [
+        "internal/features/intraday/",
+        "tests/parity/intraday/"
+      ],
+      "acceptance_criteria": [
+        "Session resets, auction prints and corrections have explicit behavior.",
+        "Historical and streaming outputs pass parity tests.",
+        "Out-of-order handling and watermark policy are documented.",
+        "Compute workload does not block critical portfolio monitoring."
+      ],
+      "validation": [
+        "Golden replay, burst/backpressure and late-correction tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-09"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S11-T03",
+      "sprint_id": "S11",
+      "title": "Define human-feasible EGX/US intraday strategies",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S11-T02",
+        "S10-T05",
+        "S05-T06"
+      ],
+      "scope": "Define two separate intraday strategy IDs and entry ranges long enough for measured human action. Add cooldown, max entries, no-revenge-trading and session-cutoff policies.",
+      "deliverables": [
+        "strategies/egx_intraday/",
+        "strategies/us_intraday/"
+      ],
+      "acceptance_criteria": [
+        "No scalping or immediate execution assumption.",
+        "Same-session eligibility/cash rules are checked per account and instrument.",
+        "Unavailability and excessive delivery/user delay block fresh actionable entries.",
+        "Intraday loss cannot be relabeled as swing exposure without a separately approved policy; unexpected overnight exposure raises a review."
+      ],
+      "validation": [
+        "Measured-latency sensitivity, cooldown, deadline and ineligible-security tests."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-05",
+        "REQ-06",
+        "REQ-07"
+      ],
+      "decision_dependencies": [
+        "D-03",
+        "D-04"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S11-T04",
+      "sprint_id": "S11",
+      "title": "Validate US intraday with realistic data and costs",
+      "owner_role": "Quant + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S11-T03",
+        "S06-T04"
+      ],
+      "scope": "Run US_INTRADAY holdout and forward shadow with licensed quotes/trades and actual coverage limitations.",
+      "deliverables": [
+        "docs/evidence/us-intraday-evaluation.md"
+      ],
+      "acceptance_criteria": [
+        "Include spread, fee, partial fill, human latency and halt scenarios.",
+        "Single-venue feed limitations are explicit in interpretation and eligibility.",
+        "Final-minute alerts cannot imply guaranteed session-end liquidation.",
+        "No pooled swing result substitutes for intraday evidence."
+      ],
+      "validation": [
+        "Replay and forward shadow using preregistered lane thresholds."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S11-T05",
+      "sprint_id": "S11",
+      "title": "Validate EGX intraday with verified eligibility",
+      "owner_role": "Quant + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S11-T03",
+        "S06-T04"
+      ],
+      "scope": "Run EGX_INTRADAY holdout/shadow with approved data and effective-dated trading rules; use an explicit no-go when required market data is unavailable.",
+      "deliverables": [
+        "docs/evidence/egx-intraday-evaluation.md"
+      ],
+      "acceptance_criteria": [
+        "Liquidity, price limits, trade status and same-session rules are modeled from verified sources.",
+        "Historical data delay and missing bid/ask cannot be hidden by OHLC approximations.",
+        "Unsupported L2 strategies remain disabled.",
+        "Release report distinguishes technical readiness from data/legal/account eligibility."
+      ],
+      "validation": [
+        "Limit-state, thin-volume, missed-exit and calendar-specific fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-02",
+        "D-03",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S11-T06",
+      "sprint_id": "S11",
+      "title": "Test cross-strategy arbitration and end-of-session residuals",
+      "owner_role": "Go + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S11-T03",
+        "S04-T06",
+        "S09-T03"
+      ],
+      "scope": "Run simultaneous swing/intraday candidates against shared account budgets and actual holdings, including unexpected carry positions. Core arbitration is tested with deterministic synthetic inputs independently of provider-specific lane evaluation.",
+      "deliverables": [
+        "docs/evidence/four-lane-arbitration.md"
+      ],
+      "acceptance_criteria": [
+        "No duplicate budget use or opposing advice for the same held quantity.",
+        "End-of-session prompts record unclosed positions rather than inventing closure.",
+        "Emergency alerts remain active while new entries are paused.",
+        "Each lane has independent approval/rollback records."
+      ],
+      "validation": [
+        "Concurrent four-lane integration scenario with halted position and late manual fills."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-05",
+        "REQ-06",
+        "REQ-08"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S12-T01",
+      "sprint_id": "S12",
+      "title": "Implement versioned goal definitions and permissions",
+      "owner_role": "Go Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S04-T05",
+        "S05-T01"
+      ],
+      "scope": "Define capital, base currency, target metric, horizon, deposits/withdrawals, risk caps and user availability with explicit approval and revision history.",
+      "deliverables": [
+        "internal/goals/",
+        "contracts/goals/"
+      ],
+      "acceptance_criteria": [
+        "Target, forecast and risk budget are separate fields.",
+        "Goals cannot change risk policy or activate a strategy.",
+        "Unknown target feasibility is a valid state.",
+        "No historical example capital amount or profit rate becomes an assumed user choice."
+      ],
+      "validation": [
+        "Auth, optimistic concurrency and attempted risk-escalation tests."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S12-T02",
+      "sprint_id": "S12",
+      "title": "Implement feasibility and scenario analysis",
+      "owner_role": "Python Quant Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S12-T01",
+        "S06-T04",
+        "S06-T06"
+      ],
+      "scope": "Evaluate goals using approved out-of-sample evidence, costs and correlated return paths; support insufficient-evidence and conflicts-with-risk outcomes.",
+      "deliverables": [
+        "research/src/goals/",
+        "research/evals/goals/"
+      ],
+      "acceptance_criteria": [
+        "Report assumptions and uncertainty; no model-invented success percentage.",
+        "Preserve loss clustering/cross-asset dependencies in scenario choices or disclose limitations.",
+        "Do not infer guaranteed attainability from backtest mean returns.",
+        "No recommendation to borrow or automatically increase risk."
+      ],
+      "validation": [
+        "Hand-check required-return arithmetic and extreme/cost/deposit scenarios."
+      ],
+      "requirement_ids": [
+        "REQ-09",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S12-T03",
+      "sprint_id": "S12",
+      "title": "Implement conservative capital allocation proposals",
+      "owner_role": "Go + Quant Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S12-T02",
+        "S04-T06",
+        "S11-T06"
+      ],
+      "scope": "Propose lane budgets within current risk limits and confirmed balances; keep cash idle when suitable opportunities do not exist.",
+      "deliverables": [
+        "internal/goals/allocation/",
+        "tests/goals/invariants/"
+      ],
+      "acceptance_criteria": [
+        "All allocations pass the same policy kernel and account-level atomic reservation.",
+        "Goal deadlines cannot multiply loss limits or alter strategies.",
+        "Cross-currency transfers require actual recorded funding, not hypothetical available value.",
+        "Policy changes require explicit human-reviewed revisions."
+      ],
+      "validation": [
+        "Aggressive-target, insufficient-cash and correlated-lane allocation tests."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-08",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S12-T04",
+      "sprint_id": "S12",
+      "title": "Implement progress, drawdown and cost attribution",
+      "owner_role": "Go + Quant Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S12-T01",
+        "S04-T05",
+        "S06-T03"
+      ],
+      "scope": "Report realized/unrealized returns, FX contribution, trading costs, operating costs and cash flows separately; measure horizon-end attainment as well as temporary crossing.",
+      "deliverables": [
+        "internal/goals/progress/",
+        "research/src/performance/attribution/"
+      ],
+      "acceptance_criteria": [
+        "Deposits are not profits; withdrawals do not automatically become losses.",
+        "Actual and paper goal progress use isolated balances.",
+        "Currency source/time and stale valuation are visible.",
+        "Target attainment does not trigger a broker sell order."
+      ],
+      "validation": [
+        "Cash-flow, FX, operating-cost and realized-versus-unrealized fixtures."
+      ],
+      "requirement_ids": [
+        "REQ-08",
+        "REQ-09",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S12-T05",
+      "sprint_id": "S12",
+      "title": "Deliver goal reviews and safe target-revision workflow",
+      "owner_role": "Go + Product Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S12-T02",
+        "S12-T04",
+        "S10-T03"
+      ],
+      "scope": "Provide scheduled or event-driven goal status and proposed changes to goal/term, never automatic increases in risk.",
+      "deliverables": [
+        "internal/notifications/goals/",
+        "internal/goals/revisions/"
+      ],
+      "acceptance_criteria": [
+        "Every forecast links to an assessment version and expiry.",
+        "Low-feasibility messages explain no-trade or revised horizon options without guarantees.",
+        "Goal changes require authenticated explicit confirmation and append history.",
+        "No loss-chasing, averaging down or horizon switch is introduced implicitly."
+      ],
+      "validation": [
+        "Telegram goal message, revision audit and unauthorized change tests."
+      ],
+      "requirement_ids": [
+        "REQ-07",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S12-T06",
+      "sprint_id": "S12",
+      "title": "Evaluate goal policy against no-goal baseline",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S12-T03",
+        "S12-T04",
+        "S12-T05"
+      ],
+      "scope": "Test whether the goal layer changes risk, drawdowns, turnover and net outcomes compared with the same strategies without goals.",
+      "deliverables": [
+        "docs/evidence/goal-layer-evaluation.md"
+      ],
+      "acceptance_criteria": [
+        "Report shortfall, attainment at horizon, drawdown breaches and costs.",
+        "Maintain preregistered evaluation and avoid selecting only successful start dates.",
+        "Reject goal logic that breaches policy even when it increases returns.",
+        "Reviewer signs an evidence report without promising future performance."
+      ],
+      "validation": [
+        "Historical and forward-paper goal scenarios with withheld periods."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-09",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S13-T01",
+      "sprint_id": "S13",
+      "title": "Create React dashboard shell and authenticated API client",
+      "owner_role": "Frontend Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S02-T01",
+        "S01-T04"
+      ],
+      "scope": "Implement React/TypeScript/Vite with a generated or validated API client and server-state query management; no parallel business backend.",
+      "deliverables": [
+        "web/",
+        "contracts/generated/typescript/"
+      ],
+      "acceptance_criteria": [
+        "Account/mode selection is explicit and protected.",
+        "Tokens are not embedded in builds or logged.",
+        "Server-side authorization remains authoritative.",
+        "Arabic-first layout handles ticker and numeric direction correctly."
+      ],
+      "validation": [
+        "Type checks, auth-flow tests and responsive accessibility smoke tests."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-07",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S13-T02",
+      "sprint_id": "S13",
+      "title": "Build actual portfolio, reconciliation and goal screens",
+      "owner_role": "Frontend + Go Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S13-T01",
+        "S12-T04",
+        "S04-T05"
+      ],
+      "scope": "Show actual holdings, settled cash, pending settlement, discrepancies, capital reservations and goal progress with source times.",
+      "deliverables": [
+        "web/src/features/portfolio/",
+        "web/src/features/goals/"
+      ],
+      "acceptance_criteria": [
+        "PAPER and actual accounts have unmistakable mode labels.",
+        "Balances show freshness and discrepancies rather than silently assuming correctness.",
+        "Edits flow through validated APIs with audit entries.",
+        "Deposit/withdrawal and goal revision workflows preserve history."
+      ],
+      "validation": [
+        "E2E tests for manual fill, reconciliation discrepancy and goal changes."
+      ],
+      "requirement_ids": [
+        "REQ-08",
+        "REQ-10"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S13-T03",
+      "sprint_id": "S13",
+      "title": "Build recommendation and evidence drill-down",
+      "owner_role": "Frontend Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S13-T01",
+        "S08-T06",
+        "S10-T06"
+      ],
+      "scope": "Expose recommendation revisions, committee dissent, original evidence references, data quality and deterministic veto reasons.",
+      "deliverables": [
+        "web/src/features/recommendations/",
+        "web/src/features/evidence/"
+      ],
+      "acceptance_criteria": [
+        "An old revision is not shown as current actionable advice.",
+        "No raw model private reasoning is required; store concise supported rationale and evidence.",
+        "Access to licensed documents respects entitlements.",
+        "User can distinguish recommendation, delivery, response and actual fill."
+      ],
+      "validation": [
+        "Authorization, stale revision and missing-evidence UI tests."
+      ],
+      "requirement_ids": [
+        "REQ-04",
+        "REQ-07",
+        "REQ-11",
+        "REQ-13"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S13-T04",
+      "sprint_id": "S13",
+      "title": "Implement operations and cost dashboards",
+      "owner_role": "Platform + Frontend Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S13-T01",
+        "S01-T05",
+        "S08-T04"
+      ],
+      "scope": "Expose feed lag, queue age, quality gates, lane modes, model cost, quota usage, unknown deliveries and reconciliation freshness.",
+      "deliverables": [
+        "deploy/observability/",
+        "web/src/features/operations/"
+      ],
+      "acceptance_criteria": [
+        "Operational SLOs are labeled targets until measured under defined workload.",
+        "Budget exhaustion and degraded mode appear clearly.",
+        "Circuit breaker and entry-pause controls require authorization and audit.",
+        "High-cardinality account/evidence IDs are not metric labels."
+      ],
+      "validation": [
+        "Inject stale feed, queue saturation, high cost and unknown Telegram send."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-13"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S13-T05",
+      "sprint_id": "S13",
+      "title": "Complete alerting and incident runbooks",
+      "owner_role": "Platform + Security Engineers",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S13-T04",
+        "S05-T05"
+      ],
+      "scope": "Define responders and runbooks for provider failure, bot compromise, DB restore, queue backlog, bad filing extraction and ledger discrepancies.",
+      "deliverables": [
+        "docs/runbooks/",
+        "docs/evidence/incident-drill.md"
+      ],
+      "acceptance_criteria": [
+        "Critical alerts have owners, severity and documented response.",
+        "Separate pause-new-entries from stop-everything behavior.",
+        "Recovery requires data/portfolio revalidation before advice resumes.",
+        "Runbooks contain no real secrets and distinguish observed facts from instructions."
+      ],
+      "validation": [
+        "Tabletop incident exercise with evidence and follow-up defects."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-12"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S13-T06",
+      "sprint_id": "S13",
+      "title": "Review full user journey and privacy controls",
+      "owner_role": "QA + Security Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S13-T02",
+        "S13-T03",
+        "S13-T04",
+        "S13-T05"
+      ],
+      "scope": "Validate the end-to-end owner workflow and data access/deletion/export boundaries before production release readiness.",
+      "deliverables": [
+        "docs/evidence/user-journey-review.md"
+      ],
+      "acceptance_criteria": [
+        "No frontend/button shortcut can bypass risk or create a broker order.",
+        "Data retention and deletion reconcile audit requirements with user privacy and provider licenses.",
+        "User-visible performance describes simulation assumptions and real costs.",
+        "Independent review records issues and closure evidence."
+      ],
+      "validation": [
+        "E2E, authorization, injection, privacy and API-rate-limit suites."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-07",
+        "REQ-12",
+        "REQ-13"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S14-T01",
+      "sprint_id": "S14",
+      "title": "Provision approved AWS topology with least privilege",
+      "owner_role": "Platform Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T05",
+        "S13-T06"
+      ],
+      "scope": "Provision approved ECS application workers, RDS PostgreSQL, S3 and a durable NATS deployment or approved managed provider via Terraform.",
+      "deliverables": [
+        "deploy/terraform/",
+        "docs/evidence/infrastructure-review.md"
+      ],
+      "acceptance_criteria": [
+        "Environment/account/network boundaries and resource budgets are explicit.",
+        "No public database or unrestricted NATS endpoints.",
+        "NATS persistence and HA topology match the approved failure model.",
+        "Production provisioning and recurring spend require explicit owner approval."
+      ],
+      "validation": [
+        "Terraform validation/plan review, least-privilege checks and private-network smoke tests."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-06"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S14-T02",
+      "sprint_id": "S14",
+      "title": "Build provenance-aware CI/CD and release manifests",
+      "owner_role": "Platform Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T01",
+        "S01-T03"
+      ],
+      "scope": "Build immutable images with pinned dependencies, SBOM/provenance and registry digests; deploy through OIDC-scoped GitHub Actions and approval-protected environments.",
+      "deliverables": [
+        ".github/workflows/release.yml",
+        "deploy/releases/"
+      ],
+      "acceptance_criteria": [
+        "No long-lived AWS keys in CI and no deployment credentials for untrusted PRs.",
+        "A release identifies code, DB migration, contracts, models/prompts and strategy/policy configs.",
+        "Separate deploy from lane activation.",
+        "Rollback plan documents schema compatibility and does not pretend to reverse economic events."
+      ],
+      "validation": [
+        "Tampered artifact, denied environment and previous-version rollout tests."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S14-T03",
+      "sprint_id": "S14",
+      "title": "Validate backup restore and disaster recovery",
+      "owner_role": "Platform + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T01",
+        "S14-T02"
+      ],
+      "scope": "Exercise DB point-in-time restore, evidence availability, credentials recovery and NATS consumer reconstruction in a separate environment.",
+      "deliverables": [
+        "docs/runbooks/disaster-recovery.md",
+        "docs/evidence/restore-drill.md"
+      ],
+      "acceptance_criteria": [
+        "Measure recovery time/data loss against approved RTO/RPO, not merely backup job success.",
+        "Reconcile ledger and outbox/inbox after restore before re-enabling advice.",
+        "Restore cannot emit historical recommendations to production Telegram.",
+        "A failure of OpenClaw is irrelevant because it is absent from core dependencies."
+      ],
+      "validation": [
+        "Documented destructive exercise only in an isolated approved test environment."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-07"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S14-T04",
+      "sprint_id": "S14",
+      "title": "Run workload, saturation and dependency chaos tests",
+      "owner_role": "Performance + QA",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T01",
+        "S13-T04"
+      ],
+      "scope": "Test workload profiles covering feed bursts, candidate fan-out, slow LLMs, database contention and separate batch/live workloads.",
+      "deliverables": [
+        "tests/load/",
+        "tests/chaos/",
+        "docs/evidence/performance-report.md"
+      ],
+      "acceptance_criteria": [
+        "Publish p50/p95/p99 with workload definition and external provider latency separated.",
+        "Backpressure sheds/defer noncritical research before losing financial integrity.",
+        "Unknown Telegram outcomes and partial upstream outages remain visible.",
+        "No performance shortcut disables data or policy checks."
+      ],
+      "validation": [
+        "Load, soak, restart, throttling and network-partition test reports."
+      ],
+      "requirement_ids": [
+        "REQ-05",
+        "REQ-12"
+      ],
+      "decision_dependencies": [
+        "D-07"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S14-T05",
+      "sprint_id": "S14",
+      "title": "Complete security, vendor and compliance release review",
+      "owner_role": "Security + Owner",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T02",
+        "S14-T03",
+        "S14-T04"
+      ],
+      "scope": "Review dependency/vulnerability results, threat model, provider entitlements, model data terms, account eligibility and any commercial-use obligations.",
+      "deliverables": [
+        "docs/evidence/release-security-and-entitlements.md"
+      ],
+      "acceptance_criteria": [
+        "No critical unaccepted security issue or expired data entitlement remains.",
+        "Risk-policy approver, credentials owner and incident contacts are recorded.",
+        "Commercial launch remains blocked until appropriate jurisdiction-specific legal review; evidence agent is not counsel.",
+        "Read-only broker access is independently checked to exclude trading scope."
+      ],
+      "validation": [
+        "Security regression, permission audit and entitlement expiration simulation."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-12",
+        "REQ-13"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-02",
+        "D-03",
+        "D-08"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S14-T06",
+      "sprint_id": "S14",
+      "title": "Freeze production-readiness candidate",
+      "owner_role": "Tech Lead + Independent Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T03",
+        "S14-T04",
+        "S14-T05"
+      ],
+      "scope": "Assemble technical release evidence and remaining lane-specific blockers; create an owner-reviewed release candidate with live advisory still disabled.",
+      "deliverables": [
+        "docs/evidence/production-readiness.md"
+      ],
+      "acceptance_criteria": [
+        "Evidence references exact commit/build and is reproducible.",
+        "No sprint completion automatically flips a live flag.",
+        "Runbooks, metrics, recovery and training of the owner are complete.",
+        "Any failed mandatory gate yields NO_GO with an actionable blocker."
+      ],
+      "validation": [
+        "Full release rehearsal and rollback compatibility review."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-14",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S15-T01",
+      "sprint_id": "S15",
+      "title": "Assess US_SWING forward-paper evidence",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T06",
+        "S10-T06",
+        "S09-T04",
+        "S12-T06"
+      ],
+      "scope": "Review US swing forward-paper evidence against preregistered sample/coverage, costs, reliability and uncertainty criteria.",
+      "deliverables": [
+        "docs/evidence/release-us-swing.md"
+      ],
+      "acceptance_criteria": [
+        "Compare forecasts/paper execution to observed actionable opportunities and user latency.",
+        "Record GO/NO_GO and remaining uncertainty; no guaranteed profit claim.",
+        "Owner explicitly approves any LIMITED_ADVISORY transition.",
+        "Public rollout or paid users are outside private approval scope."
+      ],
+      "validation": [
+        "Lane release checklist and independent evidence review."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-03",
+        "D-04",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S15-T02",
+      "sprint_id": "S15",
+      "title": "Assess EGX_SWING forward-paper evidence",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T06",
+        "S10-T06",
+        "S09-T05",
+        "S12-T06"
+      ],
+      "scope": "Independently assess EGX swing with actual EGX data/eligibility/fee evidence and user execution limitations.",
+      "deliverables": [
+        "docs/evidence/release-egx-swing.md"
+      ],
+      "acceptance_criteria": [
+        "US results cannot satisfy EGX thresholds.",
+        "Liquidity, limit-state and unavailable-history limitations are explicit.",
+        "Owner approves only the scoped account/lane and limits.",
+        "Failure leaves the lane disabled without blocking already approved independent lanes."
+      ],
+      "validation": [
+        "EGX lane checklist and independent evidence review."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-02",
+        "D-03",
+        "D-04",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S15-T03",
+      "sprint_id": "S15",
+      "title": "Assess US_INTRADAY forward-paper evidence",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T06",
+        "S11-T04",
+        "S11-T06",
+        "S12-T06"
+      ],
+      "scope": "Validate forward-paper US intraday performance and practical execution with measured human availability and latency.",
+      "deliverables": [
+        "docs/evidence/release-us-intraday.md"
+      ],
+      "acceptance_criteria": [
+        "Costs and delays do not assume ideal fills.",
+        "Account-specific rules and settlement/cash capabilities are confirmed.",
+        "Intraday close/carry exceptions are demonstrated.",
+        "Activation requires independent approval; swing approval is insufficient."
+      ],
+      "validation": [
+        "US intraday lane checklist, latency sensitivity and session-end drill."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-06",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-01",
+        "D-03",
+        "D-04",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S15-T04",
+      "sprint_id": "S15",
+      "title": "Assess EGX_INTRADAY forward-paper evidence",
+      "owner_role": "Quant + Risk Reviewer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T06",
+        "S11-T05",
+        "S11-T06",
+        "S12-T06"
+      ],
+      "scope": "Validate EGX intraday eligibility, data capability and forward-paper evidence; explicitly permit a NO_GO outcome if reliable inputs do not exist.",
+      "deliverables": [
+        "docs/evidence/release-egx-intraday.md"
+      ],
+      "acceptance_criteria": [
+        "Required quotes/trades, timing and exchange rules are verified.",
+        "Optional L2 remains off unless separately qualified.",
+        "No claim that same-session closing is guaranteed.",
+        "Only owner-approved limited advisory can follow all gates."
+      ],
+      "validation": [
+        "EGX intraday checklist, non-fill/limit scenario and independent review."
+      ],
+      "requirement_ids": [
+        "REQ-02",
+        "REQ-03",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-02",
+        "D-03",
+        "D-04",
+        "D-09"
+      ],
+      "optional": false
+    },
+    {
+      "id": "S15-T05",
+      "sprint_id": "S15",
+      "title": "Operate staged advisory and outcome attribution",
+      "owner_role": "Owner + Operations + Quant",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S14-T06",
+        "S10-T06",
+        "S11-T06",
+        "S12-T06"
+      ],
+      "scope": "Record per-lane GO/NO_GO outcomes, run only approved lanes with limited scope and compare actual executions to advice and paper assumptions.",
+      "deliverables": [
+        "docs/evidence/limited-advisory-operations.md"
+      ],
+      "acceptance_criteria": [
+        "A NO_GO verdict is a valid completed review task, not an activated lane.",
+        "Live enablement requires explicit external owner authorization not just a task status.",
+        "Record skipped trades, user deviations, rejected candidates and uncertain fills.",
+        "Drift or safety breach pauses entries and triggers reviewed investigation.",
+        "Start only a lane whose own S15 review has completed with GO and whose external owner approval is recorded; no other lane is implicitly enabled."
+      ],
+      "validation": [
+        "Live-advisory dry-run checklist and simulated pause/rollback of one lane."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-08",
+        "REQ-09",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S15-T06",
+      "sprint_id": "S15",
+      "title": "Publish operating review and controlled improvement backlog",
+      "owner_role": "Tech Lead + Owner",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S15-T05"
+      ],
+      "scope": "Review net outcomes including data/model/infra costs, operational reliability and user fit. Propose future changes as versioned experiments rather than online self-modification.",
+      "deliverables": [
+        "docs/evidence/operating-review.md",
+        "docs/CHANGELOG.md"
+      ],
+      "acceptance_criteria": [
+        "Separate actual realized results from hypothetical and unrealized performance.",
+        "Update task/state/handoff records with exact release evidence.",
+        "Any strategy/model/risk change returns through relevant validation gates.",
+        "Optional OpenClaw work can begin only as a separately authorized scope."
+      ],
+      "validation": [
+        "Reproduce operating report and reconcile account state with available statements."
+      ],
+      "requirement_ids": [
+        "REQ-09",
+        "REQ-10",
+        "REQ-14",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S16-T01",
+      "sprint_id": "S16",
+      "title": "Approve optional integration and threat model",
+      "owner_role": "Tech Lead + Owner",
+      "priority": "P2",
+      "size": "M",
+      "depends_on": [
+        "S15-T06"
+      ],
+      "scope": "Confirm a real user need and review the currently supported OpenClaw integration mechanism and security model before implementation.",
+      "deliverables": [
+        "docs/evidence/openclaw-scope.md"
+      ],
+      "acceptance_criteria": [
+        "Explicit owner approval is recorded; optional work is not part of core release gating.",
+        "Review current official docs instead of relying on historical capability claims.",
+        "ADR-011 remains the governing decision."
+      ],
+      "validation": [
+        "Threat-model review and approval record."
+      ],
+      "requirement_ids": [
+        "REQ-14"
+      ],
+      "decision_dependencies": [
+        "D-11"
+      ],
+      "optional": true
+    },
+    {
+      "id": "S16-T02",
+      "sprint_id": "S16",
+      "title": "Expose narrowly scoped read-only assistant API",
+      "owner_role": "Go Engineer",
+      "priority": "P2",
+      "size": "M",
+      "depends_on": [
+        "S16-T01"
+      ],
+      "scope": "Provide approved report/explanation endpoints with dedicated read-only identity and field-level privacy filtering.",
+      "deliverables": [
+        "internal/http/assistant_readonly/"
+      ],
+      "acceptance_criteria": [
+        "No DB/NATS access or write credentials.",
+        "No risk, strategy, portfolio or recommendation mutation API.",
+        "Every response carries revision/time and permission-filtered evidence references."
+      ],
+      "validation": [
+        "Read-only scope, cross-account and privilege-escalation tests."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-12",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": true
+    },
+    {
+      "id": "S16-T03",
+      "sprint_id": "S16",
+      "title": "Implement assistant adapter and factual explanation prompts",
+      "owner_role": "Integration Engineer",
+      "priority": "P2",
+      "size": "M",
+      "depends_on": [
+        "S16-T02"
+      ],
+      "scope": "Build the minimum adapter to retrieve approved reports and explain decisions with citations, without generating official independent advice.",
+      "deliverables": [
+        "integrations/openclaw/"
+      ],
+      "acceptance_criteria": [
+        "No unvalidated buy/sell instruction is presented as official platform output.",
+        "Unknown or stale answers are labeled.",
+        "Provider tokens and account details remain outside prompts where unnecessary."
+      ],
+      "validation": [
+        "Grounding and prompt-injection tests for returned documents."
+      ],
+      "requirement_ids": [
+        "REQ-11",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": true
+    },
+    {
+      "id": "S16-T04",
+      "sprint_id": "S16",
+      "title": "Verify isolation and zero core dependency",
+      "owner_role": "Security + QA",
+      "priority": "P2",
+      "size": "M",
+      "depends_on": [
+        "S16-T03"
+      ],
+      "scope": "Disconnect and compromise the assistant in a controlled test; verify core analysis, official Telegram and monitoring continue.",
+      "deliverables": [
+        "docs/evidence/openclaw-isolation.md"
+      ],
+      "acceptance_criteria": [
+        "Core startup and release do not require assistant availability.",
+        "Read-only credentials cannot mutate state or publish events.",
+        "Assistant outage creates no trading-platform outage."
+      ],
+      "validation": [
+        "Network isolation, credential-abuse and dependency-removal tests."
+      ],
+      "requirement_ids": [
+        "REQ-06",
+        "REQ-12",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": true
+    },
+    {
+      "id": "S16-T05",
+      "sprint_id": "S16",
+      "title": "Add revocation, retention and bounded cost controls",
+      "owner_role": "Platform Engineer",
+      "priority": "P2",
+      "size": "M",
+      "depends_on": [
+        "S16-T03"
+      ],
+      "scope": "Provide credential revocation, query limits and audited access, with minimum retention and a dedicated cost ceiling.",
+      "deliverables": [
+        "docs/runbooks/openclaw.md"
+      ],
+      "acceptance_criteria": [
+        "Single revocation disables the assistant identity without affecting core services.",
+        "Sensitive prompts/responses follow approved retention.",
+        "Assistant traffic cannot starve live workloads."
+      ],
+      "validation": [
+        "Revocation, rate-limit and noisy-neighbor tests."
+      ],
+      "requirement_ids": [
+        "REQ-12",
+        "REQ-14"
+      ],
+      "decision_dependencies": [],
+      "optional": true
+    },
+    {
+      "id": "S16-T06",
+      "sprint_id": "S16",
+      "title": "Review and release optional integration",
+      "owner_role": "Owner + Independent Reviewer",
+      "priority": "P2",
+      "size": "M",
+      "depends_on": [
+        "S16-T04",
+        "S16-T05"
+      ],
+      "scope": "Publish a separately versioned optional integration release or document a decision not to enable it.",
+      "deliverables": [
+        "docs/evidence/openclaw-release.md"
+      ],
+      "acceptance_criteria": [
+        "Evidence proves human-only and read-only invariants.",
+        "Core remains deployable with integration removed.",
+        "Session handoff and state records distinguish optional release from core readiness."
+      ],
+      "validation": [
+        "Optional release checklist and disable rehearsal."
+      ],
+      "requirement_ids": [
+        "REQ-14",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": true
+    }
+  ]
+}

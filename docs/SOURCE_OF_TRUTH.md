@@ -77,3 +77,11 @@ Go-first، وثلاثة entrypoints: `platform-core`، `market-ingestion`، `res
 ابدأ بقراءة `AGENT_PLAYBOOK.md` وتشغيل `planctl validate/status/ready` وفحص Git. استأنف الحالة القائمة؛ لا تبدأ S00 من جديد إذا كان فحصها قد أُنجز بأدلة.
 
 اختم بتحديث التاسك في `project_state.json`، وإضافة handoff يحدد commit/dirty files/tests/blockers/next exact action، ثم التحقق من الخطة. **لا يُعد الرد في المحادثة تحديثًا للمستودع.**
+
+## 7. Authorized local development increment (2026-10-23)
+
+The owner explicitly authorized local backend and frontend implementation, tests, local app runs and protocol-compliant local commits. This is a private single-owner development workspace. The dashboard lives in the sibling `TradeStockerFrontend` directory requested by the owner; the Go API remains the sole financial authority. S00-T07/T08 track this bounded increment independently of the full production roadmap.
+
+Operating modes: OFFLINE_REPLAY replays dated inputs without external delivery; SHADOW records decisions without actionable delivery or execution; PAPER uses isolated synthetic balances and explicit human paper actions; LIVE_ADVISORY concerns real advice but still human execution only. The local increment supports PAPER and synthetic inputs only. Other modes must fail closed until implemented and reviewed. Production and all live lanes default disabled. Paper fixtures are not live data, paper balances are not actual assets and paper outputs do not prove returns. Acknowledging advice never records a fill.
+
+No provider, risk values, identity provider, capital, settlement capability, bot configuration or production budget is approved by this implementation authorization. D-01 through D-11 remain governed by their recorded evidence requirements. No broker orders, leverage, shorts, options, scalping, production deployment or paid resources are authorized.

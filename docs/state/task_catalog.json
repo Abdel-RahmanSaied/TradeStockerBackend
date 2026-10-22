@@ -17,7 +17,9 @@
         "S00-T03",
         "S00-T04",
         "S00-T05",
-        "S00-T06"
+        "S00-T06",
+        "S00-T07",
+        "S00-T08"
       ],
       "title_ar": "اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية"
     },
@@ -3736,6 +3738,74 @@
       ],
       "decision_dependencies": [],
       "optional": true
+    },
+    {
+      "id": "S00-T07",
+      "sprint_id": "S00",
+      "title": "Local paper backend vertical increment",
+      "owner_role": "Backend Engineer",
+      "priority": "P0",
+      "size": "L",
+      "depends_on": [
+        "S00-T01"
+      ],
+      "scope": "Owner-authorized bounded local engineering increment while provider, risk and production decisions remain open. Does not replace or complete later production tasks. Go owns paper financial state. No broker APIs or actual/live mutation.",
+      "deliverables": [
+        "cmd/",
+        "internal/",
+        "db/",
+        "research/",
+        "docs/evidence/local-paper-backend.md"
+      ],
+      "acceptance_criteria": [
+        "Boot local Go API with durable storage and migrations; separate paper data from actual/live.",
+        "Fixture provenance and timestamps visible; missing/stale evidence fails closed.",
+        "Human-only paper lifecycle, idempotency, audit, dry-run notifications and research stub.",
+        "Tests cover unsafe inputs, persistence and duplicate financial effects; document production gaps."
+      ],
+      "validation": [
+        "Run Go tests and local HTTP smoke tests; exercise durable restart."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-05",
+        "REQ-06",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S00-T08",
+      "sprint_id": "S00",
+      "title": "Local dashboard and real API end-to-end increment",
+      "owner_role": "Frontend Engineer",
+      "priority": "P0",
+      "size": "L",
+      "depends_on": [
+        "S00-T01"
+      ],
+      "scope": "Build requested React/TypeScript/Vite frontend in sibling TradeStockerFrontend. Wire to real local backend; explicit synthetic/paper labels and no invented returns. Does not replace production identity or later S13 scope.",
+      "deliverables": [
+        "docs/evidence/local-dashboard.md"
+      ],
+      "acceptance_criteria": [
+        "Functional dashboard, data freshness, decisions and audit views wired to real backend APIs.",
+        "Paper-only human lifecycle controls show errors and loading states; no broker orders.",
+        "Frontend build/tests and browser end-to-end evidence against running Go API.",
+        "Repeatable local run instructions and precise remaining blockers."
+      ],
+      "validation": [
+        "Build frontend, run unit tests and real-API browser end-to-end tests."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-05",
+        "REQ-06",
+        "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
     }
   ]
 }

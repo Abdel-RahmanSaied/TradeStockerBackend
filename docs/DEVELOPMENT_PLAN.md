@@ -2,7 +2,7 @@
 
 > ملف مولّد من `state/task_catalog.json`. لا تعدّل تفاصيله يدويًا؛ استخدم `planctl.py render`.
 
-**Baseline:** `1.0.0` · **16 سبرينت أساسي + 1 اختياري** · **102 تاسك**.
+**Baseline:** `1.0.0` · **16 سبرينت أساسي + 1 اختياري** · **104 تاسك**.
 
 ## طريقة استخدام الخطة
 
@@ -16,7 +16,7 @@
 
 | Sprint | النطاق | Tasks | بوابة الخروج |
 |---|---|---:|---|
-| [S00](sprints/S00.md) | اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية | 6 | A repository inventory, explicit scope, provider evidence and an actionable unresolved-decision register exist. No live lane is enabled. |
+| [S00](sprints/S00.md) | اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية | 8 | A repository inventory, explicit scope, provider evidence and an actionable unresolved-decision register exist. No live lane is enabled. |
 | [S01](sprints/S01.md) | أساس المشروع والأمان وCI | 6 | Go core, Go ingestion and Python worker boot locally; CI runs baseline checks; secrets and service identities are separated. |
 | [S02](sprints/S02.md) | العقود وقاعدة البيانات واعتمادية الأحداث | 6 | Schema migrations, instrument/time rules and event contracts pass integration and duplicate-delivery tests. |
 | [S03](sprints/S03.md) | بيانات السوق الأمريكي والمصري وجودتها | 6 | Synthetic adapters pass all gates; each real feed has separately recorded coverage, entitlements and validation evidence. |

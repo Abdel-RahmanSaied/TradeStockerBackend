@@ -12,6 +12,8 @@ import unittest
 SOURCE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('install_docs',SOURCE/'install_docs.py')
 installer=importlib.util.module_from_spec(spec); spec.loader.exec_module(installer)
+fixture_spec=importlib.util.spec_from_file_location('planning_fixtures',SOURCE/'docs/tools/planning_fixtures.py')
+fixtures=importlib.util.module_from_spec(fixture_spec); fixture_spec.loader.exec_module(fixtures)
 
 class InstallTests(unittest.TestCase):
     def setUp(self):
@@ -22,7 +24,12 @@ class InstallTests(unittest.TestCase):
         for row in manifest['files']:
             target=self.source/row['path']; target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(SOURCE/row['path'],target)
-            raw=target.read_bytes(); row.update(size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+        state_path=self.source/'docs/state/project_state.json'
+        catalog=json.loads((self.source/'docs/state/task_catalog.json').read_text())
+        state_path.write_text(json.dumps(fixtures.bootstrap_state(catalog,json.loads(state_path.read_text())),indent=2))
+        for row in manifest['files']:
+            raw=(self.source/row['path']).read_bytes()
+            row.update(size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
         (self.source/'manifest.json').write_text(json.dumps(manifest))
         self.repo=self.root/'repo'; self.repo.mkdir(); self.docs=self.repo/'docs'
     def tearDown(self): self.tmp.cleanup()

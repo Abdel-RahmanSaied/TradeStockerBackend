@@ -20,3 +20,5 @@ These capture the agreed direction and proposed implementation choices. **Accept
 | [ADR-014](ADR-014.md) | Separate recommendation, delivery, response and fill states | Accepted design baseline | S05-T03 |
 | [ADR-015](ADR-015.md) | Safe implementation discovery and no silent overwrite | Accepted planning convention | S00-T01 |
 | [ADR-016](ADR-016.md) | Version-control bootstrap and repository boundary | Proposed; owner decision pending | S00-T01 |
+
+Local prototype proposal: [ADR-017](ADR-017.md). This does not change production architecture approvals.

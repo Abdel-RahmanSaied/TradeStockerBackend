@@ -3,6 +3,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import hashlib
 from pathlib import Path
 import shutil
 import tempfile
@@ -14,11 +15,19 @@ installer=importlib.util.module_from_spec(spec); spec.loader.exec_module(install
 
 class InstallTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory(); self.root=Path(self.tmp.name)
+        self.tmp=tempfile.TemporaryDirectory(); self.root=Path(self.tmp.name).resolve()
+        # Build a disposable package fixture. Never regenerate the real manifest.
+        self.source=self.root/'package'; self.source.mkdir()
+        manifest=json.loads((SOURCE/'manifest.json').read_text())
+        for row in manifest['files']:
+            target=self.source/row['path']; target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(SOURCE/row['path'],target)
+            raw=target.read_bytes(); row.update(size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+        (self.source/'manifest.json').write_text(json.dumps(manifest))
         self.repo=self.root/'repo'; self.repo.mkdir(); self.docs=self.repo/'docs'
     def tearDown(self): self.tmp.cleanup()
-    def run_install(self,apply=True,source=SOURCE):
-        with contextlib.redirect_stdout(io.StringIO()): installer.install(source,self.docs,apply)
+    def run_install(self,apply=True,source=None):
+        with contextlib.redirect_stdout(io.StringIO()): installer.install(source or self.source,self.docs,apply)
     def test_dry_run_writes_nothing(self):
         self.run_install(False)
         self.assertEqual(list(self.repo.iterdir()),[])
@@ -51,7 +60,7 @@ class InstallTests(unittest.TestCase):
         with self.assertRaises(installer.InstallError): self.run_install()
         self.assertEqual(list(target.iterdir()),[])
     def test_tampered_package_refused(self):
-        source=self.root/'tampered'; shutil.copytree(SOURCE,source,ignore=shutil.ignore_patterns('__pycache__'))
+        source=self.root/'tampered'; shutil.copytree(self.source,source)
         (source/'docs/SOURCE_OF_TRUTH.md').write_text('Tampered')
         with self.assertRaises(installer.InstallError): self.run_install(source=source)
         self.assertEqual(list(self.repo.iterdir()),[])

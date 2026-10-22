@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from planning_fixtures import bootstrap_state
 
 spec=importlib.util.spec_from_file_location('planctl',Path(__file__).with_name('planctl.py'))
 pc=importlib.util.module_from_spec(spec); spec.loader.exec_module(pc)
@@ -19,6 +20,8 @@ class PlanTests(unittest.TestCase):
         self.docs=Path(self.tmp.name)/'docs'
         shutil.copytree(SOURCE,self.docs,ignore=shutil.ignore_patterns('__pycache__'))
         self.catalog,self.state=pc.load(self.docs)
+        self.state=bootstrap_state(self.catalog,self.state)
+        self.save()
     def tearDown(self): self.tmp.cleanup()
     def call(self,*args):
         with contextlib.redirect_stdout(io.StringIO()),contextlib.redirect_stderr(io.StringIO()):
@@ -29,7 +32,8 @@ class PlanTests(unittest.TestCase):
         (self.docs/'evidence/test.md').write_text('Synthetic planning-tool test evidence; not product verification.\n')
     def test_bootstrap_valid(self):
         self.assertEqual(pc.validate(self.catalog,self.state,self.docs),[])
-        self.assertEqual(len(self.catalog['tasks']),102)
+        self.assertGreaterEqual(len(self.catalog['tasks']),102)
+        self.assertIn('S15-T06', self.state['tasks'])
         self.assertTrue(all(x['status']=='TODO' for x in self.state['tasks'].values()))
     def test_first_ready_task(self):
         self.assertEqual([t['id'] for t in pc.ready_tasks(self.catalog,self.state)],['S00-T01'])

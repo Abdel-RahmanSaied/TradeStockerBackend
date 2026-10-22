@@ -1,2 +1,12 @@
-/.DS_Store
-/.remember
+.DS_Store
+.remember/
+.env
+.env.*
+!.env.example
+.local/
+work/
+outputs/
+bin/
+__pycache__/
+*.pyc
+coverage.out

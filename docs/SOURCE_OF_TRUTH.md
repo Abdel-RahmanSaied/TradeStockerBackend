@@ -68,7 +68,7 @@ Go-first، وثلاثة entrypoints: `platform-core`، `market-ingestion`، `res
 
 ## 5. الأمور غير المعروفة حاليًا
 
-المستودع الفعلي، الـHEAD، الإصدارات المثبتة، مزودا أسعار EGX/US وعقودهما، الوسيط والحساب، رأس المال وعملة الهدف، حدود المخاطر، ميزانية التشغيل، thresholds التقييم، الهوية والبنية الإنتاجية: لم تُفحص/تُحسم بعد. راجع `OPEN_DECISIONS.md`.
+Repository identity and the observed HEAD are recorded in state/project_state.json.repo_observation and review evidence. First-session no-Git observations are historical, before the owner first commit. Real EGX/US vendors and rights, actual accounts/settlement, capital, approved risk limits, budgets, evaluation thresholds, production identity and infrastructure still require evidence and approval. The local PAPER increment does not resolve these decisions; see OPEN_DECISIONS.md.
 
 قيم المحادثة السابقة الخاصة بنسب المخاطرة والأهداف وSLOs كانت أمثلة/مقترحات، وليست إعدادات إنتاج معتمدة. لا تعيد استخدامها كقيم افتراضية مُفعّلة.
 

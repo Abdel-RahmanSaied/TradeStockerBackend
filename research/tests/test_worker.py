@@ -19,7 +19,7 @@ class ResearchBoundaryTests(unittest.TestCase):
         self.assertNotIn("returns", result)
 
     def test_actual_live_and_untrusted_fields_rejected(self):
-        for request in [
+        for bad in [
             {"symbol": "AAPL", "mode": "ACTUAL"},
             {"symbol": "AAPL", "mode": "LIVE_ADVISORY"},
             {"symbol": "AAPL", "mode": "PAPER", "approved": True},
@@ -27,8 +27,8 @@ class ResearchBoundaryTests(unittest.TestCase):
             {"symbol": "", "mode": "PAPER"},
             {"symbol": "A" * 33, "mode": "PAPER"},
         ]:
-            with self.subTest(request=request), self.assertRaises(ValueError):
-                assess(request)
+            with self.subTest(request=bad), self.assertRaises(ValueError):
+                assess(bad)
 
 
 class WorkerEntrypointTests(unittest.TestCase):

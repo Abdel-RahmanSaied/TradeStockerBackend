@@ -85,6 +85,9 @@ class DevStackAPIClientTests(unittest.TestCase):
         FakeAPI.accounts, FakeAPI.seen, FakeAPI.redirect, HostileProxy.seen = [], [], None, []
         self.api = serve(FakeAPI)
         self.proxy = serve(HostileProxy)
+        # Cleanups run in reverse: stop serving first, then close the sockets.
+        self.addCleanup(self.api.server_close)
+        self.addCleanup(self.proxy.server_close)
         self.addCleanup(self.api.shutdown)
         self.addCleanup(self.proxy.shutdown)
         temp = tempfile.TemporaryDirectory()

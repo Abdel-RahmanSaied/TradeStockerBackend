@@ -220,8 +220,8 @@ class StaticSafetyTests(unittest.TestCase):
         for name in ["dev-stack.sh", "dev-stack-smoke.sh"]:
             with self.subTest(script=name):
                 code = self.code(name)
-                self.assertEqual([l for l in code if re.search(r"(^|[\s;&|(`])eval(\s|$)", l)], [])
-                self.assertEqual([l for l in code if re.search(r"(^|[\s;&|(`])(rm|rmdir|unlink|shred)(\s|$)|-delete\b", l)], [])
+                self.assertEqual([line for line in code if re.search(r"(^|[\s;&|(`])eval(\s|$)", line)], [])
+                self.assertEqual([line for line in code if re.search(r"(^|[\s;&|(`])(rm|rmdir|unlink|shred)(\s|$)|-delete\b", line)], [])
 
     def test_volume_removal_exists_only_in_destroy_volumes(self):
         text = (ROOT / "scripts" / "dev-stack.sh").read_text()

@@ -1,0 +1,15 @@
+{
+  "about": "Reviewed exceptions for the CI security scans (make ci-security). Every waiver names one exact finding, an owner, a reviewer other than the owner, the review date and an expiry date. An invalid, expired or unused waiver fails CI.",
+  "waivers": [
+    {
+      "id": "W-001",
+      "scanner": "gitleaks",
+      "match": "91776986c3d432f934679238eadb4d4d12230435:docs/evidence/recovery-independent-review.md:generic-api-key:52",
+      "reason": "False positive. The generic-api-key rule matched the word 'token' next to the public SHA-256 hashes of the two SEC source files (submissions 47e4383b..., companyfacts 73a86c6a...; see docs/evidence/sec-research.md and docs/evidence/recovery-independent-review.md). The coordinator checked privately that none of the protected local credential values occurs on that line. The text is in committed history, so a history scan will always see it; only this exact finding is waived.",
+      "owner": "claude-code-agent",
+      "reviewed_by": "codex-reviewer",
+      "reviewed_on": "2026-10-23",
+      "expires": "2026-11-22"
+    }
+  ]
+}

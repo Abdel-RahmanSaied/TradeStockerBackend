@@ -1,13 +1,26 @@
-name: Local paper backend checks
-on: [push, pull_request]
+name: Backend CI
+# Each job sets up the pinned toolchains and runs one make target; the targets
+# (Makefile, ci-*) are the same commands `make ci` runs locally. The job report
+# (counts, skipped tests and suites CI does not run) goes to the job summary.
+on:
+  push:
+    branches: [main]
+  pull_request:
 permissions:
   contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  CI_OUT: ${{ github.workspace }}/.local/ci/results
+
 jobs:
-  backend:
+  go:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:16.15-alpine@sha256:f4610795587492cd4fb887c2dc3de301b813278bb6f616992061141b5f15ac36
         env:
           POSTGRES_USER: paper_test
           POSTGRES_PASSWORD: disposable_ci_only
@@ -18,21 +31,63 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
         with:
           go-version: '1.26.10'
-      # uv (hash-checked) and the exact CPython from research/.python-version, in .tools/.
-      - run: ./scripts/toolchain.sh
-      - run: make check
-      # Go race tests (PostgreSQL tests included) with the pinned research Python,
-      # research package tests and launcher helper tests.
-      - run: make test
+      # Format, vet and race tests; the PostgreSQL tests run against the
+      # disposable service database above (a throwaway CI-only password).
+      - run: make ci-go
         env:
           TEST_DATABASE_URL: postgres://paper_test:disposable_ci_only@127.0.0.1:5432/tradestocker_test_ci?sslmode=disable
-      - run: make test-package
-      # Both Go binaries, the research wheel, an installed-wheel import and smoke checks.
-      - run: make build
-      - run: ./scripts/package.sh "$RUNNER_TEMP/package"
-      - run: python3 -B docs/tools/test_planctl.py
-      - run: python3 -B test_install_docs.py
-      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
+      - if: always()
+        run: make ci-report
+
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: make ci-python
+      - if: always()
+        run: make ci-report
+
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: make ci-docs
+      - if: always()
+        run: make ci-report
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The whole history, so the secret scan sees every commit.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        with:
+          go-version: '1.26.10'
+      - run: make ci-security
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        with:
+          go-version: '1.26.10'
+      - run: make ci-package

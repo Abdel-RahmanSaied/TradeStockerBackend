@@ -38,7 +38,7 @@ def annual(accn, filed, end, start, revenue, income, cash, assets, liabilities, 
 
 
 def sec_request():
-    tags = {}
+    tags: dict[str, list[dict]] = {}
     for part in [annual(*FY24[:4], 1000, 100, 150, 5000, 3000, 2000),
                  annual(*FY25[:4], 1200, 120, 130, 5500, 3200, 2300),
                  annual(FY25[0], FY25[1], FY24[2], FY24[3], 1000, 100, 150, 5000, 3000, 2000)]:

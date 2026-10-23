@@ -6,11 +6,11 @@ Add observability and a safe worker lifecycle.
 |---|---|
 | Task / owner / reviewer | `S01-T05` / `claude-code-agent` (session `2026-10-23-development-8da61cee`) / **independent review pending** |
 | Base | Backend `29a06e6b24024da68eb5465ed7016a1d788a1947` (state 70) |
-| Code | **PENDING:** exact commit to be recorded after the remaining cleared runs |
+| Code | Product and tests: `55aefbaf5618c2662a98b2cea0c12c35fa8708b4` (tree `2b9eedd39f0551ca02c925ce40f678a60ed36e85`). The browser E2E runner (`scripts/test-e2e-isolated.sh`, SHA-256 `168f214e…`), README note and this record: the next commit, with no product change. |
 | Environment | macOS 27.0.1 arm64; Go 1.26.10; CPython 3.14.8; nats.go v1.54.0; nats-server v2.15.1 (in-process, tests only); PostgreSQL 16.15 (`postgres:16.15-alpine@sha256:f4610795…`, a new container per run) |
 | Hosted CI | **Not run.** Nothing was pushed. |
 
-Every result here is an **author run**. The independent reviewer's runs are in its own reports and are not claimed here.
+Every result in the acceptance and runs tables is an **author run**. The independent reviewer's runs are listed separately below as the coordinator reported them; they are not author runs, and the author did not run the browser E2E.
 
 Deliverable paths: the catalog's `research/src/telemetry/` is `research/src/tradestocker_research/telemetry.py`, inside the accepted single-package layout (one installable package, checked by `research/tests/test_boundaries.py`).
 
@@ -26,16 +26,18 @@ Deliverable paths: the catalog's `research/src/telemetry/` is `research/src/trad
 | `research/parser_launcher.py`, `tradestocker_research/telemetry.py` | The parser path Go runs: the launcher loads the unchanged `financials.py` (SHA-256 `567065a7…`) and `telemetry.py` from the embedded sources, calls `main()` (stdout stays the parser's exact report) and writes one `research parser ended` event in the job's trace. Go relays it only if it has exactly the event's fields, the job's trace, a non-zero span and this parser's version. The `research-worker` CLI accepts an optional `traceparent` per request and logs one safe line per request. |
 | `scripts/test-isolated.sh` | PostgreSQL tests on a new labelled container (tmpfs data, random loopback port, pinned image), packages one at a time; stops only that container after checking its ID and run label. |
 | `deploy/compose.yaml` | Dev stack platform-core gets `TS_NATS_URL=nats://dev-nats:4222`. |
+| `scripts/test-e2e-isolated.sh` | The frontend's Playwright tests against a platform-core this script owns: its own labelled tmpfs PostgreSQL container, a binary in a new per-run folder `.local/t05-e2e.XXXXXX`, API 18090 and dashboard 15173, no SEC contact. Stops only its own API process and container. |
 
 ## Acceptance criteria
 
 | Criterion | Outcome (author run) | Evidence |
 |---|---|---|
-| Trace and correlation IDs survive HTTP and NATS boundaries | **Met in the 5-package isolated run, except one timing assertion in the same test (fixed; rerun PENDING).** One request trace reached the HTTP log line, the stored job, the NATS-received notification, the worker attempt lines and the parser event. | `TestTraceCrossesHTTPAndNATSAndOutagesChangeReadiness`, `TestJobContinuesTheRequestTrace`, `TestNotificationCarriesTheTrace`, `TestLauncherKeepsTheReportBytesAndLogsInTheJobTrace` |
-| Liveness differs from readiness; a dependency outage changes readiness without leaking secrets | **Met in the same run (rerun PENDING).** NATS outage: `degraded`, HTTP 200, a new job still finished by polling. Database outage (a test relay cut): 503 `not_ready`, liveness 200, then `ready` again. Bodies hold fixed words only; no secret in any log line. | Same e2e test; `TestLivenessAndReadiness` |
+| Trace and correlation IDs survive HTTP and NATS boundaries | **Met** (5-package isolated rerun at `55aefba`: 55 PASS; the first run's one failure is kept below). One request trace reached the HTTP log line, the stored job, the NATS-received notification, the worker attempt lines and the parser event. | `TestTraceCrossesHTTPAndNATSAndOutagesChangeReadiness`, `TestJobContinuesTheRequestTrace`, `TestNotificationCarriesTheTrace`, `TestLauncherKeepsTheReportBytesAndLogsInTheJobTrace` |
+| Liveness differs from readiness; a dependency outage changes readiness without leaking secrets | **Met** (same rerun); the worker also logged the database outage and led again after it. NATS outage: `degraded`, HTTP 200, a new job still finished by polling. Database outage (a test relay cut): 503 `not_ready`, liveness 200, then `ready` again. Bodies hold fixed words only; no secret in any log line. | Same e2e test; `TestLivenessAndReadiness` |
 | Logs exclude bot tokens, account secrets and full licensed document content | **Met.** Registered secrets, credential shapes, secret-named and content-named keys, `Licensed` values (also inside lists/structs/maps, `WithGroup` scopes and `fmt`), parser stderr and output-gate errors. | `internal/telemetry` tests (11), independent probes 8/8 at `log.go` `044e8532…`; `TestParserFailureLogsNoOutputContent`, `TestRejectedParserInputLogsOnlyTheOutcome`, `TestOnlyTheLaunchersEventIsRelayed` |
-| Cancellation drains or requeues work and never loses a financial transaction | **Research part met; the process kill/restart and the financial-transaction kill are PENDING static clearance.** | `TestWorkerPoolBoundsConcurrencyAndDrainsOnStop`, `TestStopAfterAValidReportStillSettles`, `TestShutdownReleasesAttemptAndRestartFinishes`; kill harness below |
-| Validation: kill and restart a worker during a synthetic job | **PENDING** (harness written, not run). | `cmd/platform-core/kill_test.go` (build tag `t05kill`) |
+| Cancellation drains or requeues work and never loses a financial transaction | **Met for what was tested.** SIGTERM releases the attempt at once; SIGKILL leaves it for lease recovery; a valid report is still recorded during a stop. A paper write killed inside its open transaction (row lock held, before UPDATE and COMMIT) changed nothing, and its retry with the same key applied exactly once. **Not tested:** a kill at the moment of COMMIT, where the outcome is unknown to the client (the idempotency receipt is the guard there). | `TestWorkerPoolBoundsConcurrencyAndDrainsOnStop`, `TestStopAfterAValidReportStillSettles`, `TestShutdownReleasesAttemptAndRestartFinishes`, `TestKilledPaperWriteChangesNothingAndRetriesOnce` |
+| Validation: kill and restart a worker during a synthetic job | **Met (author run, 3 PASS).** SIGKILL during a synthetic fetch left the job RUNNING with nothing settled (`REQUESTED,ATTEMPT_STARTED`); a restarted worker recovered it after the 3 s lease and finished it (`...,LEASE_RECOVERED,ATTEMPT_STARTED,SEC_SOURCES_STORED,SUCCEEDED`, attempt 2). SIGTERM released at once (`ATTEMPT_INTERRUPTED`) and the restart finished it without lease recovery. Each child exited as asserted (killed by SIGKILL, or exit 0 after SIGTERM). | `cmd/platform-core/kill_test.go` (build tag `t05kill`) |
+| Frontend and real-API integration (browser E2E) | **Not run by the author.** The independent reviewer ran it (below). | `scripts/test-e2e-isolated.sh` |
 | Validation: bounded concurrency with a slow-provider fixture | **Met.** With 2 workers and a 300 ms provider, at most 2 fetches ran at once over 6 jobs; SEC requests from 3 concurrent callers started at least the minimum interval apart, one at a time. | `TestWorkerPoolBoundsConcurrencyAndDrainsOnStop`, `TestSECSpacingHoldsAcrossConcurrentWorkers` |
 
 ## Runs
@@ -44,9 +46,25 @@ Deliverable paths: the catalog's `research/src/telemetry/` is `research/src/trad
 |---|---|---|---|
 | 16:1x | `scripts/test-integration.sh` (reviewed script, normal instance, own `tradestocker_test_*` database) | store + research all PASS | Database dropped by the script. Afterwards Codex asked for a separate instance for T05. |
 | 16:24 | `scripts/test-isolated.sh ./internal/research` | 34 PASS, 0 FAIL, 0 SKIP | `tradestocker-t05-test-pg-910fd1e382f8`, stopped and removed |
-| 16:3x | `scripts/test-isolated.sh ./internal/store ./internal/research ./internal/natsbus ./internal/httpapi ./cmd/platform-core` | 54 PASS, 1 FAIL, 0 SKIP. The failure: the test restored the database before the worker's 1 s session check had logged the outage. Test fixed to wait for that log line (`lifecycle_test.go` `db21b7d8…`). | `tradestocker-t05-test-pg-70cca5351044`, stopped and removed |
+| 16:3x | `scripts/test-isolated.sh ./internal/store ./internal/research ./internal/natsbus ./internal/httpapi ./cmd/platform-core` | **54 PASS, 1 FAIL**, 0 SKIP. The failure: the test restored the database before the worker's 1 s session check had logged the outage. Test fixed to wait for that log line (`lifecycle_test.go` `db21b7d8…`). | `tradestocker-t05-test-pg-70cca5351044`, stopped and removed |
+| 16:38 | `GOFLAGS=-tags=t05kill TEST_RUN="^(TestKilledWorkerIsRecoveredAfterItsLease\|TestStoppedWorkerReleasesItsJobAtOnce\|TestKilledPaperWriteChangesNothingAndRetriesOnce)$" scripts/test-isolated.sh ./cmd/platform-core` at `55aefba` (no `TS_T05_*` variables inherited) | 3 PASS, 0 FAIL; no helper process left | `tradestocker-t05-test-pg-fac818024c97`, stopped and removed |
+| 16:41 | Same 5-package command at `55aefba`, untagged | **55 PASS, 0 FAIL**, 0 SKIP | `tradestocker-t05-test-pg-bd0a9102203b`, stopped and removed |
 | — | Python: `.tools/research-venv/bin/python -I -B -m unittest discover -s research/tests -t research/tests`; ruff; mypy | 43 PASS; ruff and mypy clean (8 files) | none |
 | — | `go vet ./...`; `go test ./tests/architecture`; govulncheck v1.9.0 | clean; PASS; 0 reachable vulnerabilities (1 module-level: GO-2026-5932, `x/crypto/openpgp`, no fix, not imported) | none |
+
+## Independent reviewer runs (reported by the coordinator)
+
+The coordinator (CODEX-BRIDGE 036) reported these runs by `independent_review` on exact `55aefba`, the runner `168f214e…` and a private clean frontend clone at `9c75c918`. The reviewer's own report is the source; it is forthcoming, and the author has not verified these numbers.
+
+| Suite | Reported result |
+|---|---|
+| Five Go packages on its own PostgreSQL, `-race` | 55 PASS, 0 SKIP |
+| Named kill harness (`t05kill`) | 3 PASS, 0 SKIP |
+| Python; architecture; ruff, mypy, vet | 43 PASS; 4 PASS; PASS |
+| Real-API browser E2E | 7 PASS, 1 intentionally skipped (external SEC test) |
+| gitleaks | 2 exact waived findings, 0 open, 0 unused waivers |
+| govulncheck (with tests) | 1 module-level finding, GO-2026-5932 (`x/crypto/openpgp`), 0 affected imports among 334 dependencies, 0 reachable; no waiver |
+| Installed-wheel check | pending at the time of the report |
 
 ## Review findings fixed during the task
 
@@ -57,5 +75,6 @@ Deliverable paths: the catalog's `research/src/telemetry/` is `research/src/trad
 - NATS is a hint only; PostgreSQL holds every job. No JetStream, outbox or exactly-once delivery is claimed.
 - Only the `Licensed` type is protected inside structs; a new marker type would need its own `MarshalJSON`.
 - The retry budget counts retry starts, not provider requests; SEC spacing (1 request per second) and the SEC cooldown still apply.
-- The browser E2E against the real API was not rerun in T05 (it uses the normal database instance and `bin/`).
+- Browser E2E: `scripts/test-e2e.sh` uses the normal database instance and `bin/`, so it was not used. `scripts/test-e2e-isolated.sh` runs the same frontend Playwright tests against an owned database container, a binary in a new per-run folder `.local/t05-e2e.XXXXXX` and private ports 18090/15173. Run it with proxy variables cleared (`env -u HTTP_PROXY -u http_proxy -u HTTPS_PROXY -u https_proxy -u ALL_PROXY -u all_proxy scripts/test-e2e-isolated.sh`) so its local readiness check never goes through a proxy. The author did not run it.
+- The paper-write kill happens inside the open transaction, before UPDATE and COMMIT. A kill during COMMIT, where the client cannot know the outcome, was not tested.
 - No real SEC request, Telegram message, broker call, push or deployment was made.

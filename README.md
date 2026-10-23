@@ -66,6 +66,7 @@ platform-core writes one JSON log line per event on stderr. The owner token, the
 - `TS_RESEARCH_WORKERS` (1 to 4, default 1): research jobs run at once. SEC requests stay one per second in total.
 
 `scripts/test-isolated.sh [./pkg ...]` runs the PostgreSQL tests on a new labelled container on a random local port, with its data in memory, and stops only that container afterwards. The normal database is not used.
+`scripts/test-e2e-isolated.sh` runs the frontend browser tests the same way: its own database container, a binary in a new per-run folder `.local/t05-e2e.XXXXXX`, API on 18090 and dashboard on 15173, and no SEC contact. It refuses to start if either port is busy. Run it with proxy variables cleared (`env -u HTTP_PROXY -u http_proxy -u HTTPS_PROXY -u https_proxy -u ALL_PROXY -u all_proxy scripts/test-e2e-isolated.sh`) so its local readiness check stays local.
 
 ## Build and test
 

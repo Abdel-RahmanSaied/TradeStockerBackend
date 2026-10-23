@@ -27,7 +27,7 @@ Rules are effective-dated. Code must load them as versioned data with a source, 
 | Holidays 2027 | Jan 1, Jan 18, Feb 15, Mar 26, May 31, Jun 18, Jul 5, Sep 6, Nov 25, Dec 24 | VERIFIED | same | same |
 | Early closes | 1:00 p.m. ET on 2026-11-27, 2026-12-24 and 2027-11-26 | VERIFIED | same | same |
 | Settlement | T+1 for most broker-dealer transactions since 2024-05-28 | VERIFIED | [SEC press release 2024-62](https://www.sec.gov/newsroom/press-releases/2024-62) | yearly |
-| Cash account free-riding | A security sold before it was paid for in full withdraws the delayed-payment privilege for 90 calendar days (12 CFR 220.8(c)) | VERIFIED | eCFR 12 CFR 220.8, read through the [official eCFR API](https://www.ecfr.gov/api/versioner/v1/full/2026-10-01/title-12.xml?part=220&section=220.8) (version 2026-10-01) | yearly |
+| Cash account free-riding | Selling a security before it has been paid for in full (free-riding) withdraws the delayed-payment privilege for 90 calendar days (12 CFR 220.8(c)(1)). The freeze does not apply when, within the payment period, full payment is received and the sale proceeds are not withdrawn first, or when the security went to another broker's cash account holding enough funds (220.8(c)(2)). Buying with unsettled proceeds is a separate case; the rule does not freeze every such purchase. How the owner's broker applies this is UNKNOWN. | VERIFIED (rule text) | [eCFR 12 CFR 220.8](https://www.ecfr.gov/current/title-12/chapter-II/subchapter-A/part-220/section-220.8), read through the [official eCFR API](https://www.ecfr.gov/api/versioner/v1/full/2026-10-01/title-12.xml?part=220&section=220.8) (version 2026-10-01). The coordinator also checked the [SEC investor bulletin on cash accounts](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/updated-9) (updated 2026-08-07); it returned HTTP 403 to the author, so it was not read here. | yearly |
 | Pattern day trading | FINRA replaces the day-trading margin rules: no day-trade count test and no $25,000 minimum. New intraday margin standards apply to margin accounts (not good-faith or portfolio margin accounts). Effective 2026-06-04; firms may phase in until 2027-10-20. | VERIFIED | [FINRA Regulatory Notice 26-10](https://www.finra.org/rules-guidance/notices/26-10) (2026-04-20) | 2027-10-20, then with the broker's actual rule |
 | Market-wide circuit breakers | S&P 500 down 7% or 13%: 15-minute halt before 3:25 p.m. ET; down 20%: halt for the rest of the day | VERIFIED | [Nasdaq Trader: market-wide circuit breaker](https://www.nasdaqtrader.com/trader.aspx?id=CircuitBreaker) | yearly; a 2026 SEC filing proposes changing Level 3 resumption |
 | Single-stock pauses (LULD) and halt codes | Price-band pauses and halt codes exist; details not read on the official page today | SECONDARY | [LULD Plan](https://www.luldplan.com/), [Nasdaq halt codes](https://nasdaqtrader.com/trader.aspx?id=tradehaltcodes) | before S03-T04 |
@@ -50,14 +50,16 @@ The official EGX website did not accept connections from this machine on 2026-10
 | Stamp duty | 0.05% from each of buyer and seller; 0.025% for each party on intraday trades; market makers exempt | VERIFIED (announcement only) | same FRA news item | same |
 | Law number and effective date | Professional summaries name Laws 151–153 of 2026 (EY, PwC). Reported effective dates differ (2026-06-23 vs later). | SECONDARY (conflicting) | Official Gazette (not found) | blocker for any EGX after-cost figure |
 
+The two tax rows marked "announcement only" record what the regulator announced. They are not the effective law: the rates, scope and start date count only after the Official Gazette text is read.
+
 ## 2. Unknowns that block activation
 
-None of these can be inferred, and none is answered by the free data account the owner created (Alpaca Basic, data only).
+None of these can be inferred. The Alpaca Basic account the owner created does not answer them: it is considered here only as a candidate data source, and its account type, key scopes and data entitlements are unverified.
 
 | Unknown | Blocks | Who answers |
 |---|---|---|
 | Which broker(s) the owner uses for US and for EGX, and in which country each account is held | D-03; every live or personalized lane | Owner |
-| Account type per market: cash, margin, good-faith or other | US_SWING, US_INTRADAY (same-day round trips in a cash account risk the 90-day freeze) | Owner, then broker documents |
+| Account type per market: cash, margin, good-faith or other | US_SWING, US_INTRADAY (in a cash account, selling before the purchase is paid for can trigger the 90-day freeze unless an exception applies) | Owner, then broker documents |
 | Whether the broker has already applied FINRA's new intraday margin standard (phase-in until 2027-10-20) | US_INTRADAY | Broker documents |
 | Whether the EGX account is enabled for same-day trading, and the broker's licence for it | EGX_INTRADAY | Owner, broker |
 | Account currencies, funding and FX path between EGP and USD | D-04 capital rules, any cross-market allocation | Owner |
@@ -70,12 +72,14 @@ None of these can be inferred, and none is answered by the free data account the
 
 These two tables are examples of what must be filled in. They are **not** the owner's accounts and **not** verified broker behaviour. "Rule" is the public rule above; "This account" stays UNKNOWN until the owner supplies statements or broker documents.
 
+An account that allows margin, short selling or derivatives does not let the platform use them. The baseline prohibits leverage, short selling, derivatives and scalping (Source of Truth INV-07), whatever the account permits.
+
 US account (example: one cash account and one margin account at the same broker):
 
 | Capability | Rule (public) | Cash account: this account | Margin account: this account |
 |---|---|---|---|
 | Settlement | T+1 | UNKNOWN | UNKNOWN |
-| Buy and sell the same day before settlement | Allowed only with settled funds; otherwise 90-day freeze risk | UNKNOWN | UNKNOWN (intraday margin standard; broker phase-in) |
+| Sell a purchase before it is paid for | Cash account: free-riding, 90-day freeze unless a 220.8(c)(2) exception applies. Margin account: FINRA intraday margin standard. | UNKNOWN (broker's handling) | UNKNOWN (broker phase-in) |
 | Short selling | Usually needs a margin account (rule not read today) | UNKNOWN | UNKNOWN |
 | Extended hours | Broker-specific | UNKNOWN | UNKNOWN |
 | Fractional shares | Broker-specific | UNKNOWN | UNKNOWN |
@@ -95,7 +99,7 @@ EGX account (example: one standard account and one account enabled for same-day 
 ## 4. How account data may enter the system
 
 - **Allowed:** statements or trade confirmations exported by the owner (CSV or PDF), imported manually and checked against the ledger. An optional read-only data API may be added later, only after its own review.
-- **Never:** trading credentials, order-entry keys, or any broker API that can place, change or cancel orders (ADR-005 human-only execution). The owner's Alpaca Basic account is a candidate data source only. Its order API must not be integrated, and no key has been requested or received.
+- **Never:** trading credentials, order-entry keys, or any broker API that can place, change or cancel orders (ADR-005 human-only execution). The owner's Alpaca Basic account is considered only as a candidate data source; its account type, key scopes and entitlements are unverified. Its order API must not be integrated, and no key has been requested or received.
 - Imported records must keep their source file hash, import time and the account they claim to describe.
 
 ## 5. Questions for the owner (D-03, D-08)

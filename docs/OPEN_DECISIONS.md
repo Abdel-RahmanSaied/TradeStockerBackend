@@ -26,4 +26,8 @@ If a missing market provider blocks only one market, split the task explicitly w
 
 ## Account-rule research input
 
-[S00-T04 research](evidence/broker-rules-research.md) records dated public sources, corrected free-riding exceptions and separate hypothetical capability matrices. It does not verify the owner's actual accounts, Alpaca key scopes, fees or legal distribution rights. The questions in its section 5 remain inputs to D-03/D-08; neither decision is resolved by that document. Unread official EGX sources and announcement-only tax rates cannot authorize market rules or cost models. Local S01 containers/fixtures can proceed independently.
+[S00-T04 research](evidence/broker-rules-research.md) records dated public sources, corrected free-riding exceptions and separate hypothetical capability matrices. Its second pass adds the MCDR settlement cycles, the texts of Egyptian Laws 151 and 153 of 2026 (read from the Egyptian Tax Authority's copy of the Official Gazette, operative 2026-07-29) and FINRA's fee holiday for Q4 2026. It does not verify the owner's actual accounts, Alpaca key scopes, fees or legal distribution rights. The questions in its section 5 remain inputs to D-03/D-08; neither decision is resolved by that document. Unread official EGX sources (session, holidays, price limits, current same-day rules) cannot authorize market rules, and a law text is not an account-specific cost input (D-09). Local S01 containers/fixtures can proceed independently.
+
+## Decision options input (D-05, D-06, D-07)
+
+[Decision options](evidence/decision-options-d05-d06-d07.md) lists sourced identity, deployment and workload choices, dated AWS list-price estimates and the owner questions behind them. It records no decision and created no resources; D-05, D-06 and D-07 stay OPEN until their owners decide with the evidence named above.

@@ -1,56 +1,65 @@
 # Task evidence — S00-T04 (in progress)
 
-Account, settlement and market-rule research. This record lists what official sources say today, how each rule will be sourced and re-checked, and what is still unknown. **It does not describe any real broker account.** The owner's brokers, account types and permissions are unknown; every lane that depends on them stays blocked.
+Account, settlement and market-rule research. This record lists what official sources say, how each rule will be sourced and re-checked, and what is still unknown. **It does not describe any real broker account.** The owner's brokers, account types and permissions are unknown; every lane that depends on them stays blocked.
 
 | Field | Value |
 |---|---|
 | Task / owner / reviewer | `S00-T04` / `claude-code-agent` / independent review pending |
-| Checked | 2026-10-23, from the sources linked in each row |
+| Checked | 2026-10-23 (first pass, then a second pass after the reviewer's read-only checklist, SHA-256 `e4ae2176…`) |
 | Decisions it feeds | D-03 (accounts, settlement, same-session capability), D-08 (private pilot vs commercial advisory); both stay OPEN |
+| Verification owner | `claude-code-agent` re-checks every public-rule row on or before its date below; the independent reviewer confirms. A production verification owner is named under D-03. Rows about the owner's own account are answered by the owner (section 5). |
 
 Status words used below:
 
-- **VERIFIED**: read today on the official source named in the row.
+- **VERIFIED**: read on the official source named in the row, on the date checked.
+- **VERIFIED (historical text)**: an official document was read, but later amendments were not, so the current rule may differ.
 - **SECONDARY**: only a non-official source, a search-engine summary, or an official page that could not be opened directly.
 - **UNKNOWN**: no usable source yet.
 
+A public rule is never evidence about the owner's account. How a broker applies a rule, and whether an account is allowed to use it, stay UNKNOWN until the owner supplies broker documents or statements.
+
 ## 1. Rules and their sources
 
-Rules are effective-dated. Code must load them as versioned data with a source, a "checked on" date and a re-check date. It must never hard-code today's values.
+Rules are effective-dated. Code must load them as versioned data with a source, a "checked on" date, an operative date and a re-check date. It must never hard-code today's values.
 
 ### United States
 
-| Rule | What the source says | Status | Source | Re-check by |
-|---|---|---|---|---|
-| Regular session | NYSE core session 9:30 a.m. – 4:00 p.m. ET | VERIFIED | [NYSE hours and calendars](https://www.nyse.com/markets/hours-calendars) | each calendar change; at latest 2027-01-01 |
-| Holidays 2026 | Jan 1, Jan 19, Feb 16, Apr 3, May 25, Jun 19, Jul 3, Sep 7, Nov 26, Dec 25 | VERIFIED | same | same |
-| Holidays 2027 | Jan 1, Jan 18, Feb 15, Mar 26, May 31, Jun 18, Jul 5, Sep 6, Nov 25, Dec 24 | VERIFIED | same | same |
-| Early closes | 1:00 p.m. ET on 2026-11-27, 2026-12-24 and 2027-11-26 | VERIFIED | same | same |
-| Settlement | T+1 for most broker-dealer transactions since 2024-05-28 | VERIFIED | [SEC press release 2024-62](https://www.sec.gov/newsroom/press-releases/2024-62) | yearly |
-| Cash account free-riding | Selling a security before it has been paid for in full (free-riding) withdraws the delayed-payment privilege for 90 calendar days (12 CFR 220.8(c)(1)). The freeze does not apply when, within the payment period, full payment is received and the sale proceeds are not withdrawn first, or when the security went to another broker's cash account holding enough funds (220.8(c)(2)). Buying with unsettled proceeds is a separate case; the rule does not freeze every such purchase. How the owner's broker applies this is UNKNOWN. | VERIFIED (rule text) | [eCFR 12 CFR 220.8](https://www.ecfr.gov/current/title-12/chapter-II/subchapter-A/part-220/section-220.8), read through the [official eCFR API](https://www.ecfr.gov/api/versioner/v1/full/2026-10-01/title-12.xml?part=220&section=220.8) (version 2026-10-01). The coordinator also checked the [SEC investor bulletin on cash accounts](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/updated-9) (updated 2026-08-07); it returned HTTP 403 to the author, so it was not read here. | yearly |
-| Pattern day trading | FINRA replaces the day-trading margin rules: no day-trade count test and no $25,000 minimum. New intraday margin standards apply to margin accounts (not good-faith or portfolio margin accounts). Effective 2026-06-04; firms may phase in until 2027-10-20. | VERIFIED | [FINRA Regulatory Notice 26-10](https://www.finra.org/rules-guidance/notices/26-10) (2026-04-20) | 2027-10-20, then with the broker's actual rule |
-| Market-wide circuit breakers | S&P 500 down 7% or 13%: 15-minute halt before 3:25 p.m. ET; down 20%: halt for the rest of the day | VERIFIED | [Nasdaq Trader: market-wide circuit breaker](https://www.nasdaqtrader.com/trader.aspx?id=CircuitBreaker) | yearly; a 2026 SEC filing proposes changing Level 3 resumption |
-| Single-stock pauses (LULD) and halt codes | Price-band pauses and halt codes exist; details not read on the official page today | SECONDARY | [LULD Plan](https://www.luldplan.com/), [Nasdaq halt codes](https://nasdaqtrader.com/trader.aspx?id=tradehaltcodes) | before S03-T04 |
-| SEC Section 31 fee | $20.60 per million dollars of covered sales, for charge dates on or after 2026-04-04, until 60 days after the FY2027 appropriation | VERIFIED | [SEC fee rate advisory 2026-2](https://www.sec.gov/rules-regulations/fee-rate-advisories/2026-2) | each new advisory |
-| FINRA trading activity fee, broker commissions | Not read today | UNKNOWN | FINRA Schedule A; the owner's broker fee schedule | before any cost model (D-09) |
-| Taxes | Depend on the owner's tax residency and the account; not researched for the owner | UNKNOWN | IRS Publication 515 (withholding for non-resident aliens) and a qualified adviser | before any after-tax figure |
+| Rule | What the source says | Status | Published → operative | Source | Re-check by |
+|---|---|---|---|---|---|
+| Regular session | NYSE core session 9:30 a.m. – 4:00 p.m. ET | VERIFIED | page undated; checked 2026-10-23 | [NYSE hours and calendars](https://www.nyse.com/markets/hours-calendars) | each calendar change; at latest 2027-01-01 |
+| Holidays 2026 | Jan 1, Jan 19, Feb 16, Apr 3, May 25, Jun 19, Jul 3, Sep 7, Nov 26, Dec 25 | VERIFIED | same | same | same |
+| Holidays 2027 | Jan 1, Jan 18, Feb 15, Mar 26, May 31, Jun 18, Jul 5, Sep 6, Nov 25, Dec 24 | VERIFIED | same | same | same |
+| Early closes | 1:00 p.m. ET on 2026-11-27, 2026-12-24 and 2027-11-26 | VERIFIED | same | same | same |
+| Settlement | T+1 for most broker-dealer transactions | VERIFIED | operative 2024-05-28 | [SEC press release 2024-62](https://www.sec.gov/newsroom/press-releases/2024-62) | yearly |
+| Cash account: what may be sold | A creditor may sell for a customer in a cash account if the security is held in the account, or if it accepts in good faith the customer's statement that the customer owns it and will deliver it promptly (12 CFR 220.8(a)(2)). Selling securities the customer does not own is not in that list. | VERIFIED (rule text) | eCFR version current as of 2026-10-21 | [eCFR 12 CFR 220.8](https://www.ecfr.gov/current/title-12/chapter-II/subchapter-A/part-220/section-220.8), read through the [official eCFR API](https://www.ecfr.gov/api/versioner/v1/full/2026-10-21/title-12.xml?part=220&section=220.8) | yearly |
+| Cash account free-riding | Selling a security before it has been paid for in full withdraws the delayed-payment privilege for 90 calendar days (220.8(c)(1)). The freeze does not apply when, within the payment period, full payment is received and the sale proceeds are not withdrawn first, or when the security went to another broker's cash account holding enough funds (220.8(c)(2)). Buying with unsettled proceeds is a separate case; the rule does not freeze every such purchase. | VERIFIED (rule text) | eCFR versions of 2026-10-01 and 2026-10-21 | same. The coordinator also checked the [SEC investor bulletin on cash accounts](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/updated-9) (updated 2026-08-07); it returned HTTP 403 to the author, so it was not read here. | yearly |
+| Pattern day trading | FINRA replaces the day-trading margin rules: no day-trade count test and no $25,000 minimum. New intraday margin standards apply to margin accounts (not good-faith or portfolio margin accounts). | VERIFIED | published 2026-04-20 → operative 2026-06-04; firms may phase in until 2027-10-20 | [FINRA Regulatory Notice 26-10](https://www.finra.org/rules-guidance/notices/26-10) | 2027-10-20, then with the broker's actual rule |
+| Market-wide circuit breakers | S&P 500 down 7% or 13%: 15-minute halt before 3:25 p.m. ET; down 20%: halt for the rest of the day | VERIFIED | page undated; checked 2026-10-23 | [Nasdaq Trader: market-wide circuit breaker](https://www.nasdaqtrader.com/trader.aspx?id=CircuitBreaker) | yearly; a 2026 SEC filing proposes changing Level 3 resumption |
+| Single-stock pauses (LULD) and halt codes | Price-band pauses and halt codes exist; details not read on the official pages | SECONDARY | — | [LULD Plan](https://www.luldplan.com/), [Nasdaq halt codes](https://nasdaqtrader.com/trader.aspx?id=tradehaltcodes) | before S03-T04 |
+| SEC Section 31 fee | $20.60 per million dollars of covered sales | VERIFIED | operative for charge dates on or after 2026-04-04, until 60 days after the FY2027 appropriation | [SEC fee rate advisory 2026-2](https://www.sec.gov/rules-regulations/fee-rate-advisories/2026-2) | each new advisory |
+| FINRA trading activity fee (TAF), covered equity sales | $0.00 for transactions from 2026-10-01 to 2026-12-31 (a "fee holiday"). Before and after that period: $0.000195 per share, at most $9.79 per trade. The filing says a separate filing (SR-FINRA-2026-020, not read) keeps these rates through 2028-12-31. FINRA charges its members; whether and how a broker passes the fee to a customer is UNKNOWN. | VERIFIED (filing text, Exhibits 5A and 5B) | signed 2026-09-15, effective on filing (Exchange Act section 19(b)(3)(A), Rule 19b-4(f)(2)) → $0.00 from 2026-10-01; rates return on 2027-01-01 | [SR-FINRA-2026-021](https://www.finra.org/sites/default/files/2026-09/SR-FINRA-2026-021.pdf). FINRA's rulebook page, read through the web tool, still showed an older footnote ($0.000166, $8.30) without a clear version date, so it was not used. | 2027-01-01 |
+| Broker commissions and other broker fees | Not known | UNKNOWN | — | the owner's broker fee schedule | before any cost model (D-09) |
+| Taxes | Depend on the owner's tax residency and the account; not researched for the owner | UNKNOWN | — | IRS Publication 515 (withholding for non-resident aliens) and a qualified adviser | before any after-tax figure |
 
 ### Egypt (EGX)
 
-The official EGX website did not accept connections from this machine on 2026-10-23 (two attempts, plus one through the web fetch tool). The MCDR website failed TLS certificate verification. Neither was used.
+Access on 2026-10-23: the official EGX website reset every connection (from this machine with `curl`, and through the web fetch tool). The MCDR website failed TLS certificate verification in the first pass. In the second pass it opened with normal certificate checks through `curl` and the system trust store (the web fetch tool still could not verify its certificate chain). No check was ever bypassed. The FRA and Egyptian Tax Authority (ETA) sites opened normally.
 
-| Rule | What the sources say | Status | Source | Re-check by |
-|---|---|---|---|---|
-| Session | A search-index view of the official EGX trading-hours page shows: discovery from 09:30 (random end 09:50–10:00), continuous 10:00–14:15, closing auction 14:15–14:25, trade-at-close 14:25–14:30, Sunday–Thursday, different hours in Ramadan. Other third-party pages say continuous trading ends at 14:30. | SECONDARY (conflicting) | [EGX trading hours](https://www.egx.com.eg/en/Trading_Hours.aspx), not opened directly | blocker until read directly or confirmed by the owner's broker |
-| Holidays | No official calendar read | UNKNOWN | EGX notices | blocker for EGX sessions |
-| Price limits | A search summary of an EGX page mentions ±20% for the main market; not read directly | SECONDARY | EGX trading-system page | before S02-T03 |
-| Settlement | Third-party custodian profiles say T+2 (delivery versus payment) | SECONDARY | MCDR (unreachable); RBC Investor Services market profile | blocker for EGX settlement modelling |
-| Same-day (intraday) trading | Governed by FRA Board Decree 67 of 2012 and later amendments; only FRA-licensed brokers, with specific client forms. Names come from a search view of EGX's membership-rules page. | SECONDARY | [EGX membership rules](https://www.egx.com.eg/en/Membership_rules.aspx) | blocker for EGX_INTRADAY |
-| Capital gains tax (listed shares) | Abolished and replaced by a proportional stamp duty | VERIFIED (announcement only) | [FRA news, 2026-08-03](https://fra.gov.eg/en/fra_news/%D8%AF-%D8%A5%D8%B3%D9%84%D8%A7%D9%85-%D8%B9%D8%B2%D8%A7%D9%85-%D8%B1%D8%A6%D9%8A%D8%B3-%D8%A7%D9%84%D8%B1%D9%82%D8%A7%D8%A8%D8%A9-%D8%A7%D9%84%D9%85%D8%A7%D9%84%D9%8A%D8%A9-%D9%8A%D9%84%D9%82%D9%8A) | when the Official Gazette text is found |
-| Stamp duty | 0.05% from each of buyer and seller; 0.025% for each party on intraday trades; market makers exempt | VERIFIED (announcement only) | same FRA news item | same |
-| Law number and effective date | Professional summaries name Laws 151–153 of 2026 (EY, PwC). Reported effective dates differ (2026-06-23 vs later). | SECONDARY (conflicting) | Official Gazette (not found) | blocker for any EGX after-cost figure |
+| Rule | What the sources say | Status | Published → operative | Source | Re-check by |
+|---|---|---|---|---|---|
+| Session | A search-index view of the official EGX trading-hours page shows: discovery from 09:30 (random end 09:50–10:00), continuous 10:00–14:15, closing auction 14:15–14:25, trade-at-close 14:25–14:30, Sunday–Thursday, different hours in Ramadan. Other third-party pages say continuous trading ends at 14:30. | SECONDARY (conflicting) | — | [EGX trading hours](https://www.egx.com.eg/en/Trading_Hours.aspx), not opened directly | blocker until read directly or confirmed by the owner's broker |
+| Holidays | No official calendar read | UNKNOWN | — | EGX notices | blocker for EGX sessions |
+| Price limits | A search summary of an EGX page mentions ±20% for the main market; not read directly | SECONDARY | — | EGX trading-system page | before S02-T03 |
+| Settlement | Clearing and settlement use delivery versus payment. **T+2** for securities registered in the central depository, both listed and OTC block trades. **T+1** when a broker licensed by the FRA sells securities bought the previous day. **T+0** for same-day trading through brokers licensed by the FRA for it, in securities permitted for it. T+3 for OTC depository securities; T+4 for physical securities. | VERIFIED | page shows no date; read 2026-10-23 | [MCDR clearing and settlement](https://www.mcdr.com.eg/en/activities-services/clearing-settlement) | 2027-04-23, or when MCDR or the FRA announces a change |
+| Same-day (intraday) trading: client conditions | CMA Circular 51 (2009-03-26), on CMA Chairman's Decree 24 of 2008: the client signs a dedicated intraday contract and a risk-disclosure form **personally** (a power of attorney may not be used); the client must meet financial-solvency and technical-awareness requirements; the broker opens a separate account for these trades; daily volume per client may not exceed 1/10,000 of the company's listed securities "or according to future amendments". An Arabic CMA board decision of 2009 on broker approval conditions was only partly read (its digits extract in reverse order and its page did not render). Later amendments, including FRA Board Decree 67 of 2012 named on EGX's membership page in a search view, were **not read**. | VERIFIED (historical text) | 2009-03-26; current consolidated text UNKNOWN | [FRA copy of Circular 51](https://fra.gov.eg/wp-content/uploads/fra_live_data/pdfs/UG18655_UG21070.pdf); [FRA copy of the 2009 decision](https://fra.gov.eg/wp-content/uploads/fra_live_data/pdfs/UG19081UG19082.pdf) | blocker for EGX_INTRADAY until the current rules or the broker's documents are read |
+| Capital gains tax (listed shares) | Law 151 of 2026 amends Income Tax Law 91 of 2005. Its Article 2 adds item 7 to Article 31: capital gains from disposing of securities listed on the Egyptian Exchange are exempt; losses from these disposals cannot be deducted or carried forward. The exemption does not cover disposals that cause the company's shares to be delisted. Article 5 (subject to Article 4 of Law 30 of 2023) waives unpaid tax on capital gains from listed shares for 2023-06-16 until the law's start. That Article 31 is the exemptions list ("يعفى من الضريبة", "exempt from tax") was read in the [WIPO Lex copy of Law 91 of 2005](https://www.wipo.int/wipolex/es/text/578784), consolidated to Law 16 of 2020: a reliable database, not the Gazette. | VERIFIED (law text) | Official Gazette No. 30 bis (A), 2026-07-28 → operative 2026-07-29 (Article 7: the day after publication) | [ETA copy of Law 151 of 2026](https://portal.eta.gov.eg/sites/default/files/2026-08/law.no_.151.of_.2026.pdf) | any amending law or executive regulation; at latest 2027-07-29 |
+| Stamp duty (listed securities) | Law 153 of 2026 replaces Article 83 bis of Stamp Duty Law 111 of 1980. Tax on the total value of sales of EGX-listed securities, except listed investment-fund certificates, with no deduction for costs. The buyer pays 0.5 per thousand (0.05%) and the seller pays 0.5 per thousand, resident or not. When the purchase and sale happen on the same day, each pays 0.25 per thousand (0.025%). Licensed market makers are exempt. The settlement entity withholds the tax and pays it within five days of the start of the next month, and is jointly liable with buyer and seller. Article 2 repeals Article 5 of Law 199 of 2020. | VERIFIED (law text) | Official Gazette No. 30 bis (A), 2026-07-28 → operative 2026-07-29 (Article 3) | [ETA copy of Law 153 of 2026](https://portal.eta.gov.eg/sites/default/files/2026-08/law.no_.153.of_.2026.pdf); earlier context: [FRA news, 2026-08-03](https://fra.gov.eg/en/fra_news/%D8%AF-%D8%A5%D8%B3%D9%84%D8%A7%D9%85-%D8%B9%D8%B2%D8%A7%D9%85-%D8%B1%D8%A6%D9%8A%D8%B3-%D8%A7%D9%84%D8%B1%D9%82%D8%A7%D8%A8%D8%A9-%D8%A7%D9%84%D9%85%D8%A7%D9%84%D9%8A%D8%A9-%D9%8A%D9%84%D9%82%D9%8A) | same |
 
-The two tax rows marked "announcement only" record what the regulator announced. They are not the effective law: the rates, scope and start date count only after the Official Gazette text is read.
+About the two tax rows:
+
+- The first pass marked both rows "announcement only" because only the FRA news item had been read; the law number and start date were SECONDARY and conflicting (some summaries gave 2026-06-23). The second pass read the law texts: Laws 151 and 153 of 2026, published 2026-07-28 and operative 2026-07-29. The 2026-06-23 date is not the operative date.
+- Source quality: these are scans of Official Gazette pages published by the Egyptian Tax Authority, a government source. The Gazette publisher itself was not accessed. The PDF text extractor reverses Arabic digits, so the law number, Gazette issue, dates and both rates on the first page of Law 153 were confirmed by looking at the rendered page image, and the relevant pages of Law 151 the same way.
+- A verified law text is still not a cost input: how MCDR and the broker actually charge it to an account is UNKNOWN, and D-09 decides how costs enter any evaluation. No tax advice is given; whether these rules apply to the owner depends on facts this record does not have.
 
 ## 2. Unknowns that block activation
 
@@ -61,57 +70,96 @@ None of these can be inferred. The Alpaca Basic account the owner created does n
 | Which broker(s) the owner uses for US and for EGX, and in which country each account is held | D-03; every live or personalized lane | Owner |
 | Account type per market: cash, margin, good-faith or other | US_SWING, US_INTRADAY (in a cash account, selling before the purchase is paid for can trigger the 90-day freeze unless an exception applies) | Owner, then broker documents |
 | Whether the broker has already applied FINRA's new intraday margin standard (phase-in until 2027-10-20) | US_INTRADAY | Broker documents |
-| Whether the EGX account is enabled for same-day trading, and the broker's licence for it | EGX_INTRADAY | Owner, broker |
+| Whether the EGX account is enabled for same-day trading (separate contract, disclosure and account), and the broker's FRA licence for it | EGX_INTRADAY | Owner, broker |
+| Current consolidated EGX same-day trading rules (amendments after 2009 not read) | EGX_INTRADAY | Direct read of FRA/EGX texts, or broker documents |
 | Account currencies, funding and FX path between EGP and USD | D-04 capital rules, any cross-market allocation | Owner |
-| Fees and commissions actually charged | Any net-of-cost backtest or result (D-09) | Broker fee schedule |
+| Fees, commissions and pass-through of regulatory fees actually charged | Any net-of-cost backtest or result (D-09) | Broker fee schedule, statements |
 | Tax residency and treatment | Any after-tax figure | Owner with a qualified adviser |
-| EGX session, holidays, settlement and price limits from an official source | EGX_SWING, EGX_INTRADAY | Direct read of EGX/MCDR/FRA, or broker confirmation |
+| EGX session, holidays and price limits from an official source | EGX_SWING, EGX_INTRADAY | Direct read of EGX, or broker confirmation |
 | Private pilot or commercial advice; whether a legal review is needed | D-08; any delivery to anyone other than the owner | Owner, with counsel if not private |
 
 ## 3. Hypothetical account capability matrices
 
-These two tables are examples of what must be filled in. They are **not** the owner's accounts and **not** verified broker behaviour. "Rule" is the public rule above; "This account" stays UNKNOWN until the owner supplies statements or broker documents.
+These two tables are **examples of what must be filled in**. They are **not** the owner's accounts and **not** verified broker behaviour. The "Public rule" column repeats section 1 with its status; it never answers the account columns. Every account cell stays UNKNOWN until the owner supplies statements or broker documents, and no cell may be copied into code or a cost model on its own.
 
 An account that allows margin, short selling or derivatives does not let the platform use them. The baseline prohibits leverage, short selling, derivatives and scalping (Source of Truth INV-07), whatever the account permits.
 
 US account (example: one cash account and one margin account at the same broker):
 
-| Capability | Rule (public) | Cash account: this account | Margin account: this account |
+| Capability | Public rule (status) | Cash account: this account | Margin account: this account |
 |---|---|---|---|
-| Settlement | T+1 | UNKNOWN | UNKNOWN |
-| Sell a purchase before it is paid for | Cash account: free-riding, 90-day freeze unless a 220.8(c)(2) exception applies. Margin account: FINRA intraday margin standard. | UNKNOWN (broker's handling) | UNKNOWN (broker phase-in) |
-| Short selling | Usually needs a margin account (rule not read today) | UNKNOWN | UNKNOWN |
+| Settlement | T+1 (VERIFIED) | UNKNOWN | UNKNOWN |
+| Sell a purchase before it is paid for | Cash account: free-riding, 90-day freeze unless a 220.8(c)(2) exception applies (VERIFIED rule text). Margin account: FINRA intraday margin standard (VERIFIED; broker phase-in until 2027-10-20). | UNKNOWN (broker's handling) | UNKNOWN (broker's phase-in) |
+| Short selling | Cash account: permitted sales are of securities held or owned (220.8(a)(2), VERIFIED rule text). Margin account: broker-specific. The platform prohibits short selling in any account (INV-07). | UNKNOWN | UNKNOWN |
 | Extended hours | Broker-specific | UNKNOWN | UNKNOWN |
 | Fractional shares | Broker-specific | UNKNOWN | UNKNOWN |
-| Fees | Section 31 on sales plus broker fees | UNKNOWN | UNKNOWN |
+| Fees | Section 31 on sales (VERIFIED); FINRA TAF $0.00 until 2026-12-31, then $0.000195 per share up to $9.79 (VERIFIED filing text; pass-through UNKNOWN); broker fees (UNKNOWN) | UNKNOWN | UNKNOWN |
 | Statements available | Broker-specific | UNKNOWN | UNKNOWN |
 
 EGX account (example: one standard account and one account enabled for same-day trading):
 
-| Capability | Rule (public) | Standard: this account | Same-day enabled: this account |
+| Capability | Public rule (status) | Standard: this account | Same-day enabled: this account |
 |---|---|---|---|
-| Settlement | T+2 (SECONDARY) | UNKNOWN | UNKNOWN |
-| Buy and sell the same day | Only through the FRA intraday mechanism (SECONDARY) | UNKNOWN (expected: no) | UNKNOWN |
-| Short selling | FRA news titles mention a short-selling mechanism being launched (pages not read) | UNKNOWN | UNKNOWN |
-| Stamp duty | 0.05% per side; 0.025% per side intraday | UNKNOWN | UNKNOWN |
+| Settlement | T+2 for depository securities; T+1 when selling securities bought the previous day through a licensed broker (VERIFIED, MCDR) | UNKNOWN | UNKNOWN |
+| Buy and sell the same day | T+0 only through brokers licensed by the FRA for same-day trading, in permitted securities (VERIFIED, MCDR); client signs a separate contract and risk disclosure personally and uses a separate account (VERIFIED historical text, 2009; current rules UNKNOWN) | UNKNOWN | UNKNOWN |
+| Short selling | FRA news titles mention a short-selling mechanism being launched (pages not read; SECONDARY). The platform prohibits short selling in any account (INV-07). | UNKNOWN | UNKNOWN |
+| Stamp duty | 0.05% per side; 0.025% per side when bought and sold the same day; Law 153 of 2026, operative 2026-07-29 (VERIFIED law text). How it is charged to this account: UNKNOWN. Not a validated cost input (D-09). | UNKNOWN | UNKNOWN |
+| Capital gains tax | Listed-share gains exempt, losses not deductible; Law 151 of 2026, operative 2026-07-29 (VERIFIED law text). Applies to the owner: UNKNOWN (no tax advice). | UNKNOWN | UNKNOWN |
 | Statements available | Broker-specific | UNKNOWN | UNKNOWN |
 
 ## 4. How account data may enter the system
 
 - **Allowed:** statements or trade confirmations exported by the owner (CSV or PDF), imported manually and checked against the ledger. An optional read-only data API may be added later, only after its own review.
-- **Never:** trading credentials, order-entry keys, or any broker API that can place, change or cancel orders (ADR-005 human-only execution). The owner's Alpaca Basic account is considered only as a candidate data source; its account type, key scopes and entitlements are unverified. Its order API must not be integrated, and no key has been requested or received.
-- Imported records must keep their source file hash, import time and the account they claim to describe.
+- **Never:** trading credentials, order-entry keys, or any broker API that can place, change or cancel orders (ADR-005 human-only execution). The owner's Alpaca Basic account is considered only as a candidate data source; its account type, key scopes and entitlements are unverified. Its order API must not be integrated, and no key has been requested or received. The SEC contact address is used only for SEC requests, never as account information.
+- Imported records must keep their source file hash, import time and the account they claim to describe. An import is evidence of past executions only; it grants no order route or trading authority.
 
 ## 5. Questions for the owner (D-03, D-08)
 
-1. Which broker do you use for US shares, and which for EGX? In which country is each account?
-2. For each: cash or margin account? Is same-day trading enabled?
-3. Which currencies do you hold, and how do you move money between EGP and USD?
-4. Is this a private tool for you only, or will anyone else ever receive its recommendations? If anyone else, a legal review comes first (D-08).
-5. Can you export statements (CSV or PDF) from each broker? That is the only account input planned.
+Only short, non-secret answers are needed. No account numbers, passwords, keys or statements are needed to answer these.
+
+1. **US broker.** Name of the broker and the country where the account is held. Or: "no US account yet". Or: "not now" (US lanes then stay blocked).
+2. **US account type.** Cash / margin / don't know. (A margin account does not let the platform use margin or short selling.)
+3. **EGX broker.** Name of the broker. Is the account enabled for same-day trading (you signed a separate same-day contract)? Yes / no / don't know.
+4. **Money.** Which currencies do you hold for trading, and how do you move money between EGP and USD (if at all)?
+5. **Who receives recommendations (D-08).**
+   - (a) Only me: a private pilot. Delivery stays limited to the owner.
+   - (b) A closed group of named people.
+   - (c) The public or paying clients.
+
+   Choosing (b) or (c) means a qualified legal review comes first. This research does not say which rules apply, and a model's analysis is not legal approval. Until the review is recorded, delivery stays owner-only.
+6. **Statements.** Can each broker export statements or trade confirmations? CSV / PDF / neither.
+
+Timezone, data-provider signups and the SEC contact address are not used to guess the answers.
+
+## 6. What this task can complete now, and what stays open
+
+This research can complete the sourcing method, the dated public-rule rows in section 1, the list of blockers, the account-data intake rule and the owner questions. It cannot complete the parts that need the owner's answers:
+
+- **Acceptance criterion 3** ("Determine whether the pilot remains private and whether commercial advisory review is required") needs the owner's answer to question 5. Until then D-08 stays OPEN, and the evidence only says that delivery stays owner-only.
+- **D-03** (brokers, account types, same-session capability) stays OPEN until questions 1–4 and 6 are answered and broker documents confirm them.
+- **Official reads still missing:** EGX session, holidays and price limits (EGX site unreachable); current EGX same-day trading rules after 2009; US LULD details and halt codes; broker fee schedules; tax treatment for the owner.
+
+None of these is marked resolved here. A hypothetical matrix or a public rule never verifies an account.
+
+## Source copies read in the second pass
+
+Copies were saved outside the repository (in the author's session scratch area); they are not committed. Each was fetched on 2026-10-23 with normal TLS verification.
+
+| Source | Retrieved (UTC) | SHA-256 |
+|---|---|---|
+| MCDR clearing and settlement page (HTML; text read from its embedded content) | 16:05 | `0e13645038ddbf09f52cb4db4e0e7380c66a943fad3c33585b74dd337e8ef0cd` |
+| FRA copy of CMA Circular 51 of 2009 (PDF) | 16:06 | `af48a47e22b2b381aa0b6f635b0c805bfea292da80786c0e7cf224c421b14c57` |
+| FRA copy of the 2009 CMA intraday decision (PDF, Arabic) | 16:06 | `e1b24488062fd6c276f932bcb09b98d61747aded03787207535dfb8fbac876c0` |
+| ETA copy of Law 151 of 2026 (PDF) | 16:08 | `08b56d57625bdccadfe3feeb3c40225071a093a6a260211c967710db44b94bc9` |
+| ETA copy of Law 153 of 2026 (PDF) | 16:07 | `20d491a6c33cf11d78e143b050d369143cd1a17287e5d187236c4fd575052309` |
+| eCFR 12 CFR 220.8, version 2026-10-21 (XML) | 16:09 | `d2cf084e6bdd5476d06c48d71c4b111c2d913b098a09ce6827fb6a0b2a957680` |
+| SR-FINRA-2026-021 (PDF) | 16:10 | `57f7cf542abfec11399640d30ca8dcfea423f6d752936369109553c69c9cfe6e` |
+
+PDF text was extracted with `pypdf` 6.1.1 in a throwaway environment outside the project (not a project dependency); page images were rendered with the macOS `sips` tool.
 
 ## Limits
 
-- Several EGX rules could not be read on an official page today; they stay SECONDARY or UNKNOWN until someone reads them directly.
-- No tax advice is given. The figures are announcements and rule texts, not a tax position for the owner.
+- Several EGX rules could not be read on an official page; they stay SECONDARY or UNKNOWN until someone reads them directly.
+- The MCDR page shows no date. Its rules are recorded as read on 2026-10-23, not as of a known operative date.
+- No tax or legal advice is given. Law texts are recorded as published; their application to the owner is unknown.
 - A verification owner for production must be named under D-03. Until then, the author re-checks on the dates above and the reviewer confirms.

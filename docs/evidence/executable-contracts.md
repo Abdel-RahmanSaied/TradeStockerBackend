@@ -4,7 +4,7 @@ Implement OpenAPI and event-schema ownership.
 
 | Field | Value |
 |---|---|
-| Task / owner / reviewer | `S02-T01` / `claude-code-agent` (session `2026-10-23-development-8da61cee`) / **independent review pending** |
+| Task / owner / reviewer | `S02-T01` / `claude-code-agent` (session `2026-10-23-development-8da61cee`) / `independent_review` ([named independent report](executable-contracts-independent-review.md)) |
 | Base | Backend `f5d2179a937f5fe72c30ec1fe795ff06da714a5e` (state 74) |
 | Code | Recorded by the coordinator from the author's commit; this record is part of it |
 | Environment | macOS 27.0.1 arm64; Go 1.26.10; CPython 3.14.8 (research venv); no new third-party dependency |
@@ -25,7 +25,15 @@ Every result here is an **author run** unless it says otherwise. The independent
 | `contracts/tools/compat.py`, `compat/v1.lock.json` | Direction-aware compatibility check against a reviewed baseline (185 surfaces) | `make ci-go`, `make test` |
 | `contracts/README.md` | Dialect, wire rules, versions, compatibility policy, reconciliation with `CONTRACTS.md` | |
 
-Product behaviour changed in one place only: `internal/research/analyze.go` now builds the parser request in `parserRequest`, with the same bytes as before (the time is passed in). No API, storage, paper, frontend or persisted format changed.
+The initial implementation extracts the same parser-request construction into `parserRequest` in `internal/research/analyze.go`. The later UTC correction also changes research API timestamps read from PostgreSQL to UTC `Z` spelling, preserving their instants and normalizing legacy cooldown detail only in the served copy. New cooldown detail is written in UTC. No migration or rewrite of existing rows, source originals, result documents, PAPER format or frontend product was added.
+
+## Coordinator addendum after actual independent review
+
+The [independent report](executable-contracts-independent-review.md), copied verbatim with SHA256 `903e3a97da6e85e22f355520d12eb7ee39e0e3f41adf0d049b140cd43dd55ebf`, accepts the bounded implementation at `46fc10d7432027ebc20eecc6f5a50a9c9c0bdf4f`, tree `ebe8368c16022d68137afd02afe2bbb1efb8f162`. The first `2b01491` private-PG failure is retained. Independent replay now passes the same full PG test (1 PASS, zero failure/skip), including the previously unreached retry/cooldown/status/list/detail/source steps. Two UTC memory tests and focused vet pass. The generator correction at `dfeeaed` passes eight independent methods and valid `--check`.
+
+The independent real-API/browser run passes 8 with 1 intentional external-SEC skip: the existing offline seven plus one explicitly declared reviewer-only synthetic persisted UTC case on frontend `9c75c9183df2ed9457012260bb904a9ea404a960`. Exact31-commit reachable history has two existing precise waivers, zero open findings/unused waivers. Earlier broad successes and their counts remain attributed to the reviewer in the named report; repeats are not new unique tests.
+
+The author-only results and pending/not-run statements below preserve the author's checkpoint before independent replay. They are superseded for the independent verdict by the named report; the author did not run the reviewer's generator, PG or browser checks. No event-producer, production-readiness, live-data or recommendation claim follows from this acceptance.
 
 ## Acceptance criteria
 

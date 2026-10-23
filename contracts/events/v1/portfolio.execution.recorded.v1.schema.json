@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/portfolio.execution.recorded.v1.schema.json",
+  "title": "portfolio.execution.recorded, version 1",
+  "description": "Records an execution a human already made outside the platform, as reported by the human or imported from a statement. It is never an order and never sent to a broker; acknowledging advice is not an execution (INV-02).",
+  "x-tradestocker-catalog-name": "portfolio.execution.recorded.v1",
+  "x-tradestocker-producer": "platform-core",
+  "x-tradestocker-consumer": "projections and monitoring",
+  "x-tradestocker-uniqueness": "account_id + execution_key",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "portfolio.execution.recorded"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "platform-core"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/id",
+      "description": "Required: this event belongs to one account."
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "execution_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "execution_key": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "Human report or statement import key; unique per account."
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "HUMAN_REPORT",
+            "STATEMENT_IMPORT"
+          ]
+        },
+        "instrument_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "BUY",
+            "SELL"
+          ]
+        },
+        "quantity": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "price": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "currency": {
+          "$ref": "common.schema.json#/$defs/currency"
+        },
+        "fees": {
+          "$ref": "common.schema.json#/$defs/non_negative_decimal"
+        },
+        "executed_at": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp",
+          "description": "When the human's execution happened; never after reported_at."
+        },
+        "reported_at": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        },
+        "recommendation_id": {
+          "$ref": "common.schema.json#/$defs/nullable_id",
+          "description": "The advice the human says it followed, if any."
+        }
+      },
+      "required": [
+        "execution_id",
+        "execution_key",
+        "source",
+        "instrument_id",
+        "side",
+        "quantity",
+        "price",
+        "currency",
+        "fees",
+        "executed_at",
+        "reported_at",
+        "recommendation_id"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

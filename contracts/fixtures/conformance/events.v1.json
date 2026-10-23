@@ -1,0 +1,757 @@
+{
+ "dialect": "tradestocker-schema-subset/1",
+ "description": "Hand-written v1 event cases. Each raw payload is a golden fixture with one stated change; expect is \"valid\" or the code (MALFORMED_JSON, UNSUPPORTED_SCHEMA_VERSION, UNKNOWN_EVENT_TYPE, SCHEMA_VIOLATION) with the keyword and path of the first violation. Go and Python must both give exactly these answers.",
+ "cases": [
+  {
+   "name": "golden evidence.document.available",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_105\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"available_at\":\"2026-10-21T00:00:00Z\",\"document_id\":\"doc_fixture_001\",\"document_kind\":\"ANNUAL_REPORT\",\"document_version\":1,\"instrument_id\":\"instrument_fixture_001\",\"provider_id\":\"provider_fixture\",\"published_at\":\"2026-10-20T21:00:00Z\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"event_id\":\"evt_fixture_105\",\"event_type\":\"evidence.document.available\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden goal.assessment.completed",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_112\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"changes_risk_policy\":false,\"goal_id\":\"goal_fixture_001\",\"goal_revision\":2,\"input_manifest_id\":\"manifest_fixture_002\",\"status\":\"INSUFFICIENT_DATA\"},\"event_id\":\"evt_fixture_112\",\"event_type\":\"goal.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden market.bar.finalized",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_101\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"bar_end\":\"2026-10-23T00:00:00Z\",\"bar_start\":\"2026-10-22T00:00:00Z\",\"bar_version\":1,\"close\":\"102.50\",\"currency\":\"USD\",\"high\":\"104.000000000000000001\",\"instrument_id\":\"instrument_fixture_001\",\"interval\":\"1d\",\"low\":\"0.000000000000000001\",\"open\":\"101.25\",\"provider_id\":\"provider_fixture\",\"volume\":\"0\"},\"event_id\":\"evt_fixture_101\",\"event_type\":\"market.bar.finalized\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden market.data.quality.changed",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_104\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"effective_from\":\"2026-10-23T09:05:00Z\",\"instrument_id\":\"instrument_fixture_001\",\"quality\":\"STALE\",\"quality_revision\":2,\"reason_codes\":[\"FEED_DELAYED\",\"NO_TRADES_IN_WINDOW\"]},\"event_id\":\"evt_fixture_104\",\"event_type\":\"market.data.quality.changed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden market.quote.updated",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_102\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"ask\":\"18.40\",\"bid\":null,\"currency\":\"EGP\",\"instrument_id\":\"instrument_fixture_002\",\"last\":\"18.35\",\"provider_id\":\"provider_fixture\",\"quoted_at\":\"2026-10-23T09:00:00.123456789Z\",\"source_sequence\":9007199254740991},\"event_id\":\"evt_fixture_102\",\"event_type\":\"market.quote.updated\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden market.status.changed",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_103\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"effective_from\":\"2026-10-23T09:30:00Z\",\"instrument_id\":null,\"market\":\"EGX\",\"reason_code\":\"MARKET_WIDE_HALT\",\"status\":\"HALTED\",\"status_revision\":3},\"event_id\":\"evt_fixture_103\",\"event_type\":\"market.status.changed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden portfolio.execution.recorded",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden portfolio.reconciliation.changed",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_111\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"as_of\":\"2026-10-23T10:00:00Z\",\"blocks_personalized_advice\":true,\"discrepancy_count\":1,\"reconciliation_revision\":4,\"status\":\"DISCREPANCY\"},\"event_id\":\"evt_fixture_111\",\"event_type\":\"portfolio.reconciliation.changed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden recommendation.invalidated",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_109\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"caused_by_event_id\":\"evt_fixture_103\",\"invalidated_at\":\"2026-10-23T09:30:01Z\",\"reason_code\":\"MARKET_HALTED\",\"recommendation_id\":\"rec_fixture_001\",\"revision\":1},\"event_id\":\"evt_fixture_109\",\"event_type\":\"recommendation.invalidated\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden recommendation.revision.created",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_108\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"action\":\"BUY\",\"currency\":\"USD\",\"destination\":\"DASHBOARD\",\"entry_price\":\"200.00\",\"execution\":\"HUMAN_ONLY\",\"instrument_id\":\"instrument_fixture_001\",\"policy_version\":\"paper-test-v1-not-approved-for-live\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"revision\":1,\"state\":\"PUBLISHED\",\"stop_price\":\"190.00\",\"strategy_id\":\"US_SWING\",\"valid_until\":\"2026-10-23T09:15:00Z\"},\"event_id\":\"evt_fixture_108\",\"event_type\":\"recommendation.revision.created\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden research.assessment.completed",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden research.assessment.requested",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_106\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"as_of\":\"2026-10-23T08:55:00Z\",\"candidate_id\":\"cand_fixture_001\",\"config_sha256\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"deadline_at\":\"2026-10-23T09:10:00Z\",\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"snapshot_sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_106\",\"event_type\":\"research.assessment.requested\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "golden risk.entries.paused",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_113\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"control_revision\":5,\"monitoring_continues\":true,\"paused\":true,\"reason_code\":\"OWNER_PAUSE\",\"scope\":\"ALL\"},\"event_id\":\"evt_fixture_113\",\"event_type\":\"risk.entries.paused\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "missing event_id",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/event_id"
+   }
+  },
+  {
+   "name": "missing event_type",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/event_type"
+   }
+  },
+  {
+   "name": "missing schema_version",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\"}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/schema_version"
+   }
+  },
+  {
+   "name": "missing occurred_at",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/occurred_at"
+   }
+  },
+  {
+   "name": "missing published_at",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/published_at"
+   }
+  },
+  {
+   "name": "missing producer",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/producer"
+   }
+  },
+  {
+   "name": "missing producer_build",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/producer_build"
+   }
+  },
+  {
+   "name": "missing correlation_id",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/correlation_id"
+   }
+  },
+  {
+   "name": "missing causation_id",
+   "raw": "{\"account_id\":null,\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/causation_id"
+   }
+  },
+  {
+   "name": "missing mode",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/mode"
+   }
+  },
+  {
+   "name": "missing account_id",
+   "raw": "{\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/account_id"
+   }
+  },
+  {
+   "name": "missing data",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/data"
+   }
+  },
+  {
+   "name": "null event_id",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":null,\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/event_id"
+   }
+  },
+  {
+   "name": "empty event_id",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/event_id"
+   }
+  },
+  {
+   "name": "event_id with a space",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt 1\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/event_id"
+   }
+  },
+  {
+   "name": "event_id with a control character",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt\\u0001\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/event_id"
+   }
+  },
+  {
+   "name": "event_id of 129 characters",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/event_id"
+   }
+  },
+  {
+   "name": "null causation_id",
+   "raw": "{\"account_id\":null,\"causation_id\":null,\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/causation_id"
+   }
+  },
+  {
+   "name": "null correlation_id",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":null,\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/correlation_id"
+   }
+  },
+  {
+   "name": "empty producer_build",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/producer_build"
+   }
+  },
+  {
+   "name": "producer_build with a space",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"dev build\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/producer_build"
+   }
+  },
+  {
+   "name": "schema_version 2",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":2}",
+   "expect": {
+    "code": "UNSUPPORTED_SCHEMA_VERSION"
+   }
+  },
+  {
+   "name": "schema_version 0",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":0}",
+   "expect": {
+    "code": "UNSUPPORTED_SCHEMA_VERSION"
+   }
+  },
+  {
+   "name": "schema_version as a string",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":\"1\"}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/schema_version"
+   }
+  },
+  {
+   "name": "schema_version 1.0",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1.0}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/schema_version"
+   }
+  },
+  {
+   "name": "schema_version true",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":true}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/schema_version"
+   }
+  },
+  {
+   "name": "unknown event_type",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.deleted\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "UNKNOWN_EVENT_TYPE"
+   }
+  },
+  {
+   "name": "event_type with the catalog .v1 suffix",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed.v1\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "UNKNOWN_EVENT_TYPE"
+   }
+  },
+  {
+   "name": "event_type of another catalog document",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"envelope\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "UNKNOWN_EVENT_TYPE"
+   }
+  },
+  {
+   "name": "event_type as a number",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":7,\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/event_type"
+   }
+  },
+  {
+   "name": "unknown mode",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"LIVE\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/mode"
+   }
+  },
+  {
+   "name": "lower-case mode",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"paper\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/mode"
+   }
+  },
+  {
+   "name": "unknown lane",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING_X\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/data/strategy_id"
+   }
+  },
+  {
+   "name": "unknown assessment status",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"MAYBE\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/data/status"
+   }
+  },
+  {
+   "name": "wrong producer for the event",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "const",
+    "path": "/producer"
+   }
+  },
+  {
+   "name": "unknown producer",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"openclaw\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/producer"
+   }
+  },
+  {
+   "name": "research claims entry eligibility",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":true,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "const",
+    "path": "/data/eligible_for_entry"
+   }
+  },
+  {
+   "name": "research claims write access",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":true,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "const",
+    "path": "/data/financial_state_write_access"
+   }
+  },
+  {
+   "name": "unknown envelope member",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1,\"trace\":\"x\"}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "additionalProperties",
+    "path": "/trace"
+   }
+  },
+  {
+   "name": "research completion carrying an execution field",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\",\"quantity\":\"10\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "additionalProperties",
+    "path": "/data/quantity"
+   }
+  },
+  {
+   "name": "occurred_at with +00:00",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00+00:00\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/occurred_at"
+   }
+  },
+  {
+   "name": "occurred_at not a real day",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-02-30T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "format",
+    "path": "/occurred_at"
+   }
+  },
+  {
+   "name": "occurred_at without an offset",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/occurred_at"
+   }
+  },
+  {
+   "name": "null data",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":null,\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/data"
+   }
+  },
+  {
+   "name": "revision zero",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":0,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "minimum",
+    "path": "/data/assessment_revision"
+   }
+  },
+  {
+   "name": "revision as a string",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":\"1\",\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/data/assessment_revision"
+   }
+  },
+  {
+   "name": "account_id as a number",
+   "raw": "{\"account_id\":5,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/account_id"
+   }
+  },
+  {
+   "name": "unknown missing-input code",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"lower_case\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/missing_inputs/0"
+   }
+  },
+  {
+   "name": "duplicate data key",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"status\":\"NO_TRADE\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   }
+  },
+  {
+   "name": "duplicate mode key",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"mode\":\"ACTUAL\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   }
+  },
+  {
+   "name": "duplicate schema_version key",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1,\"schema_version\":1}",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   }
+  },
+  {
+   "name": "trailing second event",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}{\"account_id\":null,\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"research.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   }
+  },
+  {
+   "name": "not an object",
+   "raw": "[]",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": ""
+   }
+  },
+  {
+   "name": "execution type with assessment data",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_107\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"assessment_id\":\"asmt_fixture_001\",\"assessment_revision\":1,\"eligible_for_entry\":false,\"evidence_manifest_id\":\"manifest_fixture_001\",\"financial_state_write_access\":false,\"instrument_id\":\"instrument_fixture_001\",\"job_id\":\"job_fixture_001\",\"missing_inputs\":[\"LICENSED_PRICE_HISTORY\"],\"status\":\"INSUFFICIENT_DATA\",\"strategy_id\":\"US_SWING\"},\"event_id\":\"evt_fixture_107\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "required",
+    "path": "/data/execution_id"
+   }
+  },
+  {
+   "name": "execution without an account",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/account_id"
+   }
+  },
+  {
+   "name": "execution quantity as a JSON number",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":10,\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/data/quantity"
+   }
+  },
+  {
+   "name": "execution price as a JSON decimal",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":199.85,\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/data/price"
+   }
+  },
+  {
+   "name": "execution price with an exponent",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":1.9985e2,\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/data/price"
+   }
+  },
+  {
+   "name": "execution quantity zero",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"0\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/quantity"
+   }
+  },
+  {
+   "name": "execution negative price",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"-1\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/price"
+   }
+  },
+  {
+   "name": "execution fees with 19 decimals",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0.0000000000000000001\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/fees"
+   }
+  },
+  {
+   "name": "execution fees with 18 decimals",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0.000000000000000001\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "execution side SHORT",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"SHORT\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/data/side"
+   }
+  },
+  {
+   "name": "execution from a broker API",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"BROKER_API\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/data/source"
+   }
+  },
+  {
+   "name": "execution carrying an order id",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\",\"order_id\":\"ord_1\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "additionalProperties",
+    "path": "/data/order_id"
+   }
+  },
+  {
+   "name": "execution carrying research status",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\",\"status\":\"INSUFFICIENT_DATA\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "additionalProperties",
+    "path": "/data/status"
+   }
+  },
+  {
+   "name": "execution time with an offset",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T12:20:00+03:00\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/executed_at"
+   }
+  },
+  {
+   "name": "execution without a recommendation",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"USD\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":null,\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "execution wrong currency",
+   "raw": "{\"account_id\":\"acct_fixture_001\",\"causation_id\":\"cmd_fixture_110\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"currency\":\"EUR\",\"executed_at\":\"2026-10-23T09:20:00Z\",\"execution_id\":\"exec_fixture_001\",\"execution_key\":\"human_report_fixture_001\",\"fees\":\"0\",\"instrument_id\":\"instrument_fixture_001\",\"price\":\"199.85\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"reported_at\":\"2026-10-23T09:40:00Z\",\"side\":\"BUY\",\"source\":\"HUMAN_REPORT\"},\"event_id\":\"evt_fixture_110\",\"event_type\":\"portfolio.execution.recorded\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/data/currency"
+   }
+  },
+  {
+   "name": "recommendation executed automatically",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_108\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"action\":\"BUY\",\"currency\":\"USD\",\"destination\":\"DASHBOARD\",\"entry_price\":\"200.00\",\"execution\":\"AUTOMATIC\",\"instrument_id\":\"instrument_fixture_001\",\"policy_version\":\"paper-test-v1-not-approved-for-live\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"revision\":1,\"state\":\"PUBLISHED\",\"stop_price\":\"190.00\",\"strategy_id\":\"US_SWING\",\"valid_until\":\"2026-10-23T09:15:00Z\"},\"event_id\":\"evt_fixture_108\",\"event_type\":\"recommendation.revision.created\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "const",
+    "path": "/data/execution"
+   }
+  },
+  {
+   "name": "recommendation short sale",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_108\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"action\":\"SELL_SHORT\",\"currency\":\"USD\",\"destination\":\"DASHBOARD\",\"entry_price\":\"200.00\",\"execution\":\"HUMAN_ONLY\",\"instrument_id\":\"instrument_fixture_001\",\"policy_version\":\"paper-test-v1-not-approved-for-live\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"revision\":1,\"state\":\"PUBLISHED\",\"stop_price\":\"190.00\",\"strategy_id\":\"US_SWING\",\"valid_until\":\"2026-10-23T09:15:00Z\"},\"event_id\":\"evt_fixture_108\",\"event_type\":\"recommendation.revision.created\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "enum",
+    "path": "/data/action"
+   }
+  },
+  {
+   "name": "recommendation without a stop",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_108\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"action\":\"BUY\",\"currency\":\"USD\",\"destination\":\"DASHBOARD\",\"entry_price\":\"200.00\",\"execution\":\"HUMAN_ONLY\",\"instrument_id\":\"instrument_fixture_001\",\"policy_version\":\"paper-test-v1-not-approved-for-live\",\"quantity\":\"10\",\"recommendation_id\":\"rec_fixture_001\",\"revision\":1,\"state\":\"PUBLISHED\",\"stop_price\":null,\"strategy_id\":\"US_SWING\",\"valid_until\":\"2026-10-23T09:15:00Z\"},\"event_id\":\"evt_fixture_108\",\"event_type\":\"recommendation.revision.created\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  },
+  {
+   "name": "goal changes risk",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_112\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"changes_risk_policy\":true,\"goal_id\":\"goal_fixture_001\",\"goal_revision\":2,\"input_manifest_id\":\"manifest_fixture_002\",\"status\":\"INSUFFICIENT_DATA\"},\"event_id\":\"evt_fixture_112\",\"event_type\":\"goal.assessment.completed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"research-worker\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "const",
+    "path": "/data/changes_risk_policy"
+   }
+  },
+  {
+   "name": "pause stops monitoring",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_113\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"control_revision\":5,\"monitoring_continues\":false,\"paused\":true,\"reason_code\":\"OWNER_PAUSE\",\"scope\":\"ALL\"},\"event_id\":\"evt_fixture_113\",\"event_type\":\"risk.entries.paused\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"platform-core\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "const",
+    "path": "/data/monitoring_continues"
+   }
+  },
+  {
+   "name": "quote with a zero bid",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_102\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"ask\":\"18.40\",\"bid\":\"0\",\"currency\":\"EGP\",\"instrument_id\":\"instrument_fixture_002\",\"last\":\"18.35\",\"provider_id\":\"provider_fixture\",\"quoted_at\":\"2026-10-23T09:00:00.123456789Z\",\"source_sequence\":9007199254740991},\"event_id\":\"evt_fixture_102\",\"event_type\":\"market.quote.updated\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/bid"
+   }
+  },
+  {
+   "name": "quote sequence beyond 2^53-1",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_102\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"ask\":\"18.40\",\"bid\":null,\"currency\":\"EGP\",\"instrument_id\":\"instrument_fixture_002\",\"last\":\"18.35\",\"provider_id\":\"provider_fixture\",\"quoted_at\":\"2026-10-23T09:00:00.123456789Z\",\"source_sequence\":9007199254740992},\"event_id\":\"evt_fixture_102\",\"event_type\":\"market.quote.updated\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "maximum",
+    "path": "/data/source_sequence"
+   }
+  },
+  {
+   "name": "bar with 19 fraction digits",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_101\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"bar_end\":\"2026-10-23T00:00:00Z\",\"bar_start\":\"2026-10-22T00:00:00Z\",\"bar_version\":1,\"close\":\"102.50\",\"currency\":\"USD\",\"high\":\"104.0000000000000000001\",\"instrument_id\":\"instrument_fixture_001\",\"interval\":\"1d\",\"low\":\"0.000000000000000001\",\"open\":\"101.25\",\"provider_id\":\"provider_fixture\",\"volume\":\"0\"},\"event_id\":\"evt_fixture_101\",\"event_type\":\"market.bar.finalized\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/high"
+   }
+  },
+  {
+   "name": "bar with a JSON number volume",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_101\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"bar_end\":\"2026-10-23T00:00:00Z\",\"bar_start\":\"2026-10-22T00:00:00Z\",\"bar_version\":1,\"close\":\"102.50\",\"currency\":\"USD\",\"high\":\"104.000000000000000001\",\"instrument_id\":\"instrument_fixture_001\",\"interval\":\"1d\",\"low\":\"0.000000000000000001\",\"open\":\"101.25\",\"provider_id\":\"provider_fixture\",\"volume\":0},\"event_id\":\"evt_fixture_101\",\"event_type\":\"market.bar.finalized\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "type",
+    "path": "/data/volume"
+   }
+  },
+  {
+   "name": "evidence hash in upper case",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_105\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"available_at\":\"2026-10-21T00:00:00Z\",\"document_id\":\"doc_fixture_001\",\"document_kind\":\"ANNUAL_REPORT\",\"document_version\":1,\"instrument_id\":\"instrument_fixture_001\",\"provider_id\":\"provider_fixture\",\"published_at\":\"2026-10-20T21:00:00Z\",\"sha256\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"},\"event_id\":\"evt_fixture_105\",\"event_type\":\"evidence.document.available\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": {
+    "code": "SCHEMA_VIOLATION",
+    "keyword": "pattern",
+    "path": "/data/sha256"
+   }
+  },
+  {
+   "name": "status for a whole market",
+   "raw": "{\"account_id\":null,\"causation_id\":\"cmd_fixture_103\",\"correlation_id\":\"4bf92f3577b34da6a3ce929d0e0e4736\",\"data\":{\"effective_from\":\"2026-10-23T09:30:00Z\",\"instrument_id\":null,\"market\":\"EGX\",\"reason_code\":\"MARKET_WIDE_HALT\",\"status\":\"HALTED\",\"status_revision\":3},\"event_id\":\"evt_fixture_103\",\"event_type\":\"market.status.changed\",\"mode\":\"PAPER\",\"occurred_at\":\"2026-10-23T09:00:00Z\",\"producer\":\"market-ingestion\",\"producer_build\":\"fixture-build.1\",\"published_at\":\"2026-10-23T09:00:01.250Z\",\"schema_version\":1}",
+   "expect": "valid"
+  }
+ ]
+}

@@ -143,7 +143,9 @@ func CheckPython(ctx context.Context, python string) (string, error) {
 	return got, nil
 }
 
-func (s *Service) analyze(ctx context.Context, j Job, sources []Source) ([]byte, error) {
+// parserRequest is the parser's stdin, as defined by
+// contracts/research/sec-annual-v2.request.schema.json.
+func parserRequest(j Job, sources []Source, asOf time.Time) (body []byte, sub, facts Source, err error) {
 	byKind := map[string]Source{}
 	for _, src := range sources {
 		byKind[src.Kind] = src
@@ -151,12 +153,17 @@ func (s *Service) analyze(ctx context.Context, j Job, sources []Source) ([]byte,
 	sub, okSub := byKind["submissions"]
 	facts, okFacts := byKind["companyfacts"]
 	if !okSub || !okFacts || len(sources) != 2 {
-		return nil, errors.New("submissions and companyfacts sources required")
+		return nil, Source{}, Source{}, errors.New("submissions and companyfacts sources required")
 	}
-	body, err := json.Marshal(map[string]any{
-		"symbol": j.Symbol, "cik": j.CIK, "as_of": asOfText(time.Now()),
+	body, err = json.Marshal(map[string]any{
+		"symbol": j.Symbol, "cik": j.CIK, "as_of": asOfText(asOf),
 		"submissions": sub.Body, "companyfacts": facts.Body, "submissions_sha256": sub.SHA256, "facts_sha256": facts.SHA256,
 	})
+	return body, sub, facts, err
+}
+
+func (s *Service) analyze(ctx context.Context, j Job, sources []Source) ([]byte, error) {
+	body, sub, facts, err := parserRequest(j, sources, time.Now())
 	if err != nil {
 		return nil, err
 	}

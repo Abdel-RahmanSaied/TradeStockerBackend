@@ -1,0 +1,1 @@
+{"mode":"PAPER","live_advisory_enabled":false,"lanes":[{"id":"US_SWING","state":"DISABLED"},{"id":"EGX_SWING","state":"DISABLED"},{"id":"US_INTRADAY","state":"DISABLED"},{"id":"EGX_INTRADAY","state":"DISABLED"}],"accounts":[],"quotes":[],"recommendations":[],"positions":[],"audit":[],"notifications":[],"journal":[],"entries_paused":false,"build":"local-paper-v1"}

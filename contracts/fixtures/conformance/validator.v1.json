@@ -1,0 +1,3143 @@
+{
+ "dialect": "tradestocker-schema-subset/1",
+ "description": "Hand-written validator conformance cases. Go (internal/contracts) and Python (tradestocker_research.contracts) must both give exactly the expected answer for every case. expect is \"valid\", {\"code\": MALFORMED_JSON | SCHEMA_ERROR}, or {\"keyword\", \"path\"} of the first violation. documents maps a document name to its JSON text; contracts: true loads the real contracts/events/v1 documents instead. Depth counts from 0 at the top value; a value deeper than 64 is refused. String rules apply in order minLength, maxLength, pattern, format.",
+ "cases": [
+  {
+   "name": "valid object",
+   "expect": "valid",
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"x\"}"
+  },
+  {
+   "name": "duplicate key",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"a\":2,\"b\":\"x\"}"
+  },
+  {
+   "name": "nested duplicate key",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"x\",\"c\":[{\"k\":1,\"k\":1}]}"
+  },
+  {
+   "name": "trailing data",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"x\"} {}"
+  },
+  {
+   "name": "NaN",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":NaN,\"b\":\"x\"}"
+  },
+  {
+   "name": "Infinity",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":Infinity,\"b\":\"x\"}"
+  },
+  {
+   "name": "leading zero",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":01,\"b\":\"x\"}"
+  },
+  {
+   "name": "plus sign",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":+1,\"b\":\"x\"}"
+  },
+  {
+   "name": "empty input",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": ""
+  },
+  {
+   "name": "lone high surrogate",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\\ud800\"}"
+  },
+  {
+   "name": "lone low surrogate",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\\udc00\"}"
+  },
+  {
+   "name": "reversed surrogate pair",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\\udc00\\ud800\"}"
+  },
+  {
+   "name": "valid surrogate pair is one character",
+   "expect": "valid",
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\\ud83d\\ude00\"}"
+  },
+  {
+   "name": "byte order mark",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw_b64": "77u/eyJhIjoxLCJiIjoieCJ9"
+  },
+  {
+   "name": "invalid UTF-8",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw_b64": "eyJhIjoxLCJiIjoi/yJ9"
+  },
+  {
+   "name": "raw control character in string",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\t\"}"
+  },
+  {
+   "name": "escaped control character",
+   "expect": "valid",
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\\t\"}"
+  },
+  {
+   "name": "65 nested arrays: deepest value at depth 64",
+   "expect": "valid",
+   "documents": {
+    "any.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\"}"
+   },
+   "ref": "any.json",
+   "raw": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+  },
+  {
+   "name": "66 nested arrays: a value at depth 65",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "any.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\"}"
+   },
+   "ref": "any.json",
+   "raw": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+  },
+  {
+   "name": "number of 128 characters",
+   "expect": "valid",
+   "documents": {
+    "any.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\"}"
+   },
+   "ref": "any.json",
+   "raw": "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+  },
+  {
+   "name": "number of 129 characters",
+   "expect": {
+    "code": "MALFORMED_JSON"
+   },
+   "documents": {
+    "any.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\"}"
+   },
+   "ref": "any.json",
+   "raw": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+  },
+  {
+   "name": "integer at maximum",
+   "expect": "valid",
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":5,\"b\":\"\"}"
+  },
+  {
+   "name": "integer above maximum",
+   "expect": {
+    "keyword": "maximum",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":6,\"b\":\"\"}"
+  },
+  {
+   "name": "integer below minimum",
+   "expect": {
+    "keyword": "minimum",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":-6,\"b\":\"\"}"
+  },
+  {
+   "name": "negative zero is zero",
+   "expect": "valid",
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":-0,\"b\":\"\"}"
+  },
+  {
+   "name": "1.0 is not an integer",
+   "expect": {
+    "keyword": "type",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1.0,\"b\":\"\"}"
+  },
+  {
+   "name": "1e0 is not an integer",
+   "expect": {
+    "keyword": "type",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1e0,\"b\":\"\"}"
+  },
+  {
+   "name": "true is not an integer",
+   "expect": {
+    "keyword": "type",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":true,\"b\":\"\"}"
+  },
+  {
+   "name": "integer as a string",
+   "expect": {
+    "keyword": "type",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":\"1\",\"b\":\"\"}"
+  },
+  {
+   "name": "required in listed order: b before a",
+   "expect": {
+    "keyword": "required",
+    "path": "/b"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{}"
+  },
+  {
+   "name": "unknown members before known ones",
+   "expect": {
+    "keyword": "additionalProperties",
+    "path": "/z"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":9,\"b\":\"x\",\"z\":1}"
+  },
+  {
+   "name": "unknown members sorted",
+   "expect": {
+    "keyword": "additionalProperties",
+    "path": "/y"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"x\",\"z\":1,\"y\":1}"
+  },
+  {
+   "name": "known members sorted: a before b",
+   "expect": {
+    "keyword": "maximum",
+    "path": "/a"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":9,\"b\":\"toolong\"}"
+  },
+  {
+   "name": "string length in characters",
+   "expect": "valid",
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"ééé\"}"
+  },
+  {
+   "name": "string too long",
+   "expect": {
+    "keyword": "maxLength",
+    "path": "/b"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"abcd\"}"
+  },
+  {
+   "name": "array too long",
+   "expect": {
+    "keyword": "maxItems",
+    "path": "/c"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\",\"c\":[true,false,true]}"
+  },
+  {
+   "name": "array item type",
+   "expect": {
+    "keyword": "type",
+    "path": "/c/1"
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "{\"a\":1,\"b\":\"\",\"c\":[true,0]}"
+  },
+  {
+   "name": "not an object",
+   "expect": {
+    "keyword": "type",
+    "path": ""
+   },
+   "documents": {
+    "t.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": [\"b\", \"a\"], \"properties\": {\"a\": {\"type\": \"integer\", \"minimum\": -5, \"maximum\": 5}, \"b\": {\"type\": \"string\", \"maxLength\": 3}, \"c\": {\"type\": \"array\", \"items\": {\"type\": \"boolean\"}, \"maxItems\": 2}}, \"additionalProperties\": false}"
+   },
+   "ref": "t.json",
+   "raw": "[]"
+  },
+  {
+   "name": "decimal with 18 fraction digits",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"1.123456789012345678\""
+  },
+  {
+   "name": "decimal with 19 fraction digits",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"1.1234567890123456789\""
+  },
+  {
+   "name": "positive with 18 fraction digits",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"0.123456789012345678\""
+  },
+  {
+   "name": "positive with 19 fraction digits",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"0.1234567890123456789\""
+  },
+  {
+   "name": "smallest positive at 18 digits",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"0.000000000000000001\""
+  },
+  {
+   "name": "positive zero",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"0\""
+  },
+  {
+   "name": "positive all-zero fraction",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"0.000\""
+  },
+  {
+   "name": "positive keeps trailing zeros",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"1.50\""
+  },
+  {
+   "name": "positive 30 integer digits",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"111111111111111111111111111111\""
+  },
+  {
+   "name": "positive 31 integer digits",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"1111111111111111111111111111111\""
+  },
+  {
+   "name": "positive negative",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "\"-1\""
+  },
+  {
+   "name": "non-negative zero",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/non_negative_decimal",
+   "raw": "\"0\""
+  },
+  {
+   "name": "non-negative negative",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/non_negative_decimal",
+   "raw": "\"-0.5\""
+  },
+  {
+   "name": "decimal negative",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"-0.5\""
+  },
+  {
+   "name": "decimal exponent string",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"1e3\""
+  },
+  {
+   "name": "decimal leading zero",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"01.5\""
+  },
+  {
+   "name": "decimal plus sign",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"+1\""
+  },
+  {
+   "name": "decimal leading space",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\" 1\""
+  },
+  {
+   "name": "decimal trailing newline",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"1\\n\""
+  },
+  {
+   "name": "decimal empty",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"\""
+  },
+  {
+   "name": "decimal bare point",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\".5\""
+  },
+  {
+   "name": "decimal trailing point",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"1.\""
+  },
+  {
+   "name": "decimal Arabic-Indic digit",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "\"\\u0661\""
+  },
+  {
+   "name": "decimal as a JSON number",
+   "expect": {
+    "keyword": "type",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "0.1"
+  },
+  {
+   "name": "decimal as a huge JSON integer",
+   "expect": {
+    "keyword": "type",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/decimal",
+   "raw": "123456789012345678901234567890"
+  },
+  {
+   "name": "nullable positive accepts null",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/nullable_positive_decimal",
+   "raw": "null"
+  },
+  {
+   "name": "nullable positive refuses zero",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/nullable_positive_decimal",
+   "raw": "\"0\""
+  },
+  {
+   "name": "nullable positive refuses a number",
+   "expect": {
+    "keyword": "type",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/nullable_positive_decimal",
+   "raw": "1"
+  },
+  {
+   "name": "positive refuses null",
+   "expect": {
+    "keyword": "type",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/positive_decimal",
+   "raw": "null"
+  },
+  {
+   "name": "format: leap day 2024",
+   "expect": "valid",
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2024-02-29T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: leap day 2024",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2024-02-29T00:00:00Z\""
+  },
+  {
+   "name": "format: no leap day 2025",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2025-02-29T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: no leap day 2025",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2025-02-29T00:00:00Z\""
+  },
+  {
+   "name": "format: leap day 2000",
+   "expect": "valid",
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2000-02-29T12:00:00Z\""
+  },
+  {
+   "name": "event timestamp: leap day 2000",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2000-02-29T12:00:00Z\""
+  },
+  {
+   "name": "format: no leap day 1900",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"1900-02-29T12:00:00Z\""
+  },
+  {
+   "name": "event timestamp: no leap day 1900",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"1900-02-29T12:00:00Z\""
+  },
+  {
+   "name": "format: April 31",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-04-31T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: April 31",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-04-31T00:00:00Z\""
+  },
+  {
+   "name": "format: month 00",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-00-10T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: month 00",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-00-10T00:00:00Z\""
+  },
+  {
+   "name": "format: month 13",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-13-10T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: month 13",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-13-10T00:00:00Z\""
+  },
+  {
+   "name": "format: day 00",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-00T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: day 00",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-00T00:00:00Z\""
+  },
+  {
+   "name": "format: year 0000",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"0000-01-01T00:00:00Z\""
+  },
+  {
+   "name": "event timestamp: year 0000",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"0000-01-01T00:00:00Z\""
+  },
+  {
+   "name": "format: hour 24",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T24:00:00Z\""
+  },
+  {
+   "name": "event timestamp: hour 24",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T24:00:00Z\""
+  },
+  {
+   "name": "format: minute 60",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:60:00Z\""
+  },
+  {
+   "name": "event timestamp: minute 60",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:60:00Z\""
+  },
+  {
+   "name": "format: leap second refused",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2016-12-31T23:59:60Z\""
+  },
+  {
+   "name": "event timestamp: leap second refused",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2016-12-31T23:59:60Z\""
+  },
+  {
+   "name": "format: nine fraction digits",
+   "expect": "valid",
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00.123456789Z\""
+  },
+  {
+   "name": "event timestamp: nine fraction digits",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00.123456789Z\""
+  },
+  {
+   "name": "format: ten fraction digits",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00.1234567890Z\""
+  },
+  {
+   "name": "event timestamp: ten fraction digits",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00.1234567890Z\""
+  },
+  {
+   "name": "format: empty fraction",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00.Z\""
+  },
+  {
+   "name": "event timestamp: empty fraction",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00.Z\""
+  },
+  {
+   "name": "format: plus zero offset",
+   "expect": "valid",
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00+00:00\""
+  },
+  {
+   "name": "event timestamp: plus zero offset",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00+00:00\""
+  },
+  {
+   "name": "format: minus zero offset",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00-00:00\""
+  },
+  {
+   "name": "event timestamp: minus zero offset",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00-00:00\""
+  },
+  {
+   "name": "format: non-zero offset",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00+03:00\""
+  },
+  {
+   "name": "event timestamp: non-zero offset",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00+03:00\""
+  },
+  {
+   "name": "format: no offset",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00\""
+  },
+  {
+   "name": "event timestamp: no offset",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00\""
+  },
+  {
+   "name": "format: lower-case z",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23T12:00:00z\""
+  },
+  {
+   "name": "event timestamp: lower-case z",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23T12:00:00z\""
+  },
+  {
+   "name": "format: lower-case t",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23t12:00:00Z\""
+  },
+  {
+   "name": "event timestamp: lower-case t",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23t12:00:00Z\""
+  },
+  {
+   "name": "format: space separator",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23 12:00:00Z\""
+  },
+  {
+   "name": "event timestamp: space separator",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23 12:00:00Z\""
+  },
+  {
+   "name": "format: date only",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "f.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date-time\"}"
+   },
+   "ref": "f.json",
+   "raw": "\"2026-10-23\""
+  },
+  {
+   "name": "event timestamp: date only",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/utc_timestamp",
+   "raw": "\"2026-10-23\""
+  },
+  {
+   "name": "date: real date",
+   "expect": "valid",
+   "documents": {
+    "d.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date\"}"
+   },
+   "ref": "d.json",
+   "raw": "\"2024-02-29\""
+  },
+  {
+   "name": "date: not a date",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "d.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date\"}"
+   },
+   "ref": "d.json",
+   "raw": "\"2025-02-29\""
+  },
+  {
+   "name": "date: date with time",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "d.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date\"}"
+   },
+   "ref": "d.json",
+   "raw": "\"2024-02-29T00:00:00Z\""
+  },
+  {
+   "name": "date: short year",
+   "expect": {
+    "keyword": "format",
+    "path": ""
+   },
+   "documents": {
+    "d.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"format\": \"date\"}"
+   },
+   "ref": "d.json",
+   "raw": "\"24-02-29\""
+  },
+  {
+   "name": "unknown enum value",
+   "expect": {
+    "keyword": "enum",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/currency",
+   "raw": "\"EUR\""
+  },
+  {
+   "name": "enum is case-sensitive",
+   "expect": {
+    "keyword": "enum",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/lane",
+   "raw": "\"us_swing\""
+  },
+  {
+   "name": "lane value",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/lane",
+   "raw": "\"US_SWING\""
+  },
+  {
+   "name": "id with a space",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/id",
+   "raw": "\"a b\""
+  },
+  {
+   "name": "id of 128 characters",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/id",
+   "raw": "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
+  },
+  {
+   "name": "id of 129 characters",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/id",
+   "raw": "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
+  },
+  {
+   "name": "empty id",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/id",
+   "raw": "\"\""
+  },
+  {
+   "name": "revision zero",
+   "expect": {
+    "keyword": "minimum",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/revision",
+   "raw": "0"
+  },
+  {
+   "name": "sequence at 2^53-1",
+   "expect": "valid",
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/sequence",
+   "raw": "9007199254740991"
+  },
+  {
+   "name": "sequence at 2^53",
+   "expect": {
+    "keyword": "maximum",
+    "path": ""
+   },
+   "contracts": true,
+   "ref": "events/v1/common.schema.json#/$defs/sequence",
+   "raw": "9007199254740992"
+  },
+  {
+   "name": "does not compile: required as a string",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"required\": \"id\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $ref as a number",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": 7}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: allOf as an object",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"allOf\": {}}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: empty allOf",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"allOf\": []}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: properties as a list",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"properties\": []}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $defs as a list",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": []}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: additionalProperties as a number",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"additionalProperties\": 1}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: type number",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"number\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: unknown type",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"float\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: duplicate type",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": [\"string\", \"string\"]}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: empty enum",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"enum\": []}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: minLength as a string",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"minLength\": \"1\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: negative maxLength",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"maxLength\": -1}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: fractional minimum",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"minimum\": 1.5}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: unanchored pattern",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"pattern\": \"[a-z]+\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: pattern with \\d",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"pattern\": \"^\\\\d+$\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: pattern with a flag",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"pattern\": \"^(?i)a$\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: pattern with non-ASCII",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"pattern\": \"^é$\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: pattern that does not compile",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"pattern\": \"^(a$\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: unsupported format",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"format\": \"email\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: unknown keyword",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"oneOf\": [true]}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: unknown keyword in an optional property",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"properties\": {\"opt\": {\"type\": \"string\", \"pattern\": \"^a$\", \"contentEncoding\": \"base64\"}}, \"additionalProperties\": false}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: nested $schema",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"properties\": {\"a\": {\"$schema\": \"https://json-schema.org/draft/2020-12/schema\"}}, \"additionalProperties\": false}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: nested $id",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"a\": {\"$id\": \"other\"}}}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $ref to a URL",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"https://example.invalid/schema.json\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $ref to a file URI",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"file:///etc/passwd\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $ref outside the registry",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"../../secrets.json\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $ref to a missing document",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"missing.json\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: $ref to a missing pointer",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"#/$defs/missing\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: self reference",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"#\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: self reference through a property",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"properties\": {\"next\": {\"$ref\": \"#\"}}, \"additionalProperties\": false}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: mutual references",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"y.json\"}",
+    "y.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"x.json\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: cycle through allOf",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"a\": {\"allOf\": [{\"$ref\": \"#/$defs/b\"}]}, \"b\": {\"$ref\": \"#/$defs/a\"}}}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "does not compile: expansion beyond MaxSchemaNodes",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"l0\": {\"allOf\": [{\"$ref\": \"#/$defs/l1\"}, {\"$ref\": \"#/$defs/l1\"}]}, \"l1\": {\"allOf\": [{\"$ref\": \"#/$defs/l2\"}, {\"$ref\": \"#/$defs/l2\"}]}, \"l2\": {\"allOf\": [{\"$ref\": \"#/$defs/l3\"}, {\"$ref\": \"#/$defs/l3\"}]}, \"l3\": {\"allOf\": [{\"$ref\": \"#/$defs/l4\"}, {\"$ref\": \"#/$defs/l4\"}]}, \"l4\": {\"allOf\": [{\"$ref\": \"#/$defs/l5\"}, {\"$ref\": \"#/$defs/l5\"}]}, \"l5\": {\"allOf\": [{\"$ref\": \"#/$defs/l6\"}, {\"$ref\": \"#/$defs/l6\"}]}, \"l6\": {\"allOf\": [{\"$ref\": \"#/$defs/l7\"}, {\"$ref\": \"#/$defs/l7\"}]}, \"l7\": {\"allOf\": [{\"$ref\": \"#/$defs/l8\"}, {\"$ref\": \"#/$defs/l8\"}]}, \"l8\": {\"allOf\": [{\"$ref\": \"#/$defs/l9\"}, {\"$ref\": \"#/$defs/l9\"}]}, \"l9\": {\"allOf\": [{\"$ref\": \"#/$defs/l10\"}, {\"$ref\": \"#/$defs/l10\"}]}, \"l10\": {\"allOf\": [{\"$ref\": \"#/$defs/l11\"}, {\"$ref\": \"#/$defs/l11\"}]}, \"l11\": {\"allOf\": [{\"$ref\": \"#/$defs/l12\"}, {\"$ref\": \"#/$defs/l12\"}]}, \"l12\": {\"allOf\": [{\"$ref\": \"#/$defs/l13\"}, {\"$ref\": \"#/$defs/l13\"}]}, \"l13\": {\"allOf\": [{\"$ref\": \"#/$defs/l14\"}, {\"$ref\": \"#/$defs/l14\"}]}, \"l14\": {\"allOf\": [{\"$ref\": \"#/$defs/l15\"}, {\"$ref\": \"#/$defs/l15\"}]}, \"l15\": {\"allOf\": [{\"$ref\": \"#/$defs/l16\"}, {\"$ref\": \"#/$defs/l16\"}]}, \"l16\": {\"allOf\": [{\"$ref\": \"#/$defs/l17\"}, {\"$ref\": \"#/$defs/l17\"}]}, \"l17\": {\"allOf\": [{\"$ref\": \"#/$defs/l18\"}, {\"$ref\": \"#/$defs/l18\"}]}, \"l18\": {\"type\": \"null\"}}, \"$ref\": \"#/$defs/l0\"}"
+   },
+   "ref": "x.json",
+   "raw": "null"
+  },
+  {
+   "name": "repeated non-cyclic references compile",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"leaf\": {\"type\": \"string\", \"pattern\": \"^[a-z]+$\"}, \"left\": {\"$ref\": \"#/$defs/leaf\"}, \"right\": {\"$ref\": \"#/$defs/leaf\"}}, \"type\": \"object\", \"properties\": {\"a\": {\"$ref\": \"#/$defs/left\"}, \"b\": {\"$ref\": \"#/$defs/right\"}}, \"additionalProperties\": false}"
+   },
+   "ref": "x.json",
+   "raw": "{\"a\":\"x\",\"b\":\"y\"}"
+  },
+  {
+   "name": "repeated reference still checks",
+   "expect": {
+    "keyword": "pattern",
+    "path": "/b"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"leaf\": {\"type\": \"string\", \"pattern\": \"^[a-z]+$\"}, \"left\": {\"$ref\": \"#/$defs/leaf\"}, \"right\": {\"$ref\": \"#/$defs/leaf\"}}, \"type\": \"object\", \"properties\": {\"a\": {\"$ref\": \"#/$defs/left\"}, \"b\": {\"$ref\": \"#/$defs/right\"}}, \"additionalProperties\": false}"
+   },
+   "ref": "x.json",
+   "raw": "{\"a\":\"x\",\"b\":\"Y\"}"
+  },
+  {
+   "name": "cross-document root reference",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://contracts.tradestocker.invalid/x.json\", \"$ref\": \"y.json\"}",
+    "y.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://contracts.tradestocker.invalid/y.json\", \"type\": \"string\", \"maxLength\": 2}"
+   },
+   "ref": "x.json",
+   "raw": "\"ab\""
+  },
+  {
+   "name": "cross-document root reference checks",
+   "expect": {
+    "keyword": "maxLength",
+    "path": ""
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://contracts.tradestocker.invalid/x.json\", \"$ref\": \"y.json\"}",
+    "y.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://contracts.tradestocker.invalid/y.json\", \"type\": \"string\", \"maxLength\": 2}"
+   },
+   "ref": "x.json",
+   "raw": "\"abc\""
+  },
+  {
+   "name": "boolean false schema",
+   "expect": {
+    "keyword": "false",
+    "path": "/a"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"properties\": {\"a\": false}, \"additionalProperties\": false}"
+   },
+   "ref": "x.json",
+   "raw": "{\"a\":1}"
+  },
+  {
+   "name": "additionalProperties schema",
+   "expect": {
+    "keyword": "type",
+    "path": "/k"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"object\", \"additionalProperties\": {\"type\": \"string\", \"maxLength\": 9}}"
+   },
+   "ref": "x.json",
+   "raw": "{\"k\":1}"
+  },
+  {
+   "name": "pointer into the registry",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"a~b\": {\"type\": \"null\"}, \"c/d\": {\"type\": \"null\"}}}"
+   },
+   "ref": "x.json#/$defs/a~0b",
+   "raw": "null"
+  },
+  {
+   "name": "escaped slash in a pointer",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$defs\": {\"a~b\": {\"type\": \"null\"}, \"c/d\": {\"type\": \"null\"}}}"
+   },
+   "ref": "x.json#/$defs/c~1d",
+   "raw": "null"
+  },
+  {
+   "name": "042: top-level alternation is refused",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a|b$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"ax\"",
+   "rationale": "Review 042 ran an earlier engine that used each language's regex library: Go matched part of the string and Python the whole, and each accepted syntax the other refused. Both now use the dialect's own grammar and automaton (pattern.go). ^a|b$ accepted \"ax\" in Go but not in Python."
+  },
+  {
+   "name": "042: grouped alternation matches the whole string",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(a|b)$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"ax\""
+  },
+  {
+   "name": "042: grouped alternation accepts one branch",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(a|b)$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"b\""
+  },
+  {
+   "name": "042: POSIX class is refused",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[[:digit:]]+$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"11\"",
+   "rationale": "Review 042 ran an earlier engine that used each language's regex library: Go matched part of the string and Python the whole, and each accepted syntax the other refused. Both now use the dialect's own grammar and automaton (pattern.go). [[:digit:]] meant digits only in Go."
+  },
+  {
+   "name": "042: \\Q quoting is refused",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^\\\\Qx\\\\E$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"x\"",
+   "rationale": "Review 042 ran an earlier engine that used each language's regex library: Go matched part of the string and Python the whole, and each accepted syntax the other refused. Both now use the dialect's own grammar and automaton (pattern.go). \\Q...\\E compiled only in Go."
+  },
+  {
+   "name": "042: back-reference is refused",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(a)\\\\1$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"aa\"",
+   "rationale": "Review 042 ran an earlier engine that used each language's regex library: Go matched part of the string and Python the whole, and each accepted syntax the other refused. Both now use the dialect's own grammar and automaton (pattern.go). \\1 compiled only in Python."
+  },
+  {
+   "name": "042: nested repetition compiles",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(a+)+$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"",
+   "rationale": "Review 042 found that both regex libraries accepted ^(a+)+$, which backtracks exponentially in Python (compile-only probe, never matched). The dialect's automaton has no backtracking, so nested repetition is now accepted and matched in linear time."
+  },
+  {
+   "name": "042: nested repetition refuses a near miss without backtracking",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(a+)+$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab\"",
+   "rationale": "Review 042 found that both regex libraries accepted ^(a+)+$, which backtracks exponentially in Python (compile-only probe, never matched). The dialect's automaton has no backtracking, so nested repetition is now accepted and matched in linear time."
+  },
+  {
+   "name": "depth: 64-document chain compiled leaf first",
+   "expect": "valid",
+   "documents": {
+    "n000.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"null\"}",
+    "n001.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n000.json\"}",
+    "n002.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n001.json\"}",
+    "n003.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n002.json\"}",
+    "n004.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n003.json\"}",
+    "n005.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n004.json\"}",
+    "n006.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n005.json\"}",
+    "n007.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n006.json\"}",
+    "n008.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n007.json\"}",
+    "n009.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n008.json\"}",
+    "n010.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n009.json\"}",
+    "n011.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n010.json\"}",
+    "n012.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n011.json\"}",
+    "n013.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n012.json\"}",
+    "n014.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n013.json\"}",
+    "n015.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n014.json\"}",
+    "n016.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n015.json\"}",
+    "n017.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n016.json\"}",
+    "n018.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n017.json\"}",
+    "n019.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n018.json\"}",
+    "n020.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n019.json\"}",
+    "n021.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n020.json\"}",
+    "n022.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n021.json\"}",
+    "n023.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n022.json\"}",
+    "n024.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n023.json\"}",
+    "n025.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n024.json\"}",
+    "n026.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n025.json\"}",
+    "n027.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n026.json\"}",
+    "n028.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n027.json\"}",
+    "n029.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n028.json\"}",
+    "n030.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n029.json\"}",
+    "n031.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n030.json\"}",
+    "n032.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n031.json\"}",
+    "n033.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n032.json\"}",
+    "n034.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n033.json\"}",
+    "n035.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n034.json\"}",
+    "n036.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n035.json\"}",
+    "n037.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n036.json\"}",
+    "n038.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n037.json\"}",
+    "n039.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n038.json\"}",
+    "n040.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n039.json\"}",
+    "n041.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n040.json\"}",
+    "n042.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n041.json\"}",
+    "n043.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n042.json\"}",
+    "n044.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n043.json\"}",
+    "n045.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n044.json\"}",
+    "n046.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n045.json\"}",
+    "n047.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n046.json\"}",
+    "n048.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n047.json\"}",
+    "n049.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n048.json\"}",
+    "n050.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n049.json\"}",
+    "n051.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n050.json\"}",
+    "n052.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n051.json\"}",
+    "n053.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n052.json\"}",
+    "n054.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n053.json\"}",
+    "n055.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n054.json\"}",
+    "n056.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n055.json\"}",
+    "n057.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n056.json\"}",
+    "n058.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n057.json\"}",
+    "n059.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n058.json\"}",
+    "n060.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n059.json\"}",
+    "n061.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n060.json\"}",
+    "n062.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n061.json\"}",
+    "n063.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n062.json\"}"
+   },
+   "ref": "n063.json",
+   "raw": "null",
+   "rationale": "Review 042: a 600-document reference chain passed in Go and exhausted Python's recursion. Review 044/045: cached subtrees bypassed the depth limit when documents compiled leaf first. Depth is now tracked with each cached subtree's height, the same in both languages and in any compile order."
+  },
+  {
+   "name": "depth: 64-document chain compiled root first",
+   "expect": "valid",
+   "documents": {
+    "n000.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n001.json\"}",
+    "n001.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n002.json\"}",
+    "n002.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n003.json\"}",
+    "n003.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n004.json\"}",
+    "n004.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n005.json\"}",
+    "n005.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n006.json\"}",
+    "n006.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n007.json\"}",
+    "n007.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n008.json\"}",
+    "n008.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n009.json\"}",
+    "n009.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n010.json\"}",
+    "n010.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n011.json\"}",
+    "n011.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n012.json\"}",
+    "n012.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n013.json\"}",
+    "n013.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n014.json\"}",
+    "n014.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n015.json\"}",
+    "n015.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n016.json\"}",
+    "n016.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n017.json\"}",
+    "n017.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n018.json\"}",
+    "n018.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n019.json\"}",
+    "n019.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n020.json\"}",
+    "n020.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n021.json\"}",
+    "n021.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n022.json\"}",
+    "n022.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n023.json\"}",
+    "n023.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n024.json\"}",
+    "n024.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n025.json\"}",
+    "n025.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n026.json\"}",
+    "n026.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n027.json\"}",
+    "n027.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n028.json\"}",
+    "n028.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n029.json\"}",
+    "n029.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n030.json\"}",
+    "n030.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n031.json\"}",
+    "n031.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n032.json\"}",
+    "n032.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n033.json\"}",
+    "n033.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n034.json\"}",
+    "n034.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n035.json\"}",
+    "n035.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n036.json\"}",
+    "n036.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n037.json\"}",
+    "n037.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n038.json\"}",
+    "n038.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n039.json\"}",
+    "n039.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n040.json\"}",
+    "n040.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n041.json\"}",
+    "n041.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n042.json\"}",
+    "n042.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n043.json\"}",
+    "n043.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n044.json\"}",
+    "n044.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n045.json\"}",
+    "n045.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n046.json\"}",
+    "n046.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n047.json\"}",
+    "n047.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n048.json\"}",
+    "n048.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n049.json\"}",
+    "n049.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n050.json\"}",
+    "n050.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n051.json\"}",
+    "n051.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n052.json\"}",
+    "n052.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n053.json\"}",
+    "n053.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n054.json\"}",
+    "n054.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n055.json\"}",
+    "n055.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n056.json\"}",
+    "n056.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n057.json\"}",
+    "n057.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n058.json\"}",
+    "n058.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n059.json\"}",
+    "n059.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n060.json\"}",
+    "n060.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n061.json\"}",
+    "n061.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n062.json\"}",
+    "n062.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n063.json\"}",
+    "n063.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"null\"}"
+   },
+   "ref": "n000.json",
+   "raw": "null",
+   "rationale": "Review 042: a 600-document reference chain passed in Go and exhausted Python's recursion. Review 044/045: cached subtrees bypassed the depth limit when documents compiled leaf first. Depth is now tracked with each cached subtree's height, the same in both languages and in any compile order."
+  },
+  {
+   "name": "depth: 65-document chain compiled leaf first",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "n000.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"null\"}",
+    "n001.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n000.json\"}",
+    "n002.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n001.json\"}",
+    "n003.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n002.json\"}",
+    "n004.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n003.json\"}",
+    "n005.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n004.json\"}",
+    "n006.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n005.json\"}",
+    "n007.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n006.json\"}",
+    "n008.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n007.json\"}",
+    "n009.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n008.json\"}",
+    "n010.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n009.json\"}",
+    "n011.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n010.json\"}",
+    "n012.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n011.json\"}",
+    "n013.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n012.json\"}",
+    "n014.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n013.json\"}",
+    "n015.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n014.json\"}",
+    "n016.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n015.json\"}",
+    "n017.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n016.json\"}",
+    "n018.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n017.json\"}",
+    "n019.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n018.json\"}",
+    "n020.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n019.json\"}",
+    "n021.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n020.json\"}",
+    "n022.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n021.json\"}",
+    "n023.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n022.json\"}",
+    "n024.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n023.json\"}",
+    "n025.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n024.json\"}",
+    "n026.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n025.json\"}",
+    "n027.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n026.json\"}",
+    "n028.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n027.json\"}",
+    "n029.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n028.json\"}",
+    "n030.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n029.json\"}",
+    "n031.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n030.json\"}",
+    "n032.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n031.json\"}",
+    "n033.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n032.json\"}",
+    "n034.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n033.json\"}",
+    "n035.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n034.json\"}",
+    "n036.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n035.json\"}",
+    "n037.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n036.json\"}",
+    "n038.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n037.json\"}",
+    "n039.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n038.json\"}",
+    "n040.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n039.json\"}",
+    "n041.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n040.json\"}",
+    "n042.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n041.json\"}",
+    "n043.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n042.json\"}",
+    "n044.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n043.json\"}",
+    "n045.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n044.json\"}",
+    "n046.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n045.json\"}",
+    "n047.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n046.json\"}",
+    "n048.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n047.json\"}",
+    "n049.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n048.json\"}",
+    "n050.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n049.json\"}",
+    "n051.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n050.json\"}",
+    "n052.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n051.json\"}",
+    "n053.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n052.json\"}",
+    "n054.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n053.json\"}",
+    "n055.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n054.json\"}",
+    "n056.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n055.json\"}",
+    "n057.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n056.json\"}",
+    "n058.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n057.json\"}",
+    "n059.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n058.json\"}",
+    "n060.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n059.json\"}",
+    "n061.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n060.json\"}",
+    "n062.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n061.json\"}",
+    "n063.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n062.json\"}",
+    "n064.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n063.json\"}"
+   },
+   "ref": "n064.json",
+   "raw": "null",
+   "rationale": "Review 042: a 600-document reference chain passed in Go and exhausted Python's recursion. Review 044/045: cached subtrees bypassed the depth limit when documents compiled leaf first. Depth is now tracked with each cached subtree's height, the same in both languages and in any compile order."
+  },
+  {
+   "name": "depth: 65-document chain compiled root first",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "n000.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n001.json\"}",
+    "n001.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n002.json\"}",
+    "n002.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n003.json\"}",
+    "n003.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n004.json\"}",
+    "n004.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n005.json\"}",
+    "n005.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n006.json\"}",
+    "n006.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n007.json\"}",
+    "n007.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n008.json\"}",
+    "n008.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n009.json\"}",
+    "n009.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n010.json\"}",
+    "n010.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n011.json\"}",
+    "n011.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n012.json\"}",
+    "n012.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n013.json\"}",
+    "n013.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n014.json\"}",
+    "n014.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n015.json\"}",
+    "n015.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n016.json\"}",
+    "n016.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n017.json\"}",
+    "n017.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n018.json\"}",
+    "n018.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n019.json\"}",
+    "n019.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n020.json\"}",
+    "n020.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n021.json\"}",
+    "n021.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n022.json\"}",
+    "n022.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n023.json\"}",
+    "n023.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n024.json\"}",
+    "n024.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n025.json\"}",
+    "n025.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n026.json\"}",
+    "n026.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n027.json\"}",
+    "n027.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n028.json\"}",
+    "n028.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n029.json\"}",
+    "n029.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n030.json\"}",
+    "n030.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n031.json\"}",
+    "n031.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n032.json\"}",
+    "n032.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n033.json\"}",
+    "n033.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n034.json\"}",
+    "n034.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n035.json\"}",
+    "n035.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n036.json\"}",
+    "n036.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n037.json\"}",
+    "n037.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n038.json\"}",
+    "n038.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n039.json\"}",
+    "n039.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n040.json\"}",
+    "n040.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n041.json\"}",
+    "n041.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n042.json\"}",
+    "n042.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n043.json\"}",
+    "n043.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n044.json\"}",
+    "n044.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n045.json\"}",
+    "n045.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n046.json\"}",
+    "n046.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n047.json\"}",
+    "n047.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n048.json\"}",
+    "n048.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n049.json\"}",
+    "n049.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n050.json\"}",
+    "n050.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n051.json\"}",
+    "n051.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n052.json\"}",
+    "n052.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n053.json\"}",
+    "n053.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n054.json\"}",
+    "n054.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n055.json\"}",
+    "n055.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n056.json\"}",
+    "n056.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n057.json\"}",
+    "n057.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n058.json\"}",
+    "n058.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n059.json\"}",
+    "n059.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n060.json\"}",
+    "n060.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n061.json\"}",
+    "n061.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n062.json\"}",
+    "n062.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n063.json\"}",
+    "n063.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n064.json\"}",
+    "n064.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"null\"}"
+   },
+   "ref": "n000.json",
+   "raw": "null",
+   "rationale": "Review 042: a 600-document reference chain passed in Go and exhausted Python's recursion. Review 044/045: cached subtrees bypassed the depth limit when documents compiled leaf first. Depth is now tracked with each cached subtree's height, the same in both languages and in any compile order."
+  },
+  {
+   "name": "044: 70-document chain compiled leaf first",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "n000.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"null\"}",
+    "n001.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n000.json\"}",
+    "n002.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n001.json\"}",
+    "n003.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n002.json\"}",
+    "n004.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n003.json\"}",
+    "n005.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n004.json\"}",
+    "n006.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n005.json\"}",
+    "n007.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n006.json\"}",
+    "n008.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n007.json\"}",
+    "n009.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n008.json\"}",
+    "n010.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n009.json\"}",
+    "n011.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n010.json\"}",
+    "n012.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n011.json\"}",
+    "n013.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n012.json\"}",
+    "n014.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n013.json\"}",
+    "n015.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n014.json\"}",
+    "n016.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n015.json\"}",
+    "n017.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n016.json\"}",
+    "n018.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n017.json\"}",
+    "n019.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n018.json\"}",
+    "n020.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n019.json\"}",
+    "n021.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n020.json\"}",
+    "n022.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n021.json\"}",
+    "n023.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n022.json\"}",
+    "n024.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n023.json\"}",
+    "n025.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n024.json\"}",
+    "n026.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n025.json\"}",
+    "n027.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n026.json\"}",
+    "n028.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n027.json\"}",
+    "n029.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n028.json\"}",
+    "n030.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n029.json\"}",
+    "n031.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n030.json\"}",
+    "n032.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n031.json\"}",
+    "n033.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n032.json\"}",
+    "n034.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n033.json\"}",
+    "n035.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n034.json\"}",
+    "n036.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n035.json\"}",
+    "n037.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n036.json\"}",
+    "n038.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n037.json\"}",
+    "n039.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n038.json\"}",
+    "n040.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n039.json\"}",
+    "n041.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n040.json\"}",
+    "n042.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n041.json\"}",
+    "n043.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n042.json\"}",
+    "n044.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n043.json\"}",
+    "n045.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n044.json\"}",
+    "n046.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n045.json\"}",
+    "n047.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n046.json\"}",
+    "n048.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n047.json\"}",
+    "n049.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n048.json\"}",
+    "n050.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n049.json\"}",
+    "n051.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n050.json\"}",
+    "n052.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n051.json\"}",
+    "n053.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n052.json\"}",
+    "n054.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n053.json\"}",
+    "n055.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n054.json\"}",
+    "n056.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n055.json\"}",
+    "n057.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n056.json\"}",
+    "n058.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n057.json\"}",
+    "n059.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n058.json\"}",
+    "n060.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n059.json\"}",
+    "n061.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n060.json\"}",
+    "n062.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n061.json\"}",
+    "n063.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n062.json\"}",
+    "n064.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n063.json\"}",
+    "n065.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n064.json\"}",
+    "n066.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n065.json\"}",
+    "n067.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n066.json\"}",
+    "n068.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n067.json\"}",
+    "n069.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n068.json\"}"
+   },
+   "ref": "n069.json",
+   "raw": "null",
+   "rationale": "Review 042: a 600-document reference chain passed in Go and exhausted Python's recursion. Review 044/045: cached subtrees bypassed the depth limit when documents compiled leaf first. Depth is now tracked with each cached subtree's height, the same in both languages and in any compile order."
+  },
+  {
+   "name": "042: 600-document chain",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "n000.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n001.json\"}",
+    "n001.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n002.json\"}",
+    "n002.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n003.json\"}",
+    "n003.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n004.json\"}",
+    "n004.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n005.json\"}",
+    "n005.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n006.json\"}",
+    "n006.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n007.json\"}",
+    "n007.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n008.json\"}",
+    "n008.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n009.json\"}",
+    "n009.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n010.json\"}",
+    "n010.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n011.json\"}",
+    "n011.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n012.json\"}",
+    "n012.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n013.json\"}",
+    "n013.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n014.json\"}",
+    "n014.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n015.json\"}",
+    "n015.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n016.json\"}",
+    "n016.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n017.json\"}",
+    "n017.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n018.json\"}",
+    "n018.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n019.json\"}",
+    "n019.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n020.json\"}",
+    "n020.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n021.json\"}",
+    "n021.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n022.json\"}",
+    "n022.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n023.json\"}",
+    "n023.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n024.json\"}",
+    "n024.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n025.json\"}",
+    "n025.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n026.json\"}",
+    "n026.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n027.json\"}",
+    "n027.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n028.json\"}",
+    "n028.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n029.json\"}",
+    "n029.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n030.json\"}",
+    "n030.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n031.json\"}",
+    "n031.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n032.json\"}",
+    "n032.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n033.json\"}",
+    "n033.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n034.json\"}",
+    "n034.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n035.json\"}",
+    "n035.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n036.json\"}",
+    "n036.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n037.json\"}",
+    "n037.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n038.json\"}",
+    "n038.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n039.json\"}",
+    "n039.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n040.json\"}",
+    "n040.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n041.json\"}",
+    "n041.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n042.json\"}",
+    "n042.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n043.json\"}",
+    "n043.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n044.json\"}",
+    "n044.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n045.json\"}",
+    "n045.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n046.json\"}",
+    "n046.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n047.json\"}",
+    "n047.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n048.json\"}",
+    "n048.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n049.json\"}",
+    "n049.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n050.json\"}",
+    "n050.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n051.json\"}",
+    "n051.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n052.json\"}",
+    "n052.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n053.json\"}",
+    "n053.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n054.json\"}",
+    "n054.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n055.json\"}",
+    "n055.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n056.json\"}",
+    "n056.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n057.json\"}",
+    "n057.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n058.json\"}",
+    "n058.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n059.json\"}",
+    "n059.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n060.json\"}",
+    "n060.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n061.json\"}",
+    "n061.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n062.json\"}",
+    "n062.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n063.json\"}",
+    "n063.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n064.json\"}",
+    "n064.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n065.json\"}",
+    "n065.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n066.json\"}",
+    "n066.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n067.json\"}",
+    "n067.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n068.json\"}",
+    "n068.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n069.json\"}",
+    "n069.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n070.json\"}",
+    "n070.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n071.json\"}",
+    "n071.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n072.json\"}",
+    "n072.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n073.json\"}",
+    "n073.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n074.json\"}",
+    "n074.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n075.json\"}",
+    "n075.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n076.json\"}",
+    "n076.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n077.json\"}",
+    "n077.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n078.json\"}",
+    "n078.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n079.json\"}",
+    "n079.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n080.json\"}",
+    "n080.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n081.json\"}",
+    "n081.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n082.json\"}",
+    "n082.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n083.json\"}",
+    "n083.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n084.json\"}",
+    "n084.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n085.json\"}",
+    "n085.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n086.json\"}",
+    "n086.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n087.json\"}",
+    "n087.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n088.json\"}",
+    "n088.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n089.json\"}",
+    "n089.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n090.json\"}",
+    "n090.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n091.json\"}",
+    "n091.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n092.json\"}",
+    "n092.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n093.json\"}",
+    "n093.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n094.json\"}",
+    "n094.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n095.json\"}",
+    "n095.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n096.json\"}",
+    "n096.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n097.json\"}",
+    "n097.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n098.json\"}",
+    "n098.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n099.json\"}",
+    "n099.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n100.json\"}",
+    "n100.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n101.json\"}",
+    "n101.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n102.json\"}",
+    "n102.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n103.json\"}",
+    "n103.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n104.json\"}",
+    "n104.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n105.json\"}",
+    "n105.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n106.json\"}",
+    "n106.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n107.json\"}",
+    "n107.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n108.json\"}",
+    "n108.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n109.json\"}",
+    "n109.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n110.json\"}",
+    "n110.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n111.json\"}",
+    "n111.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n112.json\"}",
+    "n112.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n113.json\"}",
+    "n113.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n114.json\"}",
+    "n114.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n115.json\"}",
+    "n115.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n116.json\"}",
+    "n116.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n117.json\"}",
+    "n117.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n118.json\"}",
+    "n118.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n119.json\"}",
+    "n119.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n120.json\"}",
+    "n120.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n121.json\"}",
+    "n121.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n122.json\"}",
+    "n122.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n123.json\"}",
+    "n123.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n124.json\"}",
+    "n124.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n125.json\"}",
+    "n125.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n126.json\"}",
+    "n126.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n127.json\"}",
+    "n127.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n128.json\"}",
+    "n128.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n129.json\"}",
+    "n129.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n130.json\"}",
+    "n130.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n131.json\"}",
+    "n131.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n132.json\"}",
+    "n132.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n133.json\"}",
+    "n133.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n134.json\"}",
+    "n134.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n135.json\"}",
+    "n135.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n136.json\"}",
+    "n136.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n137.json\"}",
+    "n137.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n138.json\"}",
+    "n138.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n139.json\"}",
+    "n139.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n140.json\"}",
+    "n140.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n141.json\"}",
+    "n141.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n142.json\"}",
+    "n142.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n143.json\"}",
+    "n143.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n144.json\"}",
+    "n144.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n145.json\"}",
+    "n145.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n146.json\"}",
+    "n146.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n147.json\"}",
+    "n147.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n148.json\"}",
+    "n148.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n149.json\"}",
+    "n149.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n150.json\"}",
+    "n150.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n151.json\"}",
+    "n151.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n152.json\"}",
+    "n152.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n153.json\"}",
+    "n153.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n154.json\"}",
+    "n154.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n155.json\"}",
+    "n155.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n156.json\"}",
+    "n156.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n157.json\"}",
+    "n157.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n158.json\"}",
+    "n158.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n159.json\"}",
+    "n159.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n160.json\"}",
+    "n160.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n161.json\"}",
+    "n161.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n162.json\"}",
+    "n162.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n163.json\"}",
+    "n163.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n164.json\"}",
+    "n164.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n165.json\"}",
+    "n165.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n166.json\"}",
+    "n166.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n167.json\"}",
+    "n167.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n168.json\"}",
+    "n168.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n169.json\"}",
+    "n169.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n170.json\"}",
+    "n170.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n171.json\"}",
+    "n171.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n172.json\"}",
+    "n172.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n173.json\"}",
+    "n173.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n174.json\"}",
+    "n174.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n175.json\"}",
+    "n175.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n176.json\"}",
+    "n176.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n177.json\"}",
+    "n177.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n178.json\"}",
+    "n178.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n179.json\"}",
+    "n179.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n180.json\"}",
+    "n180.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n181.json\"}",
+    "n181.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n182.json\"}",
+    "n182.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n183.json\"}",
+    "n183.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n184.json\"}",
+    "n184.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n185.json\"}",
+    "n185.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n186.json\"}",
+    "n186.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n187.json\"}",
+    "n187.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n188.json\"}",
+    "n188.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n189.json\"}",
+    "n189.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n190.json\"}",
+    "n190.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n191.json\"}",
+    "n191.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n192.json\"}",
+    "n192.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n193.json\"}",
+    "n193.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n194.json\"}",
+    "n194.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n195.json\"}",
+    "n195.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n196.json\"}",
+    "n196.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n197.json\"}",
+    "n197.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n198.json\"}",
+    "n198.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n199.json\"}",
+    "n199.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n200.json\"}",
+    "n200.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n201.json\"}",
+    "n201.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n202.json\"}",
+    "n202.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n203.json\"}",
+    "n203.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n204.json\"}",
+    "n204.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n205.json\"}",
+    "n205.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n206.json\"}",
+    "n206.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n207.json\"}",
+    "n207.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n208.json\"}",
+    "n208.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n209.json\"}",
+    "n209.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n210.json\"}",
+    "n210.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n211.json\"}",
+    "n211.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n212.json\"}",
+    "n212.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n213.json\"}",
+    "n213.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n214.json\"}",
+    "n214.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n215.json\"}",
+    "n215.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n216.json\"}",
+    "n216.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n217.json\"}",
+    "n217.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n218.json\"}",
+    "n218.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n219.json\"}",
+    "n219.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n220.json\"}",
+    "n220.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n221.json\"}",
+    "n221.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n222.json\"}",
+    "n222.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n223.json\"}",
+    "n223.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n224.json\"}",
+    "n224.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n225.json\"}",
+    "n225.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n226.json\"}",
+    "n226.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n227.json\"}",
+    "n227.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n228.json\"}",
+    "n228.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n229.json\"}",
+    "n229.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n230.json\"}",
+    "n230.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n231.json\"}",
+    "n231.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n232.json\"}",
+    "n232.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n233.json\"}",
+    "n233.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n234.json\"}",
+    "n234.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n235.json\"}",
+    "n235.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n236.json\"}",
+    "n236.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n237.json\"}",
+    "n237.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n238.json\"}",
+    "n238.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n239.json\"}",
+    "n239.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n240.json\"}",
+    "n240.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n241.json\"}",
+    "n241.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n242.json\"}",
+    "n242.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n243.json\"}",
+    "n243.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n244.json\"}",
+    "n244.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n245.json\"}",
+    "n245.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n246.json\"}",
+    "n246.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n247.json\"}",
+    "n247.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n248.json\"}",
+    "n248.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n249.json\"}",
+    "n249.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n250.json\"}",
+    "n250.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n251.json\"}",
+    "n251.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n252.json\"}",
+    "n252.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n253.json\"}",
+    "n253.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n254.json\"}",
+    "n254.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n255.json\"}",
+    "n255.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n256.json\"}",
+    "n256.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n257.json\"}",
+    "n257.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n258.json\"}",
+    "n258.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n259.json\"}",
+    "n259.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n260.json\"}",
+    "n260.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n261.json\"}",
+    "n261.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n262.json\"}",
+    "n262.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n263.json\"}",
+    "n263.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n264.json\"}",
+    "n264.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n265.json\"}",
+    "n265.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n266.json\"}",
+    "n266.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n267.json\"}",
+    "n267.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n268.json\"}",
+    "n268.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n269.json\"}",
+    "n269.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n270.json\"}",
+    "n270.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n271.json\"}",
+    "n271.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n272.json\"}",
+    "n272.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n273.json\"}",
+    "n273.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n274.json\"}",
+    "n274.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n275.json\"}",
+    "n275.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n276.json\"}",
+    "n276.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n277.json\"}",
+    "n277.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n278.json\"}",
+    "n278.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n279.json\"}",
+    "n279.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n280.json\"}",
+    "n280.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n281.json\"}",
+    "n281.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n282.json\"}",
+    "n282.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n283.json\"}",
+    "n283.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n284.json\"}",
+    "n284.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n285.json\"}",
+    "n285.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n286.json\"}",
+    "n286.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n287.json\"}",
+    "n287.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n288.json\"}",
+    "n288.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n289.json\"}",
+    "n289.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n290.json\"}",
+    "n290.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n291.json\"}",
+    "n291.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n292.json\"}",
+    "n292.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n293.json\"}",
+    "n293.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n294.json\"}",
+    "n294.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n295.json\"}",
+    "n295.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n296.json\"}",
+    "n296.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n297.json\"}",
+    "n297.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n298.json\"}",
+    "n298.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n299.json\"}",
+    "n299.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n300.json\"}",
+    "n300.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n301.json\"}",
+    "n301.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n302.json\"}",
+    "n302.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n303.json\"}",
+    "n303.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n304.json\"}",
+    "n304.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n305.json\"}",
+    "n305.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n306.json\"}",
+    "n306.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n307.json\"}",
+    "n307.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n308.json\"}",
+    "n308.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n309.json\"}",
+    "n309.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n310.json\"}",
+    "n310.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n311.json\"}",
+    "n311.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n312.json\"}",
+    "n312.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n313.json\"}",
+    "n313.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n314.json\"}",
+    "n314.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n315.json\"}",
+    "n315.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n316.json\"}",
+    "n316.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n317.json\"}",
+    "n317.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n318.json\"}",
+    "n318.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n319.json\"}",
+    "n319.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n320.json\"}",
+    "n320.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n321.json\"}",
+    "n321.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n322.json\"}",
+    "n322.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n323.json\"}",
+    "n323.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n324.json\"}",
+    "n324.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n325.json\"}",
+    "n325.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n326.json\"}",
+    "n326.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n327.json\"}",
+    "n327.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n328.json\"}",
+    "n328.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n329.json\"}",
+    "n329.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n330.json\"}",
+    "n330.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n331.json\"}",
+    "n331.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n332.json\"}",
+    "n332.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n333.json\"}",
+    "n333.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n334.json\"}",
+    "n334.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n335.json\"}",
+    "n335.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n336.json\"}",
+    "n336.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n337.json\"}",
+    "n337.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n338.json\"}",
+    "n338.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n339.json\"}",
+    "n339.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n340.json\"}",
+    "n340.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n341.json\"}",
+    "n341.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n342.json\"}",
+    "n342.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n343.json\"}",
+    "n343.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n344.json\"}",
+    "n344.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n345.json\"}",
+    "n345.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n346.json\"}",
+    "n346.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n347.json\"}",
+    "n347.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n348.json\"}",
+    "n348.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n349.json\"}",
+    "n349.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n350.json\"}",
+    "n350.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n351.json\"}",
+    "n351.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n352.json\"}",
+    "n352.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n353.json\"}",
+    "n353.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n354.json\"}",
+    "n354.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n355.json\"}",
+    "n355.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n356.json\"}",
+    "n356.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n357.json\"}",
+    "n357.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n358.json\"}",
+    "n358.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n359.json\"}",
+    "n359.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n360.json\"}",
+    "n360.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n361.json\"}",
+    "n361.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n362.json\"}",
+    "n362.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n363.json\"}",
+    "n363.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n364.json\"}",
+    "n364.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n365.json\"}",
+    "n365.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n366.json\"}",
+    "n366.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n367.json\"}",
+    "n367.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n368.json\"}",
+    "n368.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n369.json\"}",
+    "n369.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n370.json\"}",
+    "n370.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n371.json\"}",
+    "n371.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n372.json\"}",
+    "n372.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n373.json\"}",
+    "n373.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n374.json\"}",
+    "n374.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n375.json\"}",
+    "n375.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n376.json\"}",
+    "n376.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n377.json\"}",
+    "n377.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n378.json\"}",
+    "n378.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n379.json\"}",
+    "n379.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n380.json\"}",
+    "n380.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n381.json\"}",
+    "n381.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n382.json\"}",
+    "n382.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n383.json\"}",
+    "n383.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n384.json\"}",
+    "n384.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n385.json\"}",
+    "n385.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n386.json\"}",
+    "n386.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n387.json\"}",
+    "n387.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n388.json\"}",
+    "n388.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n389.json\"}",
+    "n389.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n390.json\"}",
+    "n390.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n391.json\"}",
+    "n391.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n392.json\"}",
+    "n392.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n393.json\"}",
+    "n393.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n394.json\"}",
+    "n394.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n395.json\"}",
+    "n395.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n396.json\"}",
+    "n396.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n397.json\"}",
+    "n397.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n398.json\"}",
+    "n398.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n399.json\"}",
+    "n399.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n400.json\"}",
+    "n400.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n401.json\"}",
+    "n401.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n402.json\"}",
+    "n402.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n403.json\"}",
+    "n403.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n404.json\"}",
+    "n404.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n405.json\"}",
+    "n405.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n406.json\"}",
+    "n406.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n407.json\"}",
+    "n407.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n408.json\"}",
+    "n408.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n409.json\"}",
+    "n409.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n410.json\"}",
+    "n410.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n411.json\"}",
+    "n411.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n412.json\"}",
+    "n412.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n413.json\"}",
+    "n413.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n414.json\"}",
+    "n414.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n415.json\"}",
+    "n415.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n416.json\"}",
+    "n416.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n417.json\"}",
+    "n417.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n418.json\"}",
+    "n418.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n419.json\"}",
+    "n419.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n420.json\"}",
+    "n420.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n421.json\"}",
+    "n421.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n422.json\"}",
+    "n422.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n423.json\"}",
+    "n423.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n424.json\"}",
+    "n424.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n425.json\"}",
+    "n425.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n426.json\"}",
+    "n426.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n427.json\"}",
+    "n427.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n428.json\"}",
+    "n428.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n429.json\"}",
+    "n429.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n430.json\"}",
+    "n430.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n431.json\"}",
+    "n431.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n432.json\"}",
+    "n432.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n433.json\"}",
+    "n433.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n434.json\"}",
+    "n434.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n435.json\"}",
+    "n435.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n436.json\"}",
+    "n436.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n437.json\"}",
+    "n437.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n438.json\"}",
+    "n438.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n439.json\"}",
+    "n439.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n440.json\"}",
+    "n440.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n441.json\"}",
+    "n441.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n442.json\"}",
+    "n442.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n443.json\"}",
+    "n443.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n444.json\"}",
+    "n444.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n445.json\"}",
+    "n445.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n446.json\"}",
+    "n446.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n447.json\"}",
+    "n447.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n448.json\"}",
+    "n448.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n449.json\"}",
+    "n449.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n450.json\"}",
+    "n450.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n451.json\"}",
+    "n451.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n452.json\"}",
+    "n452.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n453.json\"}",
+    "n453.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n454.json\"}",
+    "n454.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n455.json\"}",
+    "n455.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n456.json\"}",
+    "n456.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n457.json\"}",
+    "n457.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n458.json\"}",
+    "n458.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n459.json\"}",
+    "n459.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n460.json\"}",
+    "n460.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n461.json\"}",
+    "n461.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n462.json\"}",
+    "n462.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n463.json\"}",
+    "n463.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n464.json\"}",
+    "n464.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n465.json\"}",
+    "n465.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n466.json\"}",
+    "n466.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n467.json\"}",
+    "n467.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n468.json\"}",
+    "n468.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n469.json\"}",
+    "n469.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n470.json\"}",
+    "n470.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n471.json\"}",
+    "n471.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n472.json\"}",
+    "n472.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n473.json\"}",
+    "n473.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n474.json\"}",
+    "n474.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n475.json\"}",
+    "n475.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n476.json\"}",
+    "n476.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n477.json\"}",
+    "n477.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n478.json\"}",
+    "n478.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n479.json\"}",
+    "n479.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n480.json\"}",
+    "n480.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n481.json\"}",
+    "n481.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n482.json\"}",
+    "n482.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n483.json\"}",
+    "n483.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n484.json\"}",
+    "n484.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n485.json\"}",
+    "n485.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n486.json\"}",
+    "n486.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n487.json\"}",
+    "n487.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n488.json\"}",
+    "n488.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n489.json\"}",
+    "n489.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n490.json\"}",
+    "n490.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n491.json\"}",
+    "n491.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n492.json\"}",
+    "n492.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n493.json\"}",
+    "n493.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n494.json\"}",
+    "n494.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n495.json\"}",
+    "n495.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n496.json\"}",
+    "n496.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n497.json\"}",
+    "n497.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n498.json\"}",
+    "n498.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n499.json\"}",
+    "n499.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n500.json\"}",
+    "n500.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n501.json\"}",
+    "n501.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n502.json\"}",
+    "n502.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n503.json\"}",
+    "n503.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n504.json\"}",
+    "n504.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n505.json\"}",
+    "n505.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n506.json\"}",
+    "n506.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n507.json\"}",
+    "n507.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n508.json\"}",
+    "n508.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n509.json\"}",
+    "n509.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n510.json\"}",
+    "n510.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n511.json\"}",
+    "n511.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n512.json\"}",
+    "n512.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n513.json\"}",
+    "n513.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n514.json\"}",
+    "n514.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n515.json\"}",
+    "n515.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n516.json\"}",
+    "n516.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n517.json\"}",
+    "n517.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n518.json\"}",
+    "n518.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n519.json\"}",
+    "n519.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n520.json\"}",
+    "n520.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n521.json\"}",
+    "n521.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n522.json\"}",
+    "n522.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n523.json\"}",
+    "n523.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n524.json\"}",
+    "n524.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n525.json\"}",
+    "n525.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n526.json\"}",
+    "n526.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n527.json\"}",
+    "n527.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n528.json\"}",
+    "n528.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n529.json\"}",
+    "n529.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n530.json\"}",
+    "n530.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n531.json\"}",
+    "n531.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n532.json\"}",
+    "n532.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n533.json\"}",
+    "n533.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n534.json\"}",
+    "n534.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n535.json\"}",
+    "n535.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n536.json\"}",
+    "n536.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n537.json\"}",
+    "n537.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n538.json\"}",
+    "n538.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n539.json\"}",
+    "n539.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n540.json\"}",
+    "n540.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n541.json\"}",
+    "n541.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n542.json\"}",
+    "n542.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n543.json\"}",
+    "n543.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n544.json\"}",
+    "n544.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n545.json\"}",
+    "n545.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n546.json\"}",
+    "n546.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n547.json\"}",
+    "n547.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n548.json\"}",
+    "n548.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n549.json\"}",
+    "n549.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n550.json\"}",
+    "n550.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n551.json\"}",
+    "n551.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n552.json\"}",
+    "n552.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n553.json\"}",
+    "n553.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n554.json\"}",
+    "n554.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n555.json\"}",
+    "n555.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n556.json\"}",
+    "n556.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n557.json\"}",
+    "n557.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n558.json\"}",
+    "n558.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n559.json\"}",
+    "n559.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n560.json\"}",
+    "n560.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n561.json\"}",
+    "n561.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n562.json\"}",
+    "n562.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n563.json\"}",
+    "n563.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n564.json\"}",
+    "n564.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n565.json\"}",
+    "n565.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n566.json\"}",
+    "n566.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n567.json\"}",
+    "n567.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n568.json\"}",
+    "n568.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n569.json\"}",
+    "n569.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n570.json\"}",
+    "n570.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n571.json\"}",
+    "n571.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n572.json\"}",
+    "n572.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n573.json\"}",
+    "n573.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n574.json\"}",
+    "n574.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n575.json\"}",
+    "n575.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n576.json\"}",
+    "n576.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n577.json\"}",
+    "n577.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n578.json\"}",
+    "n578.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n579.json\"}",
+    "n579.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n580.json\"}",
+    "n580.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n581.json\"}",
+    "n581.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n582.json\"}",
+    "n582.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n583.json\"}",
+    "n583.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n584.json\"}",
+    "n584.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n585.json\"}",
+    "n585.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n586.json\"}",
+    "n586.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n587.json\"}",
+    "n587.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n588.json\"}",
+    "n588.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n589.json\"}",
+    "n589.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n590.json\"}",
+    "n590.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n591.json\"}",
+    "n591.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n592.json\"}",
+    "n592.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n593.json\"}",
+    "n593.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n594.json\"}",
+    "n594.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n595.json\"}",
+    "n595.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n596.json\"}",
+    "n596.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n597.json\"}",
+    "n597.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n598.json\"}",
+    "n598.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$ref\": \"n599.json\"}",
+    "n599.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"null\"}"
+   },
+   "ref": "n000.json",
+   "raw": "true",
+   "rationale": "Review 042: a 600-document reference chain passed in Go and exhausted Python's recursion. Review 044/045: cached subtrees bypassed the depth limit when documents compiled leaf first. Depth is now tracked with each cached subtree's height, the same in both languages and in any compile order."
+  },
+  {
+   "name": "044: signed count +1",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{+1}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\"",
+   "rationale": "Review 044/045: Go read counts with strconv.Atoi, which also accepts a sign; counts are now unsigned ASCII digits in both languages."
+  },
+  {
+   "name": "044: signed count -1",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{-1}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\"",
+   "rationale": "Review 044/045: Go read counts with strconv.Atoi, which also accepts a sign; counts are now unsigned ASCII digits in both languages."
+  },
+  {
+   "name": "044: signed upper count",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{1,+2}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\"",
+   "rationale": "Review 044/045: Go read counts with strconv.Atoi, which also accepts a sign; counts are now unsigned ASCII digits in both languages."
+  },
+  {
+   "name": "044: count with a space",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{ 1}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\"",
+   "rationale": "Review 044/045: Go read counts with strconv.Atoi, which also accepts a sign; counts are now unsigned ASCII digits in both languages."
+  },
+  {
+   "name": "grammar: dash at the end of a class is literal",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[a-]$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"-\""
+  },
+  {
+   "name": "grammar: empty class",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[]$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"\""
+  },
+  {
+   "name": "grammar: negated class",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[^a]$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"b\""
+  },
+  {
+   "name": "grammar: reversed range",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[z-a]$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"b\""
+  },
+  {
+   "name": "grammar: reversed count",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{2,1}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: count above 1000",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{1001}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: leading-zero count",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{01}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: doubled quantifier",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a**$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: lazy quantifier",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a+?$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: wildcard",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^.$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: non-capturing group",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(?:a)$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: pattern ends inside an escape",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a\\\\$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: unknown escape",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^\\\\n$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"n\""
+  },
+  {
+   "name": "grammar: allowed escapes",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^\\\\-\\\\/\\\\.\\\\$\\\\^$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"-/.$^\""
+  },
+  {
+   "name": "grammar: empty branch",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(|a)$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"\""
+  },
+  {
+   "name": "grammar: zero repetitions",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a{0}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"\""
+  },
+  {
+   "name": "grammar: exact repetition",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[a-c]{2}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"cb\""
+  },
+  {
+   "name": "grammar: more states than allowed",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(a{1000}){11}$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: pattern longer than 1000 characters",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: 32 nested groups",
+   "expect": "valid",
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^((((((((((((((((((((((((((((((((a))))))))))))))))))))))))))))))))$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: 33 nested groups",
+   "expect": {
+    "code": "SCHEMA_ERROR"
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^(((((((((((((((((((((((((((((((((a)))))))))))))))))))))))))))))))))$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\""
+  },
+  {
+   "name": "grammar: non-ASCII input never matches a class",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^[a-z]+$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"é\""
+  },
+  {
+   "name": "grammar: trailing newline is not the end",
+   "expect": {
+    "keyword": "pattern",
+    "path": ""
+   },
+   "documents": {
+    "x.json": "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"type\": \"string\", \"pattern\": \"^a$\"}"
+   },
+   "ref": "x.json",
+   "raw": "\"a\\n\""
+  }
+ ]
+}

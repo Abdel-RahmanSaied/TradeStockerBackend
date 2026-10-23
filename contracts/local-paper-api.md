@@ -1,5 +1,7 @@
 # Local paper API v1
 
+The machine-checked contract is `contracts/openapi/local-api.v1.json` (see `contracts/README.md`); this page explains it.
+
 Implemented contract for S00-T07/T08. It is separate from proposed production contracts. Go is the only authority. Base: `http://127.0.0.1:8080/api/v1`. The dashboard uses a same-origin Vite proxy. All live lanes are disabled. No broker integration or actual/live mutation exists.
 
 Auth: `Authorization: Bearer <TS_LOCAL_DEV_TOKEN>` for every endpoint except health, live and ready. Token is generated locally, ignored by Git and held only in frontend memory. This is a single-owner dev stand-in, not D-05 production identity. JSON-only POSTs require an 8–128 character `Idempotency-Key` (letters, digits, dot, dash, underscore, colon). Same key and exact request bytes return the committed response; a changed body/path yields 409. Use the same key when retrying an ambiguous write.

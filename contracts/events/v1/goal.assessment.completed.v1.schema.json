@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/goal.assessment.completed.v1.schema.json",
+  "title": "goal.assessment.completed, version 1",
+  "description": "A goal progress assessment. A goal can never change risk policy (INV-06).",
+  "x-tradestocker-catalog-name": "goal.assessment.completed.v1",
+  "x-tradestocker-producer": "research-worker",
+  "x-tradestocker-consumer": "platform-core",
+  "x-tradestocker-uniqueness": "goal_id + goal_revision + input_manifest_id",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "goal.assessment.completed"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "research-worker"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "envelope.schema.json#/properties/account_id"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "goal_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "goal_revision": {
+          "$ref": "common.schema.json#/$defs/revision"
+        },
+        "input_manifest_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ON_TRACK",
+            "BEHIND",
+            "AHEAD",
+            "INSUFFICIENT_DATA"
+          ]
+        },
+        "changes_risk_policy": {
+          "type": "boolean",
+          "const": false,
+          "description": "Always false: goals cannot alter risk (ADR-009)."
+        }
+      },
+      "required": [
+        "goal_id",
+        "goal_revision",
+        "input_manifest_id",
+        "status",
+        "changes_risk_policy"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

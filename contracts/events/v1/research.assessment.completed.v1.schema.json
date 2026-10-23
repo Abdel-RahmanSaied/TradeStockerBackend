@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/research.assessment.completed.v1.schema.json",
+  "title": "research.assessment.completed, version 1",
+  "description": "A typed research result for Go to evaluate. It never delivers advice, grants entry or writes financial state; Go policy decides.",
+  "x-tradestocker-catalog-name": "research.assessment.completed.v1",
+  "x-tradestocker-producer": "research-worker",
+  "x-tradestocker-consumer": "platform-core",
+  "x-tradestocker-uniqueness": "assessment_id + assessment_revision",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "research.assessment.completed"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "research-worker"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "envelope.schema.json#/properties/account_id"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "assessment_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "job_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "instrument_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "strategy_id": {
+          "$ref": "common.schema.json#/$defs/lane"
+        },
+        "evidence_manifest_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "assessment_revision": {
+          "$ref": "common.schema.json#/$defs/revision"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ELIGIBLE_FOR_POLICY_REVIEW",
+            "NO_TRADE",
+            "INSUFFICIENT_DATA"
+          ],
+          "description": "No status grants entry on its own."
+        },
+        "missing_inputs": {
+          "$ref": "common.schema.json#/$defs/codes"
+        },
+        "eligible_for_entry": {
+          "type": "boolean",
+          "const": false,
+          "description": "Always false: only Go policy can make a candidate eligible."
+        },
+        "financial_state_write_access": {
+          "type": "boolean",
+          "const": false,
+          "description": "Always false: research never writes financial state (INV-03)."
+        }
+      },
+      "required": [
+        "assessment_id",
+        "job_id",
+        "instrument_id",
+        "strategy_id",
+        "evidence_manifest_id",
+        "assessment_revision",
+        "status",
+        "missing_inputs",
+        "eligible_for_entry",
+        "financial_state_write_access"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

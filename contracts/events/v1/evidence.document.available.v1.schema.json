@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/evidence.document.available.v1.schema.json",
+  "title": "evidence.document.available, version 1",
+  "description": "A source document is stored and may be used from available_at, which can be later than published_at (INV-08).",
+  "x-tradestocker-catalog-name": "evidence.document.available.v1",
+  "x-tradestocker-producer": "market-ingestion",
+  "x-tradestocker-consumer": "research",
+  "x-tradestocker-uniqueness": "document_id + sha256 + document_version",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "evidence.document.available"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "market-ingestion"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "envelope.schema.json#/properties/account_id"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "document_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "provider_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "document_kind": {
+          "$ref": "common.schema.json#/$defs/code"
+        },
+        "instrument_id": {
+          "$ref": "common.schema.json#/$defs/nullable_id"
+        },
+        "sha256": {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        "document_version": {
+          "$ref": "common.schema.json#/$defs/revision"
+        },
+        "published_at": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        },
+        "available_at": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        }
+      },
+      "required": [
+        "document_id",
+        "provider_id",
+        "document_kind",
+        "instrument_id",
+        "sha256",
+        "document_version",
+        "published_at",
+        "available_at"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

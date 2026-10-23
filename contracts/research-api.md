@@ -1,5 +1,7 @@
 # Research API v1 — SEC annual filings
 
+The machine-checked contract is `contracts/openapi/local-api.v1.json` (see `contracts/README.md`); this page explains it.
+
 Implemented contract for S07-T07. Base: `http://127.0.0.1:8080/api/v1`. Same auth as `local-paper-api.md`: every endpoint needs `Authorization: Bearer <TS_LOCAL_DEV_TOKEN>`, and only the local dashboard origin is allowed. Research is **read-only**: it never reads or writes paper financial state, and no report makes an instrument eligible for entry or backtesting.
 
 The backend contacts only `https://data.sec.gov`, for two documents per attempt. It needs `TS_SEC_USER_AGENT` in the form `Application Name contact@example.com` (SEC asks automated tools to declare a user agent). Without it, status reports `configured: false` and new jobs are refused.

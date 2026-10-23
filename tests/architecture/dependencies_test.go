@@ -34,11 +34,13 @@ const (
 var layers = map[string]layer{
 	"internal/paper":       domain,
 	"internal/telemetry":   support,
+	"internal/contracts":   support,
 	"internal/natsbus":     adapter,
 	"internal/httpapi":     adapter,
 	"internal/store":       adapter,
 	"internal/research":    adapter,
 	"db":                   asset,
+	"contracts":            asset,
 	"research":             asset,
 	"cmd/platform-core":    entry,
 	"cmd/market-ingestion": entry,

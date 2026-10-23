@@ -18,6 +18,8 @@ build:
 test: toolchain
 	TS_PYTHON="$$(./scripts/toolchain.sh python)" TS_REQUIRE_PYTHON=1 go test -race -count=1 ./...
 	.tools/research-venv/bin/python -I -B -m unittest discover -s research/tests -t research/tests
+	.tools/research-venv/bin/python -I -B -m unittest discover -s contracts/tools -t contracts/tools
+	.tools/research-venv/bin/python -I -B contracts/tools/generate_contracts.py --check
 	.tools/research-venv/bin/python -I -B fixtures/synthetic/test_fixtures.py
 	python3 -B scripts/test_disposable_api.py
 
@@ -66,6 +68,8 @@ ci-go: toolchain
 	@files=$$(gofmt -l $$(git ls-files '*.go' | grep -v '^spikes/')); \
 	  if [ -n "$$files" ]; then echo "gofmt needed: $$files"; exit 1; fi
 	go vet ./...
+	# Generated Go/Python contract code is current and no contract change breaks the lock.
+	$(PY) -I -B contracts/tools/generate_contracts.py --check
 	TS_PYTHON="$$(./scripts/toolchain.sh python)" TS_REQUIRE_PYTHON=1 $(SUITE) --name go --go-json -- go test -race -count=1 -json ./...
 
 # Python lint (ruff.toml) and type check (mypy.ini) with the locked tools, then
@@ -74,6 +78,7 @@ ci-python: toolchain
 	.tools/research-venv/bin/ruff check --no-cache --config ruff.toml .
 	.tools/research-venv/bin/mypy --config-file mypy.ini --no-incremental --cache-dir=/dev/null
 	$(SUITE) --name research -- $(PY) -I -B -m unittest discover -s research/tests -t research/tests
+	$(SUITE) --name contracts -- $(PY) -I -B -m unittest discover -s contracts/tools -t contracts/tools
 	$(SUITE) --name fixtures -- $(PY) -I -B fixtures/synthetic/test_fixtures.py
 	$(SUITE) --name launcher-helpers -- python3 -B scripts/test_disposable_api.py
 	$(SUITE) --name package-guard -- python3 -B scripts/test_package_out.py

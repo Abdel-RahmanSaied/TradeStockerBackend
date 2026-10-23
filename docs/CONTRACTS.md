@@ -2,6 +2,8 @@
 
 This document specifies direction and ownership. It is not an OpenAPI implementation, database migration or proof of existing endpoints.
 
+The executable contracts now live in `contracts/` (S02-T01): OpenAPI for the served API, the SEC parser payloads and the v1 event schemas, with their reconciliation against this baseline in [contracts/README.md](../contracts/README.md).
+
 ## 1. Shared envelope
 
 Proposed event shape (synthetic identifiers; no actual recommendation):

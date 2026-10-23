@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/risk.entries.paused.v1.schema.json",
+  "title": "risk.entries.paused, version 1",
+  "description": "New entries are paused or resumed for a scope. Monitoring and risk alerts continue (INV-10); nothing is liquidated.",
+  "x-tradestocker-catalog-name": "risk.entries.paused.v1",
+  "x-tradestocker-producer": "platform-core",
+  "x-tradestocker-consumer": "routing and operations",
+  "x-tradestocker-uniqueness": "scope + control_revision",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "risk.entries.paused"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "platform-core"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "envelope.schema.json#/properties/account_id"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "ALL",
+            "EGX_SWING",
+            "US_SWING",
+            "EGX_INTRADAY",
+            "US_INTRADAY"
+          ]
+        },
+        "paused": {
+          "type": "boolean"
+        },
+        "control_revision": {
+          "$ref": "common.schema.json#/$defs/revision"
+        },
+        "reason_code": {
+          "$ref": "common.schema.json#/$defs/code"
+        },
+        "monitoring_continues": {
+          "type": "boolean",
+          "const": true,
+          "description": "Always true: a pause stops new entries only."
+        }
+      },
+      "required": [
+        "scope",
+        "paused",
+        "control_revision",
+        "reason_code",
+        "monitoring_continues"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

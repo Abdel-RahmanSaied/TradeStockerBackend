@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/portfolio.reconciliation.changed.v1.schema.json",
+  "title": "portfolio.reconciliation.changed, version 1",
+  "description": "The account's reconciliation state changed. An unreconciled account blocks stale personalized advice.",
+  "x-tradestocker-catalog-name": "portfolio.reconciliation.changed.v1",
+  "x-tradestocker-producer": "platform-core",
+  "x-tradestocker-consumer": "decision and goals",
+  "x-tradestocker-uniqueness": "account_id + reconciliation_revision",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "portfolio.reconciliation.changed"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "platform-core"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/id",
+      "description": "Required: this event belongs to one account."
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "reconciliation_revision": {
+          "$ref": "common.schema.json#/$defs/revision"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "RECONCILED",
+            "DISCREPANCY",
+            "PENDING_REVIEW"
+          ]
+        },
+        "discrepancy_count": {
+          "$ref": "common.schema.json#/$defs/count"
+        },
+        "as_of": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        },
+        "blocks_personalized_advice": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "reconciliation_revision",
+        "status",
+        "discrepancy_count",
+        "as_of",
+        "blocks_personalized_advice"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

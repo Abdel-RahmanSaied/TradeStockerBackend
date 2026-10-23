@@ -1,0 +1,645 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/research/sec-annual-v2.report.schema.json",
+  "title": "SEC annual parser report (sec-annual-v2)",
+  "description": "What financials.py writes on stdout and Go stores as a research job's result after checkReport. This is the existing wire format, versioned by version \"sec-annual-v2\" and schema_version \"2\" (strings, as emitted); it is not the integer schema_version of the v1 event envelope. Timestamps are UTC written as +00:00 (Python isoformat); fact values and differences are exact integer strings; ratios are decimal strings with six places. Nothing here grants entry, backtesting or financial-state access.",
+  "x-tradestocker-producer": "research parser (Python)",
+  "x-tradestocker-consumer": "platform-core (Go) and the dashboard",
+  "x-tradestocker-runtime": "emitted for every research attempt",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "2",
+      "type": "string"
+    },
+    "version": {
+      "const": "sec-annual-v2",
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9.-]{0,15}$"
+    },
+    "cik": {
+      "type": "string",
+      "pattern": "^[0-9]{10}$"
+    },
+    "issuer": {
+      "description": "The issuer name as SEC lists it, or an empty string.",
+      "type": "string",
+      "maxLength": 1000
+    },
+    "source": {
+      "const": "SEC_PUBLIC",
+      "type": "string"
+    },
+    "data_kind": {
+      "const": "OFFICIAL_FILINGS",
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PARTIAL",
+        "INSUFFICIENT_DATA"
+      ]
+    },
+    "outcome": {
+      "const": "INSUFFICIENT_DATA",
+      "type": "string"
+    },
+    "eligible_for_entry": {
+      "const": false,
+      "type": "boolean"
+    },
+    "eligible_for_backtest": {
+      "const": false,
+      "type": "boolean"
+    },
+    "financial_state_write_access": {
+      "const": false,
+      "type": "boolean"
+    },
+    "as_of": {
+      "$ref": "#/$defs/instant"
+    },
+    "accounting_framework": {
+      "const": "US_GAAP",
+      "type": "string"
+    },
+    "scope": {
+      "const": "SEC entity-wide standard taxonomy facts from original annual reports; segment and custom taxonomy facts excluded",
+      "type": "string"
+    },
+    "currency": {
+      "const": "USD",
+      "type": "string"
+    },
+    "periods": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/period"
+      },
+      "maxItems": 5
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "ANNUAL_STRUCTURED_FACTS_ONLY",
+          "BALANCE_TOTALS_MISMATCH",
+          "CONFLICTING_FACT_VALUES_WITHHELD",
+          "CURRENT_QUARTERS_NOT_ANALYZED",
+          "CURRENT_SNAPSHOT_NOT_POINT_IN_TIME_ARCHIVE",
+          "FILING_TIME_ESTIMATED",
+          "FINANCIAL_ISSUER_GENERIC_RATIOS_WITHHELD",
+          "INCOMPLETE_ANNUAL_CONTEXT",
+          "LATER_FILINGS_REPORT_DIFFERENT_VALUES",
+          "LESS_THAN_FIVE_ANNUAL_PERIODS",
+          "LICENSED_PRICE_HISTORY_MISSING",
+          "MALFORMED_FACTS_EXCLUDED",
+          "NOTES_AND_AUDITOR_NOT_ANALYZED",
+          "NO_ANNUAL_REPORT_CONTEXT",
+          "TEMPORALLY_INCONSISTENT_FACTS_EXCLUDED"
+        ]
+      },
+      "maxItems": 15
+    },
+    "excluded_facts": {
+      "type": "object",
+      "properties": {
+        "FILING_METADATA_MISMATCH": {
+          "$ref": "#/$defs/count"
+        },
+        "MALFORMED_FACT": {
+          "$ref": "#/$defs/count"
+        },
+        "NON_INTEGER_OR_OUT_OF_RANGE_VALUE": {
+          "$ref": "#/$defs/count"
+        },
+        "NOT_AVAILABLE_AT_AS_OF": {
+          "$ref": "#/$defs/count"
+        },
+        "PERIOD_ENDS_AFTER_FILING": {
+          "$ref": "#/$defs/count"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "description": "Counts of facts left out, by reason; a reason with no exclusions is absent."
+    },
+    "countercase": {
+      "const": [
+        "Structured figures do not establish financial health without notes and auditor review.",
+        "Annual figures can be outdated; recent quarterly or material filings may change the assessment.",
+        "No price history, liquidity, valuation or expected return is inferred from accounting facts."
+      ],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "maxItems": 3
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "annual_periods": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "price_history": {
+          "const": false,
+          "type": "boolean"
+        },
+        "notes_and_auditor": {
+          "const": false,
+          "type": "boolean"
+        },
+        "quarterly_analysis": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "annual_periods",
+        "price_history",
+        "notes_and_auditor",
+        "quarterly_analysis"
+      ],
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "submissions",
+              "companyfacts"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "kind",
+          "sha256"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 2,
+      "maxItems": 2
+    }
+  },
+  "required": [
+    "schema_version",
+    "version",
+    "symbol",
+    "cik",
+    "issuer",
+    "source",
+    "data_kind",
+    "status",
+    "outcome",
+    "eligible_for_entry",
+    "eligible_for_backtest",
+    "financial_state_write_access",
+    "as_of",
+    "accounting_framework",
+    "scope",
+    "currency",
+    "periods",
+    "warnings",
+    "excluded_facts",
+    "countercase",
+    "coverage",
+    "sources"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "instant": {
+      "description": "UTC instant as Python's isoformat writes it: +00:00, microseconds only when not zero.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{6})?[+]00:00$"
+    },
+    "nullable_instant": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{6})?[+]00:00$"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "nullable_date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "metric": {
+      "type": "string",
+      "enum": [
+        "revenue",
+        "net_income",
+        "operating_cash_flow",
+        "assets",
+        "liabilities",
+        "equity",
+        "liabilities_and_equity"
+      ]
+    },
+    "tag": {
+      "type": "string",
+      "enum": [
+        "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "Revenues",
+        "SalesRevenueNet",
+        "RevenueFromContractWithCustomerIncludingAssessedTax",
+        "NetIncomeLoss",
+        "NetCashProvidedByUsedInOperatingActivities",
+        "Assets",
+        "Liabilities",
+        "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+        "StockholdersEquity",
+        "LiabilitiesAndStockholdersEquity"
+      ]
+    },
+    "accession": {
+      "type": "string",
+      "pattern": "^[0-9]{10}-[0-9]{2}-[0-9]{6}$"
+    },
+    "form": {
+      "type": "string",
+      "enum": [
+        "10-K",
+        "10-K/A"
+      ]
+    },
+    "availability_basis": {
+      "type": "string",
+      "enum": [
+        "SEC_ACCEPTANCE",
+        "FILING_DATE_PLUS_ONE_DAY_ESTIMATE"
+      ]
+    },
+    "filing_url": {
+      "type": "string",
+      "pattern": "^https://www[.]sec[.]gov/Archives/edgar/data/[1-9][0-9]{0,9}/[0-9]{18}/[0-9]{10}-[0-9]{2}-[0-9]{6}-index[.]html$"
+    },
+    "fact": {
+      "type": "object",
+      "properties": {
+        "metric": {
+          "$ref": "#/$defs/metric"
+        },
+        "value": {
+          "$ref": "#/$defs/fact_value_text"
+        },
+        "unit": {
+          "const": "USD",
+          "type": "string"
+        },
+        "start": {
+          "$ref": "#/$defs/nullable_date"
+        },
+        "end": {
+          "$ref": "#/$defs/date"
+        },
+        "filed": {
+          "$ref": "#/$defs/date"
+        },
+        "available_at": {
+          "$ref": "#/$defs/instant"
+        },
+        "availability_basis": {
+          "$ref": "#/$defs/availability_basis"
+        },
+        "accession": {
+          "$ref": "#/$defs/accession"
+        },
+        "form": {
+          "$ref": "#/$defs/form"
+        },
+        "tag": {
+          "$ref": "#/$defs/tag"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pointer": {
+          "type": "string",
+          "pattern": "^/facts/us-gaap/[A-Za-z]{1,100}/units/USD/(0|[1-9][0-9]{0,8})$"
+        },
+        "filing_url": {
+          "$ref": "#/$defs/filing_url"
+        }
+      },
+      "required": [
+        "metric",
+        "value",
+        "unit",
+        "start",
+        "end",
+        "filed",
+        "available_at",
+        "availability_basis",
+        "accession",
+        "form",
+        "tag",
+        "source_sha256",
+        "pointer",
+        "filing_url"
+      ],
+      "additionalProperties": false
+    },
+    "ratio": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "description": "Six decimal places, rounded half-even by Python's Decimal; null when not derived.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]{0,29})[.][0-9]{6}$"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/metric"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DERIVED",
+            "MISSING_INPUT",
+            "UNDEFINED_NONPOSITIVE_DENOMINATOR"
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "inputs",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "check": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "BALANCE_TOTALS",
+            "LIABILITIES_PLUS_EQUITY"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNEXPLAINED_DIFFERENCE",
+            "MISSING_CONTEXT"
+          ]
+        },
+        "difference_usd": {
+          "$ref": "#/$defs/difference_text"
+        }
+      },
+      "required": [
+        "name",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "withheld": {
+      "type": "object",
+      "properties": {
+        "metric": {
+          "$ref": "#/$defs/metric"
+        },
+        "tag": {
+          "$ref": "#/$defs/tag"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "CONFLICTING_VALUES",
+            "AMBIGUOUS_DURATION",
+            "MISMATCHED_FISCAL_YEAR"
+          ]
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact_value_text"
+          },
+          "maxItems": 524288,
+          "description": "Bounded only by the 1 MiB report limit."
+        }
+      },
+      "required": [
+        "metric",
+        "tag",
+        "reason",
+        "values"
+      ],
+      "additionalProperties": false
+    },
+    "difference": {
+      "type": "object",
+      "properties": {
+        "metric": {
+          "$ref": "#/$defs/metric"
+        },
+        "tag": {
+          "$ref": "#/$defs/tag"
+        },
+        "original_value": {
+          "$ref": "#/$defs/fact_value_text"
+        },
+        "later_value": {
+          "$ref": "#/$defs/fact_value_text"
+        },
+        "later_accession": {
+          "$ref": "#/$defs/accession"
+        },
+        "later_form": {
+          "$ref": "#/$defs/form"
+        },
+        "later_filed": {
+          "$ref": "#/$defs/date"
+        }
+      },
+      "required": [
+        "metric",
+        "tag",
+        "original_value",
+        "later_value",
+        "later_accession",
+        "later_form",
+        "later_filed"
+      ],
+      "additionalProperties": false
+    },
+    "period": {
+      "type": "object",
+      "properties": {
+        "fiscal_period_end": {
+          "$ref": "#/$defs/date"
+        },
+        "start": {
+          "$ref": "#/$defs/nullable_date"
+        },
+        "filing": {
+          "type": "object",
+          "properties": {
+            "accession": {
+              "$ref": "#/$defs/accession"
+            },
+            "form": {
+              "$ref": "#/$defs/form"
+            },
+            "filed": {
+              "$ref": "#/$defs/date"
+            },
+            "report_date": {
+              "$ref": "#/$defs/date"
+            },
+            "report_date_basis": {
+              "type": "string",
+              "enum": [
+                "SEC_REPORT_DATE",
+                "LATEST_FACT_END_ESTIMATE"
+              ]
+            },
+            "accepted_at": {
+              "$ref": "#/$defs/nullable_instant"
+            },
+            "available_at": {
+              "$ref": "#/$defs/nullable_instant"
+            },
+            "availability_basis": {
+              "$ref": "#/$defs/availability_basis"
+            },
+            "filing_url": {
+              "$ref": "#/$defs/filing_url"
+            }
+          },
+          "required": [
+            "accession",
+            "form",
+            "filed",
+            "report_date",
+            "report_date_basis",
+            "accepted_at",
+            "available_at",
+            "availability_basis",
+            "filing_url"
+          ],
+          "additionalProperties": false
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact"
+          },
+          "maxItems": 7
+        },
+        "derived": {
+          "type": "object",
+          "properties": {
+            "net_margin": {
+              "$ref": "#/$defs/ratio"
+            },
+            "cash_conversion": {
+              "$ref": "#/$defs/ratio"
+            },
+            "liabilities_to_assets": {
+              "$ref": "#/$defs/ratio"
+            }
+          },
+          "required": [],
+          "additionalProperties": false,
+          "description": "Generic ratios; empty for financial issuers."
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "missing_metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/metric"
+          },
+          "maxItems": 7
+        },
+        "withheld_metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/withheld"
+          },
+          "maxItems": 7,
+          "description": "At most one per metric."
+        },
+        "later_filing_differences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/difference"
+          },
+          "maxItems": 524288,
+          "description": "Bounded only by the 1 MiB report limit."
+        }
+      },
+      "required": [
+        "fiscal_period_end",
+        "start",
+        "filing",
+        "facts",
+        "derived",
+        "checks",
+        "missing_metrics",
+        "withheld_metrics",
+        "later_filing_differences"
+      ],
+      "additionalProperties": false
+    },
+    "fact_value_text": {
+      "description": "An exact fact value as a string, |value| <= 10^18 (financials.exact_integer).",
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]{0,17}|1000000000000000000)$"
+    },
+    "difference_text": {
+      "description": "An exact difference of up to three fact values as a string, |value| < 10^19.",
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]{0,18})$"
+    }
+  }
+}

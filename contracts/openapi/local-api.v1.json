@@ -1,0 +1,3986 @@
+{
+ "openapi": "3.1.0",
+ "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+ "info": {
+  "title": "TradeStocker local API",
+  "version": "1",
+  "description": "The API platform-core actually serves (PAPER workspace, SEC research, health). Every route here is routed, and every route the server registers is here (checked by tests). There is no order-submission, trade-execution or broker endpoint: fill and sell record executions a human already made. Schemas use the TradeStocker schema subset (contracts/README.md). Money is integer minor units (exact; no fractions exist in PAPER); the SEC report's decimals are strings.",
+  "x-tradestocker-dialect": "tradestocker-schema-subset/1"
+ },
+ "servers": [
+  {
+   "url": "http://127.0.0.1:8080",
+   "description": "Local only."
+  }
+ ],
+ "security": [
+  {
+   "ownerToken": []
+  }
+ ],
+ "paths": {
+  "/api/v1/live": {
+   "get": {
+    "operationId": "getLive",
+    "summary": "Liveness: the process answers; checks no dependency.",
+    "responses": {
+     "200": {
+      "description": "Alive.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Live"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "security": []
+   }
+  },
+  "/api/v1/ready": {
+   "get": {
+    "operationId": "getReady",
+    "summary": "Readiness from dependency checks.",
+    "responses": {
+     "200": {
+      "description": "ready or degraded.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Ready"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "not_ready or draining.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Ready"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "security": []
+   }
+  },
+  "/api/v1/health": {
+   "get": {
+    "operationId": "getHealth",
+    "summary": "Database-backed health.",
+    "responses": {
+     "200": {
+      "description": "Healthy.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Health"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "security": []
+   }
+  },
+  "/api/v1/dashboard": {
+   "get": {
+    "operationId": "getDashboard",
+    "summary": "The PAPER workspace.",
+    "responses": {
+     "200": {
+      "description": "Workspace.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Dashboard"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/risk/policy": {
+   "get": {
+    "operationId": "getRiskPolicy",
+    "summary": "The unapproved paper test policy.",
+    "responses": {
+     "200": {
+      "description": "Policy.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RiskPolicy"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/fixtures": {
+   "post": {
+    "operationId": "loadFixtures",
+    "summary": "Load the invented synthetic quotes.",
+    "responses": {
+     "200": {
+      "description": "Loaded.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FixturesLoaded"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Empty"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/paper/accounts": {
+   "post": {
+    "operationId": "createPaperAccount",
+    "summary": "Create a paper account with synthetic funds.",
+    "responses": {
+     "200": {
+      "description": "Created.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Account"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateAccount"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/paper/recommendations": {
+   "post": {
+    "operationId": "evaluatePaperCandidate",
+    "summary": "Evaluate a synthetic candidate under the paper test policy.",
+    "responses": {
+     "200": {
+      "description": "Evaluated; may be NO_TRADE or INSUFFICIENT_DATA.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Recommendation"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "The account does not exist.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Candidate"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/paper/recommendations/{id}/acknowledge": {
+   "post": {
+    "operationId": "acknowledgePaperDecision",
+    "summary": "Acknowledge a paper decision. This records no fill and changes no cash.",
+    "responses": {
+     "200": {
+      "description": "Acknowledged.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Recommendation"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "Not found.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Empty"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "$ref": "#/components/schemas/PaperID"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/paper/recommendations/{id}/cancel": {
+   "post": {
+    "operationId": "cancelPaperDecision",
+    "summary": "Cancel a paper decision and release its reservation.",
+    "responses": {
+     "200": {
+      "description": "Cancelled.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Recommendation"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "Not found.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Empty"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "$ref": "#/components/schemas/PaperID"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/paper/recommendations/{id}/fill": {
+   "post": {
+    "operationId": "recordPaperFill",
+    "summary": "Record a past human paper execution of an acknowledged decision. It is an execution report, never an order.",
+    "responses": {
+     "200": {
+      "description": "Recorded.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Recommendation"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "Not found.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecordPaperFill"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "$ref": "#/components/schemas/PaperID"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ],
+    "x-tradestocker-execution-report": "past human paper execution; no broker contact"
+   }
+  },
+  "/api/v1/paper/accounts/{id}/sell": {
+   "post": {
+    "operationId": "recordPaperSell",
+    "summary": "Record a past human paper sale of held shares. It is an execution report, never an order.",
+    "responses": {
+     "200": {
+      "description": "Recorded.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Position"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "Not found.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecordPaperSell"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "$ref": "#/components/schemas/PaperID"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ],
+    "x-tradestocker-execution-report": "past human paper execution; no broker contact"
+   }
+  },
+  "/api/v1/paper/entries": {
+   "post": {
+    "operationId": "setPaperEntries",
+    "summary": "Pause or resume new paper entries; monitoring continues.",
+    "responses": {
+     "200": {
+      "description": "Set.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EntriesState"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SetEntries"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/research/assessments": {
+   "post": {
+    "operationId": "requestAssessmentStub",
+    "summary": "The paper research stub: always INSUFFICIENT_DATA, writes no financial state.",
+    "responses": {
+     "200": {
+      "description": "Stub result.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AssessmentStub"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "Idempotency conflict or invalid state.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "Body over 64 KiB.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "Content-Type is not application/json.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "Storage failed; no success is assumed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssessmentRequest"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "replays-committed-response: the same key and request bytes return the original committed response; other bytes give 409.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   }
+  },
+  "/api/v1/research/status": {
+   "get": {
+    "operationId": "getResearchStatus",
+    "summary": "SEC research configuration and cooldown.",
+    "responses": {
+     "200": {
+      "description": "Status.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ResearchStatus"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "RESEARCH_STORAGE_UNAVAILABLE.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/research/jobs": {
+   "post": {
+    "operationId": "createResearchJob",
+    "summary": "Queue a read-only SEC research job.",
+    "responses": {
+     "202": {
+      "description": "Queued, or the existing job for this key.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Job"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "409": {
+      "description": "IDEMPOTENCY_CONFLICT.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "413": {
+      "description": "BODY_LIMIT (4 KiB).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "415": {
+      "description": "JSON_REQUIRED.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "Validation failed.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "429": {
+      "description": "RESEARCH_QUEUE_LIMIT.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "SEC_CONTACT_NOT_CONFIGURED or RESEARCH_STORAGE_UNAVAILABLE.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ResearchJobRequest"
+       }
+      }
+     }
+    },
+    "x-tradestocker-idempotency": "returns-current-job: the same key and body return the existing job in its current state, not the first response; another body gives 409.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/IdempotencyKey"
+     }
+    ]
+   },
+   "get": {
+    "operationId": "listResearchJobs",
+    "summary": "The 50 newest jobs, without results.",
+    "responses": {
+     "200": {
+      "description": "Jobs.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobList"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "RESEARCH_STORAGE_UNAVAILABLE.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/research/jobs/{id}": {
+   "get": {
+    "operationId": "getResearchJob",
+    "summary": "One job with its sources and events.",
+    "responses": {
+     "200": {
+      "description": "Job.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobDetail"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "RESEARCH_NOT_FOUND.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "RESEARCH_STORAGE_UNAVAILABLE.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    ]
+   }
+  },
+  "/api/v1/research/jobs/{id}/sources/{kind}": {
+   "get": {
+    "operationId": "getResearchSource",
+    "summary": "The stored SEC original, byte for byte.",
+    "responses": {
+     "200": {
+      "description": "Original.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SecOriginal"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "401": {
+      "description": "Missing or wrong owner token (UNAUTHORIZED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "403": {
+      "description": "Origin is not the local dashboard (ORIGIN_DENIED).",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "404": {
+      "description": "SOURCE_NOT_FOUND.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "422": {
+      "description": "INVALID_SOURCE_HASH.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     },
+     "503": {
+      "description": "RESEARCH_STORAGE_UNAVAILABLE.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      },
+      "headers": {
+       "traceparent": {
+        "$ref": "#/components/headers/traceparent"
+       },
+       "X-Trace-Id": {
+        "$ref": "#/components/headers/X-Trace-Id"
+       }
+      }
+     }
+    },
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "maxLength": 200
+      }
+     },
+     {
+      "name": "kind",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "submissions",
+        "companyfacts"
+       ]
+      }
+     },
+     {
+      "name": "sha256",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "pattern": "^[0-9a-f]{64}$"
+      }
+     }
+    ]
+   }
+  }
+ },
+ "components": {
+  "securitySchemes": {
+   "ownerToken": {
+    "type": "http",
+    "scheme": "bearer",
+    "description": "The per-installation TS_LOCAL_DEV_TOKEN (a single-owner development stand-in, not production identity)."
+   }
+  },
+  "parameters": {
+   "IdempotencyKey": {
+    "name": "Idempotency-Key",
+    "in": "header",
+    "required": true,
+    "schema": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9._:-]{8,128}$"
+    }
+   }
+  },
+  "headers": {
+   "traceparent": {
+    "description": "W3C trace context of this request (continued or new).",
+    "schema": {
+     "type": "string",
+     "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+    }
+   },
+   "X-Trace-Id": {
+    "description": "The trace ID alone.",
+    "schema": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{32}$"
+    }
+   }
+  },
+  "schemas": {
+   "Timestamp": {
+    "description": "UTC instant (Go RFC 3339 with Z, 0 to 9 fraction digits).",
+    "type": "string",
+    "format": "date-time",
+    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{1,9})?Z$"
+   },
+   "NullableTimestamp": {
+    "type": [
+     "string",
+     "null"
+    ],
+    "format": "date-time",
+    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{1,9})?Z$"
+   },
+   "PaperID": {
+    "type": "string",
+    "pattern": "^[0-9a-f]{32}$"
+   },
+   "Code": {
+    "description": "Stable machine-readable code.",
+    "type": "string",
+    "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+   },
+   "Money": {
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 9007199254740991,
+    "description": "Exact integer in minor currency units (cents, piastres). Not a decimal: paper money never has a fraction of a minor unit."
+   },
+   "SignedMoney": {
+    "type": "integer",
+    "minimum": -9007199254740991,
+    "maximum": 9007199254740991,
+    "description": "Exact integer change in minor currency units."
+   },
+   "Shares": {
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 9007199254740991,
+    "description": "Whole shares."
+   },
+   "Currency": {
+    "type": "string",
+    "enum": [
+     "USD",
+     "EGP"
+    ]
+   },
+   "Lane": {
+    "type": "string",
+    "enum": [
+     "US_SWING",
+     "EGX_SWING",
+     "US_INTRADAY",
+     "EGX_INTRADAY"
+    ]
+   },
+   "Symbol": {
+    "type": "string",
+    "maxLength": 65536,
+    "description": "A ticker as given. The paper API does not resolve instrument identity and does not check the length; a symbol is bounded only by the 64 KiB request body."
+   },
+   "Error": {
+    "type": "object",
+    "properties": {
+     "error": {
+      "type": "object",
+      "properties": {
+       "code": {
+        "$ref": "#/components/schemas/Code"
+       },
+       "message": {
+        "type": "string",
+        "maxLength": 1000
+       }
+      },
+      "required": [
+       "code",
+       "message"
+      ],
+      "additionalProperties": false
+     }
+    },
+    "required": [
+     "error"
+    ],
+    "additionalProperties": false,
+    "description": "Every 4xx/5xx answer. The message is for people; act on the code."
+   },
+   "Live": {
+    "type": "object",
+    "properties": {
+     "status": {
+      "const": "alive",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status"
+    ],
+    "additionalProperties": false
+   },
+   "Ready": {
+    "type": "object",
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "ready",
+       "degraded",
+       "not_ready",
+       "draining"
+      ]
+     },
+     "checks": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "string",
+       "enum": [
+        "ok",
+        "unavailable",
+        "not_configured"
+       ]
+      },
+      "description": "One fixed word per dependency (postgres, nats); never error text."
+     }
+    },
+    "required": [
+     "status"
+    ],
+    "additionalProperties": false,
+    "description": "draining has no checks."
+   },
+   "Health": {
+    "type": "object",
+    "properties": {
+     "status": {
+      "const": "ok",
+      "type": "string"
+     },
+     "storage": {
+      "const": "postgresql",
+      "type": "string"
+     },
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "live_advisory_enabled": {
+      "const": false,
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "status",
+     "storage",
+     "mode",
+     "live_advisory_enabled"
+    ],
+    "additionalProperties": false
+   },
+   "Lane_state": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "$ref": "#/components/schemas/Lane"
+     },
+     "state": {
+      "type": "string",
+      "enum": [
+       "DISABLED"
+      ],
+      "description": "Every lane is DISABLED; stored state with another value is refused."
+     }
+    },
+    "required": [
+     "id",
+     "state"
+    ],
+    "additionalProperties": false
+   },
+   "Account": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "currency": {
+      "$ref": "#/components/schemas/Currency"
+     },
+     "cash_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "reserved_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "currency",
+     "cash_minor",
+     "reserved_minor",
+     "mode"
+    ],
+    "additionalProperties": false
+   },
+   "Quote": {
+    "type": "object",
+    "properties": {
+     "symbol": {
+      "$ref": "#/components/schemas/Symbol"
+     },
+     "market": {
+      "type": "string",
+      "enum": [
+       "US",
+       "EGX"
+      ]
+     },
+     "price_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "currency": {
+      "$ref": "#/components/schemas/Currency"
+     },
+     "as_of": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "source": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+     },
+     "mode": {
+      "const": "SYNTHETIC",
+      "type": "string"
+     },
+     "assessment_id": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "Empty when no financial evidence exists."
+     },
+     "financial_valid": {
+      "type": "boolean"
+     },
+     "history_valid": {
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "symbol",
+     "market",
+     "price_minor",
+     "currency",
+     "as_of",
+     "source",
+     "mode",
+     "assessment_id",
+     "financial_valid",
+     "history_valid"
+    ],
+    "additionalProperties": false
+   },
+   "Versions": {
+    "type": "object",
+    "properties": {
+     "policy": {
+      "type": "string",
+      "maxLength": 100
+     },
+     "strategy": {
+      "type": "string",
+      "maxLength": 100
+     },
+     "model": {
+      "type": "string",
+      "maxLength": 100
+     },
+     "prompt": {
+      "type": "string",
+      "maxLength": 100
+     },
+     "build": {
+      "type": "string",
+      "maxLength": 100
+     },
+     "data": {
+      "type": "string",
+      "maxLength": 100
+     },
+     "assessment": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "The quote's assessment ID (may be empty); present when a quote exists."
+     },
+     "observation": {
+      "$ref": "#/components/schemas/Timestamp",
+      "description": "The quote's observation time; present when a quote exists."
+     }
+    },
+    "required": [
+     "policy",
+     "strategy",
+     "model",
+     "prompt",
+     "build",
+     "data"
+    ],
+    "additionalProperties": false
+   },
+   "Recommendation": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "symbol": {
+      "$ref": "#/components/schemas/Symbol"
+     },
+     "lane": {
+      "$ref": "#/components/schemas/Lane"
+     },
+     "account_id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "PROPOSED",
+       "ACKNOWLEDGED",
+       "FILLED",
+       "CANCELLED",
+       "EXPIRED",
+       "NO_TRADE",
+       "INSUFFICIENT_DATA"
+      ],
+      "description": "Acknowledged is not filled; FILLED means a human recorded a past paper execution."
+     },
+     "quantity": {
+      "$ref": "#/components/schemas/Shares"
+     },
+     "entry_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "stop_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "currency": {
+      "$ref": "#/components/schemas/Currency"
+     },
+     "created_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "expires_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "reasons": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "FINANCIAL_OR_HISTORY_EVIDENCE_MISSING",
+        "STALE_MISSING_OR_FUTURE_DATA",
+        "MODE_CURRENCY_OR_MARKET_MISMATCH",
+        "ENTRY_MUST_MATCH_SYNTHETIC_REFERENCE",
+        "INTRADAY_ELIGIBILITY_NOT_VALIDATED",
+        "ENTRIES_PAUSED",
+        "INSUFFICIENT_AVAILABLE_CASH",
+        "PAPER_PER_TRADE_RISK_EXCEEDED",
+        "PAPER_TOTAL_OPEN_RISK_EXCEEDED",
+        "PAPER_SYMBOL_EXPOSURE_EXCEEDED",
+        "PAPER_TEST_CHECKS_PASSED_NOT_LIVE_ADVICE"
+       ]
+      },
+      "maxItems": 16
+     },
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "versions": {
+      "$ref": "#/components/schemas/Versions"
+     },
+     "reserved_minor": {
+      "$ref": "#/components/schemas/Money"
+     }
+    },
+    "required": [
+     "id",
+     "symbol",
+     "lane",
+     "account_id",
+     "status",
+     "quantity",
+     "entry_minor",
+     "stop_minor",
+     "currency",
+     "created_at",
+     "expires_at",
+     "reasons",
+     "mode",
+     "versions",
+     "reserved_minor"
+    ],
+    "additionalProperties": false
+   },
+   "Position": {
+    "type": "object",
+    "properties": {
+     "symbol": {
+      "$ref": "#/components/schemas/Symbol"
+     },
+     "quantity": {
+      "$ref": "#/components/schemas/Shares"
+     },
+     "cost_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "stop_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "account_id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "currency": {
+      "$ref": "#/components/schemas/Currency"
+     }
+    },
+    "required": [
+     "symbol",
+     "quantity",
+     "cost_minor",
+     "stop_minor",
+     "account_id",
+     "currency"
+    ],
+    "additionalProperties": false
+   },
+   "AuditDetail": {
+    "description": "A short note, or an object with the action's fields. Every field is typed; unknown fields are refused.",
+    "type": [
+     "object",
+     "string"
+    ],
+    "maxLength": 1000,
+    "properties": {
+     "currency": {
+      "$ref": "#/components/schemas/Currency"
+     },
+     "synthetic_funds_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+     },
+     "generated_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "note": {
+      "type": "string",
+      "maxLength": 300
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "PROPOSED",
+       "ACKNOWLEDGED",
+       "FILLED",
+       "CANCELLED",
+       "EXPIRED",
+       "NO_TRADE",
+       "INSUFFICIENT_DATA",
+       "STUB"
+      ]
+     },
+     "reasons": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "FINANCIAL_OR_HISTORY_EVIDENCE_MISSING",
+        "STALE_MISSING_OR_FUTURE_DATA",
+        "MODE_CURRENCY_OR_MARKET_MISMATCH",
+        "ENTRY_MUST_MATCH_SYNTHETIC_REFERENCE",
+        "INTRADAY_ELIGIBILITY_NOT_VALIDATED",
+        "ENTRIES_PAUSED",
+        "INSUFFICIENT_AVAILABLE_CASH",
+        "PAPER_PER_TRADE_RISK_EXCEEDED",
+        "PAPER_TOTAL_OPEN_RISK_EXCEEDED",
+        "PAPER_SYMBOL_EXPOSURE_EXCEEDED",
+        "PAPER_TEST_CHECKS_PASSED_NOT_LIVE_ADVICE"
+       ]
+      },
+      "maxItems": 16
+     },
+     "versions": {
+      "$ref": "#/components/schemas/Versions"
+     },
+     "price_minor": {
+      "$ref": "#/components/schemas/Money"
+     },
+     "quantity": {
+      "$ref": "#/components/schemas/Shares"
+     },
+     "fees": {
+      "type": "string",
+      "maxLength": 200
+     },
+     "symbol": {
+      "type": "string",
+      "maxLength": 65536,
+      "description": "Research stub input, bounded only by the 64 KiB body limit."
+     },
+     "paused": {
+      "type": "boolean"
+     },
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "outcome": {
+      "const": "INSUFFICIENT_DATA",
+      "type": "string"
+     },
+     "reason": {
+      "type": "string",
+      "maxLength": 300
+     },
+     "writes_financial_state": {
+      "const": false,
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false
+   },
+   "Audit": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "action": {
+      "$ref": "#/components/schemas/Code"
+     },
+     "entity_id": {
+      "type": "string",
+      "maxLength": 65536
+     },
+     "detail": {
+      "$ref": "#/components/schemas/AuditDetail"
+     },
+     "actor": {
+      "const": "local-owner",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "at",
+     "action",
+     "entity_id",
+     "detail",
+     "actor"
+    ],
+    "additionalProperties": false
+   },
+   "Notification": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "status": {
+      "const": "DRY_RUN_NOT_SENT",
+      "type": "string"
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 70000
+     }
+    },
+    "required": [
+     "id",
+     "at",
+     "status",
+     "text"
+    ],
+    "additionalProperties": false
+   },
+   "Journal": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "account_id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "entity_id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "cash_delta_minor": {
+      "$ref": "#/components/schemas/SignedMoney"
+     },
+     "reserved_delta_minor": {
+      "$ref": "#/components/schemas/SignedMoney"
+     },
+     "reason": {
+      "type": "string",
+      "enum": [
+       "PAPER_DEPOSIT",
+       "EXPIRE_RESERVATION",
+       "PAPER_ENTRY_RESERVATION",
+       "CANCEL_RESERVATION",
+       "HUMAN_PAPER_BUY",
+       "HUMAN_PAPER_SELL"
+      ]
+     }
+    },
+    "required": [
+     "id",
+     "at",
+     "account_id",
+     "entity_id",
+     "cash_delta_minor",
+     "reserved_delta_minor",
+     "reason"
+    ],
+    "additionalProperties": false
+   },
+   "Dashboard": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "live_advisory_enabled": {
+      "const": false,
+      "type": "boolean"
+     },
+     "lanes": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Lane_state"
+      },
+      "maxItems": 4
+     },
+     "accounts": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Account"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "quotes": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Quote"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "recommendations": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Recommendation"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "positions": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Position"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "audit": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Audit"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "notifications": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Notification"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "journal": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Journal"
+      },
+      "maxItems": 9007199254740991,
+      "description": "The server sets no limit on this list."
+     },
+     "entries_paused": {
+      "type": "boolean"
+     },
+     "build": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$"
+     }
+    },
+    "required": [
+     "mode",
+     "live_advisory_enabled",
+     "lanes",
+     "accounts",
+     "quotes",
+     "recommendations",
+     "positions",
+     "audit",
+     "notifications",
+     "journal",
+     "entries_paused",
+     "build"
+    ],
+    "additionalProperties": false,
+    "description": "The whole PAPER workspace as stored; private idempotency receipts are never included."
+   },
+   "RiskPolicy": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "approval": {
+      "const": "DEV_PLACEHOLDER_NOT_APPROVED",
+      "type": "string"
+     },
+     "version": {
+      "const": "paper-test-v1-not-approved-for-live",
+      "type": "string"
+     },
+     "data_requirement": {
+      "const": "SYNTHETIC_ONLY",
+      "type": "string"
+     },
+     "max_trade_risk_bps": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+     },
+     "max_total_open_risk_bps": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+     },
+     "max_symbol_exposure_bps": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+     },
+     "freshness_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 86400
+     },
+     "live_advisory_enabled": {
+      "const": false,
+      "type": "boolean"
+     },
+     "fees": {
+      "const": "zero-fee test assumption",
+      "type": "string"
+     }
+    },
+    "required": [
+     "mode",
+     "approval",
+     "version",
+     "data_requirement",
+     "max_trade_risk_bps",
+     "max_total_open_risk_bps",
+     "max_symbol_exposure_bps",
+     "freshness_seconds",
+     "live_advisory_enabled",
+     "fees"
+    ],
+    "additionalProperties": false,
+    "description": "An unapproved paper test fixture, not an approved risk policy."
+   },
+   "FixturesLoaded": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "data_label": {
+      "const": "SYNTHETIC",
+      "type": "string"
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+     }
+    },
+    "required": [
+     "mode",
+     "data_label",
+     "count"
+    ],
+    "additionalProperties": false
+   },
+   "EntriesState": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "paused": {
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "mode",
+     "paused"
+    ],
+    "additionalProperties": false
+   },
+   "AssessmentStub": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "const": "PAPER",
+      "type": "string"
+     },
+     "status": {
+      "const": "STUB",
+      "type": "string"
+     },
+     "outcome": {
+      "const": "INSUFFICIENT_DATA",
+      "type": "string"
+     },
+     "symbol": {
+      "type": "string",
+      "maxLength": 65536
+     },
+     "reason": {
+      "type": "string",
+      "maxLength": 300
+     },
+     "writes_financial_state": {
+      "const": false,
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "mode",
+     "status",
+     "outcome",
+     "symbol",
+     "reason",
+     "writes_financial_state"
+    ],
+    "additionalProperties": false
+   },
+   "Empty": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false,
+    "description": "An empty JSON object."
+   },
+   "CreateAccount": {
+    "type": "object",
+    "properties": {
+     "currency": {
+      "$ref": "#/components/schemas/Currency"
+     },
+     "amount_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000000000,
+      "description": "Synthetic paper funds in minor units."
+     }
+    },
+    "required": [
+     "currency",
+     "amount_minor"
+    ],
+    "additionalProperties": false
+   },
+   "Candidate": {
+    "type": "object",
+    "properties": {
+     "account_id": {
+      "$ref": "#/components/schemas/PaperID"
+     },
+     "symbol": {
+      "$ref": "#/components/schemas/Symbol"
+     },
+     "lane": {
+      "$ref": "#/components/schemas/Lane"
+     },
+     "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+     },
+     "entry_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000000000
+     },
+     "stop_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000000000,
+      "description": "Must be positive (validMoney), like entry_minor."
+     }
+    },
+    "required": [
+     "account_id",
+     "symbol",
+     "lane",
+     "quantity",
+     "entry_minor",
+     "stop_minor"
+    ],
+    "additionalProperties": false
+   },
+   "RecordPaperFill": {
+    "type": "object",
+    "properties": {
+     "price_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000000000
+     },
+     "confirmation": {
+      "const": "PAPER_ONLY",
+      "type": "string"
+     }
+    },
+    "required": [
+     "price_minor",
+     "confirmation"
+    ],
+    "additionalProperties": false,
+    "description": "Records that the human already executed this paper decision at price_minor. Nothing is sent to a broker."
+   },
+   "RecordPaperSell": {
+    "type": "object",
+    "properties": {
+     "symbol": {
+      "$ref": "#/components/schemas/Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+     },
+     "price_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000000000
+     },
+     "confirmation": {
+      "const": "PAPER_ONLY",
+      "type": "string"
+     }
+    },
+    "required": [
+     "symbol",
+     "quantity",
+     "price_minor",
+     "confirmation"
+    ],
+    "additionalProperties": false,
+    "description": "Records a past human paper sale of shares the account holds. Nothing is sent to a broker."
+   },
+   "SetEntries": {
+    "type": "object",
+    "properties": {
+     "paused": {
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "paused"
+    ],
+    "additionalProperties": false
+   },
+   "AssessmentRequest": {
+    "type": "object",
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+     }
+    },
+    "required": [
+     "symbol"
+    ],
+    "additionalProperties": false
+   },
+   "ResearchStatus": {
+    "type": "object",
+    "properties": {
+     "configured": {
+      "type": "boolean"
+     },
+     "source": {
+      "const": "SEC_PUBLIC",
+      "type": "string"
+     },
+     "mode": {
+      "const": "READ_ONLY_RESEARCH",
+      "type": "string"
+     },
+     "parser_version": {
+      "const": "sec-annual-v2",
+      "type": "string"
+     },
+     "max_attempts": {
+      "const": 3,
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 3
+     },
+     "provider_cooldown_until": {
+      "$ref": "#/components/schemas/NullableTimestamp"
+     },
+     "live_advisory_enabled": {
+      "const": false,
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "configured",
+     "source",
+     "mode",
+     "parser_version",
+     "max_attempts",
+     "provider_cooldown_until",
+     "live_advisory_enabled"
+    ],
+    "additionalProperties": false
+   },
+   "ResearchJobRequest": {
+    "type": "object",
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9.-]{0,15}$"
+     },
+     "cik": {
+      "type": "string",
+      "pattern": "^[0-9]{10}$",
+      "allOf": [
+       {
+        "pattern": "^0*[1-9][0-9]*$"
+       }
+      ]
+     }
+    },
+    "required": [
+     "symbol",
+     "cik"
+    ],
+    "additionalProperties": false
+   },
+   "Job": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^research_[0-9a-f]{32}$"
+     },
+     "symbol": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9.-]{0,15}$"
+     },
+     "cik": {
+      "type": "string",
+      "pattern": "^[0-9]{10}$"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "QUEUED",
+       "RUNNING",
+       "SUCCEEDED",
+       "FAILED"
+      ]
+     },
+     "attempts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+     },
+     "max_attempts": {
+      "const": 3,
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 3
+     },
+     "created_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "updated_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "next_attempt_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "result": {
+      "$ref": "../research/sec-annual-v2.report.schema.json",
+      "description": "The stored report once SUCCEEDED; omitted in the list."
+     },
+     "error_code": {
+      "$ref": "#/components/schemas/Code"
+     },
+     "last_error": {
+      "$ref": "#/components/schemas/Code"
+     },
+     "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+     }
+    },
+    "required": [
+     "id",
+     "symbol",
+     "cik",
+     "status",
+     "attempts",
+     "max_attempts",
+     "created_at",
+     "updated_at"
+    ],
+    "additionalProperties": false
+   },
+   "JobList": {
+    "type": "object",
+    "properties": {
+     "jobs": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Job"
+      },
+      "maxItems": 50
+     }
+    },
+    "required": [
+     "jobs"
+    ],
+    "additionalProperties": false
+   },
+   "SourceMeta": {
+    "type": "object",
+    "properties": {
+     "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "submissions",
+       "companyfacts"
+      ]
+     },
+     "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+     },
+     "url": {
+      "type": "string",
+      "pattern": "^https://data[.]sec[.]gov/(submissions/CIK[0-9]{10}|api/xbrl/companyfacts/CIK[0-9]{10})[.]json$"
+     },
+     "received_at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16777216
+     }
+    },
+    "required": [
+     "attempt",
+     "kind",
+     "sha256",
+     "url",
+     "received_at",
+     "size_bytes"
+    ],
+    "additionalProperties": false
+   },
+   "JobEvent": {
+    "type": "object",
+    "properties": {
+     "at": {
+      "$ref": "#/components/schemas/Timestamp"
+     },
+     "action": {
+      "type": "string",
+      "enum": [
+       "REQUESTED",
+       "ATTEMPT_STARTED",
+       "LEASE_RECOVERED",
+       "SEC_SOURCES_STORED",
+       "ATTEMPT_FAILED_RETRY_SCHEDULED",
+       "PROVIDER_COOLDOWN_STARTED",
+       "ATTEMPT_INTERRUPTED",
+       "WORKER_ATTEMPTS_EXHAUSTED",
+       "SUCCEEDED",
+       "FAILED"
+      ]
+     },
+     "detail": {
+      "type": "object",
+      "properties": {
+       "trace_id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{32}$"
+       },
+       "attempt": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3
+       },
+       "previous_attempt": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3
+       },
+       "code": {
+        "$ref": "#/components/schemas/Code"
+       },
+       "retry_after_seconds": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 86400
+       },
+       "parser_version": {
+        "const": "sec-annual-v2",
+        "type": "string"
+       },
+       "provider": {
+        "const": "SEC",
+        "type": "string"
+       },
+       "until": {
+        "$ref": "#/components/schemas/Timestamp"
+       },
+       "sources": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "kind": {
+           "type": "string",
+           "enum": [
+            "submissions",
+            "companyfacts"
+           ]
+          },
+          "sha256": {
+           "type": "string",
+           "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+           "type": "integer",
+           "minimum": 0,
+           "maximum": 16777216
+          }
+         },
+         "required": [
+          "kind",
+          "sha256",
+          "size_bytes"
+         ],
+         "additionalProperties": false
+        },
+        "maxItems": 2
+       }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "description": "The fields of the action; every field is typed."
+     }
+    },
+    "required": [
+     "at",
+     "action",
+     "detail"
+    ],
+    "additionalProperties": false
+   },
+   "JobDetail": {
+    "type": "object",
+    "properties": {
+     "job": {
+      "$ref": "#/components/schemas/Job"
+     },
+     "sources": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/SourceMeta"
+      },
+      "maxItems": 6
+     },
+     "events": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/JobEvent"
+      },
+      "maxItems": 64,
+      "description": "At most 17 can exist: REQUESTED, up to five per attempt for three attempts, and WORKER_ATTEMPTS_EXHAUSTED."
+     }
+    },
+    "required": [
+     "job",
+     "sources",
+     "events"
+    ],
+    "additionalProperties": false
+   },
+   "SecOriginal": {
+    "description": "The stored SEC original, byte for byte, as SEC published it.",
+    "x-tradestocker-external-original": true,
+    "type": "object",
+    "additionalProperties": true
+   }
+  }
+ }
+}

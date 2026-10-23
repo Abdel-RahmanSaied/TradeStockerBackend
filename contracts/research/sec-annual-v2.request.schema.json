@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/research/sec-annual-v2.request.schema.json",
+  "title": "SEC annual parser request (sec-annual-v2)",
+  "description": "What platform-core writes on the parser's stdin (internal/research/analyze.go). Go is the producer and Python's financials.py the consumer. Our own fields are closed and typed; submissions and companyfacts are the stored SEC originals, kept byte for byte, so only the identity fields the parser checks are typed and SEC's other fields are passed through.",
+  "x-tradestocker-producer": "platform-core (Go)",
+  "x-tradestocker-consumer": "research parser (Python)",
+  "x-tradestocker-runtime": "emitted for every research attempt",
+  "type": "object",
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9.-]{0,15}$"
+    },
+    "cik": {
+      "$ref": "#/$defs/cik"
+    },
+    "as_of": {
+      "description": "Go's asOfText: UTC with exactly six fraction digits and Z.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[.][0-9]{6}Z$"
+    },
+    "submissions_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "facts_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "submissions": {
+      "description": "SEC submissions original (data.sec.gov/submissions). Extra SEC fields are ignored by this contract.",
+      "x-tradestocker-external-original": true,
+      "type": "object",
+      "properties": {
+        "cik": {
+          "$ref": "#/$defs/sec_cik"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 16777216,
+          "description": "Bounded only by the 16 MiB source limit."
+        },
+        "tickers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 16777216
+          },
+          "maxItems": 8388608,
+          "description": "Bounded only by the 16 MiB source limit; the requested symbol must be listed (checked at run time)."
+        }
+      },
+      "required": [
+        "cik",
+        "tickers"
+      ],
+      "additionalProperties": true
+    },
+    "companyfacts": {
+      "description": "SEC companyfacts original (data.sec.gov/api/xbrl/companyfacts). Extra SEC fields are ignored by this contract.",
+      "x-tradestocker-external-original": true,
+      "type": "object",
+      "properties": {
+        "cik": {
+          "$ref": "#/$defs/sec_cik"
+        }
+      },
+      "required": [
+        "cik"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "symbol",
+    "cik",
+    "as_of",
+    "submissions_sha256",
+    "facts_sha256",
+    "submissions",
+    "companyfacts"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "cik": {
+      "description": "Ten digits, not all zero.",
+      "type": "string",
+      "pattern": "^[0-9]{10}$",
+      "allOf": [
+        {
+          "pattern": "^0*[1-9][0-9]*$"
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sec_cik": {
+      "description": "A CIK as either SEC original may write it, as Go's secCIK and Python's parse_cik both accept: a positive integer, or a string of 1 to 10 digits that is not zero. That it names the requested issuer is checked at run time, not by this schema.",
+      "type": [
+        "string",
+        "integer"
+      ],
+      "pattern": "^[0-9]{1,10}$",
+      "allOf": [
+        {
+          "pattern": "^0*[1-9][0-9]*$"
+        }
+      ],
+      "minimum": 1,
+      "maximum": 9999999999
+    }
+  }
+}

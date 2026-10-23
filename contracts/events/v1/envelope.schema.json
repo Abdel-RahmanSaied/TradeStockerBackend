@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/envelope.schema.json",
+  "title": "Event envelope, version 1",
+  "description": "Every v1 event is this envelope around one data object. All fields are required; a value that does not apply is null, never missing. Unknown fields are refused, so a consumer quarantines a message it does not understand instead of guessing.",
+  "type": "object",
+  "properties": {
+    "event_id": {"$ref": "common.schema.json#/$defs/id", "description": "Unique per logical event; a redelivery keeps the same ID."},
+    "event_type": {"type": "string", "pattern": "^[a-z]+([.][a-z_]+)+$", "description": "Event name without the version, for example research.assessment.completed."},
+    "schema_version": {"type": "integer", "const": 1, "minimum": 1, "maximum": 1},
+    "occurred_at": {"$ref": "common.schema.json#/$defs/utc_timestamp", "description": "When the fact became true."},
+    "published_at": {"$ref": "common.schema.json#/$defs/utc_timestamp", "description": "When the producer published the event."},
+    "producer": {"$ref": "common.schema.json#/$defs/producer"},
+    "producer_build": {"$ref": "common.schema.json#/$defs/build"},
+    "correlation_id": {"$ref": "common.schema.json#/$defs/id", "description": "Shared by every event of one flow; platform-core uses the W3C trace ID of the request that started it."},
+    "causation_id": {"$ref": "common.schema.json#/$defs/id", "description": "ID of the event or command that directly caused this one."},
+    "mode": {"$ref": "common.schema.json#/$defs/mode"},
+    "account_id": {"$ref": "common.schema.json#/$defs/nullable_id", "description": "Account the event belongs to, or null when it is not account-scoped."},
+    "data": {"type": "object", "description": "Event-specific payload; each event schema defines it exactly."}
+  },
+  "required": ["event_id", "event_type", "schema_version", "occurred_at", "published_at", "producer", "producer_build", "correlation_id", "causation_id", "mode", "account_id", "data"],
+  "additionalProperties": false
+}

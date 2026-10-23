@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/recommendation.revision.created.v1.schema.json",
+  "title": "recommendation.revision.created, version 1",
+  "description": "A recommendation revision for a human. It is advice, never an order: the human decides and executes outside the platform.",
+  "x-tradestocker-catalog-name": "recommendation.revision.created.v1",
+  "x-tradestocker-producer": "platform-core",
+  "x-tradestocker-consumer": "notifications and paper",
+  "x-tradestocker-uniqueness": "recommendation_id + revision + destination + mode",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "recommendation.revision.created"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "platform-core"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "envelope.schema.json#/properties/account_id"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "recommendation_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "revision": {
+          "$ref": "common.schema.json#/$defs/revision"
+        },
+        "instrument_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "strategy_id": {
+          "$ref": "common.schema.json#/$defs/lane"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "BUY",
+            "SELL"
+          ],
+          "description": "SELL reduces only what is owned (INV-07)."
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "EVALUATED",
+            "PUBLISHED"
+          ]
+        },
+        "destination": {
+          "type": "string",
+          "enum": [
+            "DASHBOARD",
+            "TELEGRAM"
+          ]
+        },
+        "quantity": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "entry_price": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "stop_price": {
+          "$ref": "common.schema.json#/$defs/nullable_positive_decimal"
+        },
+        "currency": {
+          "$ref": "common.schema.json#/$defs/currency"
+        },
+        "valid_until": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        },
+        "policy_version": {
+          "$ref": "common.schema.json#/$defs/build"
+        },
+        "execution": {
+          "type": "string",
+          "const": "HUMAN_ONLY",
+          "description": "Execution is always by a human (INV-01)."
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "revision",
+        "instrument_id",
+        "strategy_id",
+        "action",
+        "state",
+        "destination",
+        "quantity",
+        "entry_price",
+        "stop_price",
+        "currency",
+        "valid_until",
+        "policy_version",
+        "execution"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

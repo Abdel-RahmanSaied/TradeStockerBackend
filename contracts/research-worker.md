@@ -1,5 +1,7 @@
 # research-worker protocol (local)
 
+The parser's request and report are machine-checked by `contracts/research/sec-annual-v2.*.schema.json` (see `contracts/README.md`).
+
 The Python research entrypoint: `research-worker` (console script of the `tradestocker-research` package) or `python -I -m tradestocker_research.worker`. It takes no arguments.
 
 ## Input and output

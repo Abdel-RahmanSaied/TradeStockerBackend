@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.tradestocker.invalid/events/v1/market.bar.finalized.v1.schema.json",
+  "title": "market.bar.finalized, version 1",
+  "description": "A finished price bar from an approved provider. A correction is a new bar_version, never an edit.",
+  "x-tradestocker-catalog-name": "market.bar.finalized.v1",
+  "x-tradestocker-producer": "market-ingestion",
+  "x-tradestocker-consumer": "screening and history",
+  "x-tradestocker-uniqueness": "provider_id + instrument_id + interval + bar_start + bar_version",
+  "x-tradestocker-runtime": "contract only: no producer emits this event yet",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "$ref": "envelope.schema.json#/properties/event_id"
+    },
+    "event_type": {
+      "$ref": "envelope.schema.json#/properties/event_type",
+      "const": "market.bar.finalized"
+    },
+    "schema_version": {
+      "$ref": "envelope.schema.json#/properties/schema_version"
+    },
+    "occurred_at": {
+      "$ref": "envelope.schema.json#/properties/occurred_at"
+    },
+    "published_at": {
+      "$ref": "envelope.schema.json#/properties/published_at"
+    },
+    "producer": {
+      "$ref": "envelope.schema.json#/properties/producer",
+      "const": "market-ingestion"
+    },
+    "producer_build": {
+      "$ref": "envelope.schema.json#/properties/producer_build"
+    },
+    "correlation_id": {
+      "$ref": "envelope.schema.json#/properties/correlation_id"
+    },
+    "causation_id": {
+      "$ref": "envelope.schema.json#/properties/causation_id"
+    },
+    "mode": {
+      "$ref": "envelope.schema.json#/properties/mode"
+    },
+    "account_id": {
+      "$ref": "envelope.schema.json#/properties/account_id"
+    },
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "published_at",
+    "producer",
+    "producer_build",
+    "correlation_id",
+    "causation_id",
+    "mode",
+    "account_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "provider_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "instrument_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "Stable instrument identity from the instrument master, not a ticker."
+        },
+        "interval": {
+          "type": "string",
+          "enum": [
+            "1m",
+            "5m",
+            "15m",
+            "1h",
+            "1d"
+          ]
+        },
+        "bar_start": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        },
+        "bar_end": {
+          "$ref": "common.schema.json#/$defs/utc_timestamp"
+        },
+        "open": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "high": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "low": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "close": {
+          "$ref": "common.schema.json#/$defs/positive_decimal"
+        },
+        "volume": {
+          "$ref": "common.schema.json#/$defs/non_negative_decimal"
+        },
+        "currency": {
+          "$ref": "common.schema.json#/$defs/currency"
+        },
+        "bar_version": {
+          "$ref": "common.schema.json#/$defs/revision"
+        }
+      },
+      "required": [
+        "provider_id",
+        "instrument_id",
+        "interval",
+        "bar_start",
+        "bar_end",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "currency",
+        "bar_version"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

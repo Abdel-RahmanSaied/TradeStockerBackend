@@ -1,0 +1,15 @@
+{
+  "accounts": [
+    {
+      "amount_minor": 1000000,
+      "currency": "USD",
+      "idempotency_key": "synthetic-fixture-account-v1-USD"
+    },
+    {
+      "amount_minor": 10000000,
+      "currency": "EGP",
+      "idempotency_key": "synthetic-fixture-account-v1-EGP"
+    }
+  ],
+  "notice": "SYNTHETIC: invented for local development and tests; not real market, filing or account data"
+}

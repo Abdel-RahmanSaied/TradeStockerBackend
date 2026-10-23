@@ -7,9 +7,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"tradestocker/internal/paper"
@@ -25,6 +27,32 @@ func main() {
 // qualifiedProviders lists the sources this binary may use. Only the synthetic
 // fixture source exists; adding a provider needs its qualification evidence.
 var qualifiedProviders = map[string]bool{"fixture": true}
+
+// secret returns the variable name, or the contents of the file named by
+// name_FILE (for example a Compose secret mount). Setting both is refused, and
+// errors never include the secret itself. Same rules as platform-core.
+func secret(name string) (string, error) {
+	path := os.Getenv(name + "_FILE")
+	if path == "" {
+		return os.Getenv(name), nil
+	}
+	if os.Getenv(name) != "" {
+		return "", fmt.Errorf("set %s or %s_FILE, not both", name, name)
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return "", fmt.Errorf("%s_FILE cannot be read: %w", name, err)
+	}
+	defer f.Close()
+	b, err := io.ReadAll(io.LimitReader(f, 4097))
+	if err != nil {
+		return "", fmt.Errorf("%s_FILE cannot be read: %w", name, err)
+	}
+	if len(b) > 4096 {
+		return "", fmt.Errorf("%s_FILE is larger than 4096 bytes", name)
+	}
+	return strings.TrimRight(string(b), "\r\n"), nil
+}
 
 func run() error {
 	if len(os.Args) > 1 {
@@ -44,7 +72,10 @@ func run() error {
 	if u.Scheme != "http" || (u.Hostname() != "127.0.0.1" && u.Hostname() != "::1") || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" {
 		return errors.New("fixture adapter permits only a local loopback API origin")
 	}
-	token := os.Getenv("TS_LOCAL_DEV_TOKEN")
+	token, e := secret("TS_LOCAL_DEV_TOKEN")
+	if e != nil {
+		return e
+	}
 	if len(token) < 24 {
 		return errors.New("local API token required")
 	}

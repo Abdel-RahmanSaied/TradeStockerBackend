@@ -24,6 +24,26 @@ Try **Paper portfolio → Evaluate candidate**: AAPL, US_SWING, 1 share, entry 2
 
 Ctrl-C stops app processes and keeps the database volume. Logs are in `.local/api.log` and `.local/frontend.log`. To stop PostgreSQL without deleting data: `docker compose --env-file .env.local stop postgres`. `scripts/dev.sh` refuses busy app ports. To run services separately use `scripts/setup-local.sh`, `scripts/run-local.sh`, and `npm ci && npm run dev` in the sibling frontend.
 
+## Local development stack (containers)
+
+A second, separate way to run everything: PostgreSQL, NATS and the three entrypoints in their own Compose project (`deploy/compose.yaml`). It does not use the normal `tradestocker-local` project, its ports, its data or `.env.local`.
+
+```sh
+scripts/dev-stack.sh up        # build, start, wait until healthy; seed synthetic fixtures into a new workspace
+```
+
+- **Address.** API on `http://127.0.0.1:18280`; PostgreSQL and NATS are not published. For the dashboard, run the frontend with `FRONTEND_PORT=15273 API_PROXY_TARGET=http://127.0.0.1:18280 npm run dev` and use the token in `.local/dev-stack/tradestocker-dev/api_token`.
+- **Settings.** Project name and ports are in `config/example.env`; copy it to `config/dev.env` (ignored by Git) to change them.
+- **Secrets.** Created once per project in `.local/dev-stack/<project>/` (folder 700, files 600) and never printed.
+- **Data.** Persistent volumes. `up` and restarts never change existing data; only `scripts/dev-stack.sh refresh-fixtures` does, and it says so.
+- **Stopping.** `stop` keeps everything; `down` removes containers and networks but keeps volumes. Volumes are removed only by `destroy-volumes`, which refuses the default project and needs `TS_DEV_CONFIRM=<project>`.
+- **What it does not do.** PAPER mode only. No SEC contact, market data provider, model, Telegram bot or broker is configured, so nothing is sent anywhere. platform-core's network can reach outside, so this rests on that configuration; research-worker runs with no network.
+- **Fixtures.** Invented data only (`fixtures/synthetic/`). Research results from them are labelled SYNTHETIC and are not research evidence.
+- **Non-root.** The app containers run as uid 10001 with a read-only root filesystem and no capabilities. NATS runs as `nobody` after a one-shot job gives it its volume. PostgreSQL's official entrypoint starts as root and then runs as the `postgres` user.
+- **File secrets on Linux.** Docker Desktop for Mac lets uid 10001 read the 600 secret files. On a Linux Docker host bind mounts keep the host owner, so that is not checked there yet.
+
+`scripts/dev-stack-smoke.sh` checks the whole stack on a new throwaway project: a clean start, the real frontend browser tests against it, an idempotent seed, and a real `down` and `up` that must keep every byte of data.
+
 ## SEC research (read-only)
 
 The **Research** tab retrieves official SEC annual filings for a US issuer and shows each figure with its source. It needs an SEC contact in `.env.local`, quoted because it has spaces:

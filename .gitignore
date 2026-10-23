@@ -18,3 +18,6 @@ spikes/*/.local/
 # Product toolchain (scripts/toolchain.sh) and build outputs
 .tools/
 dist/
+
+# Local development stack settings (copy of config/example.env)
+/config/dev.env

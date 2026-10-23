@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"regexp"
+	"strings"
 	"syscall"
 	"time"
 
@@ -25,15 +28,48 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+// secret returns the variable name, or the contents of the file named by
+// name_FILE (for example a Compose secret mount). Setting both is refused, and
+// errors never include the secret itself.
+func secret(name string) (string, error) {
+	path := os.Getenv(name + "_FILE")
+	if path == "" {
+		return os.Getenv(name), nil
+	}
+	if os.Getenv(name) != "" {
+		return "", fmt.Errorf("set %s or %s_FILE, not both", name, name)
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return "", fmt.Errorf("%s_FILE cannot be read: %w", name, err)
+	}
+	defer f.Close()
+	b, err := io.ReadAll(io.LimitReader(f, 4097))
+	if err != nil {
+		return "", fmt.Errorf("%s_FILE cannot be read: %w", name, err)
+	}
+	if len(b) > 4096 {
+		return "", fmt.Errorf("%s_FILE is larger than 4096 bytes", name)
+	}
+	return strings.TrimRight(string(b), "\r\n"), nil
+}
+
 func run() error {
-	token := os.Getenv("TS_LOCAL_DEV_TOKEN")
+	token, err := secret("TS_LOCAL_DEV_TOKEN")
+	if err != nil {
+		return err
+	}
 	if len(token) < 24 {
 		return errors.New("TS_LOCAL_DEV_TOKEN must have at least 24 characters; generate locally")
 	}
 	if mode := os.Getenv("TS_MODE"); mode != "" && mode != "PAPER" {
 		return errors.New("only PAPER mode is implemented; live and actual are disabled")
 	}
-	url := os.Getenv("DATABASE_URL")
+	url, err := secret("DATABASE_URL")
+	if err != nil {
+		return err
+	}
 	if url == "" {
 		return errors.New("DATABASE_URL required")
 	}

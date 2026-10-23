@@ -1,0 +1,134 @@
+# Local development stack (S01-T02): PostgreSQL, NATS and the three
+# entrypoints, in its own Compose project. Run it through scripts/dev-stack.sh,
+# which sets the project name, ports and secret folder and never touches the
+# normal tradestocker-local project. Not production configuration.
+#
+# Networks: "internal" has no route out (internal: true) and holds PostgreSQL,
+# NATS and platform-core. platform-core is also on "edge" only so its API port
+# can be published to 127.0.0.1; that network does have an outbound route, so
+# platform-core is not network-isolated. It makes no outside request because
+# no SEC contact or provider is configured. The jobs use network_mode none or
+# platform-core's own loopback.
+name: ${TS_DEV_PROJECT:?run through scripts/dev-stack.sh}
+
+x-app: &app
+  image: tradestocker-dev-app:${TS_DEV_PROJECT}
+  pull_policy: never
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  tmpfs: ["/tmp:size=16m"]
+
+services:
+  dev-postgres:
+    image: postgres:16.15-alpine@sha256:f4610795587492cd4fb887c2dc3de301b813278bb6f616992061141b5f15ac36
+    # The official entrypoint starts as root and then runs PostgreSQL as the
+    # postgres user; it needs its default capabilities for that switch.
+    environment:
+      POSTGRES_DB: tradestocker_dev
+      POSTGRES_USER: tradestocker_dev
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets: [postgres_password]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tradestocker_dev -d tradestocker_dev"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # One-shot: gives the NATS volume to the unprivileged user NATS runs as.
+  dev-nats-volume:
+    image: nats:2.15.1-alpine@sha256:7ae34c25dfd6fe2e01c6483eabef20d796690fdcac6c4d94ca780a6cf9877fde
+    profiles: [jobs]
+    user: "0:0"
+    entrypoint: ["chown", "65534:65534", "/data"]
+    network_mode: none
+    volumes: ["natsdata:/data"]
+
+  dev-nats:
+    image: nats:2.15.1-alpine@sha256:7ae34c25dfd6fe2e01c6483eabef20d796690fdcac6c4d94ca780a6cf9877fde
+    user: "65534:65534"
+    command: ["nats-server", "--port", "4222", "--http_port", "8222", "--jetstream", "--store_dir", "/data"]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    volumes: ["natsdata:/data"]
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8222/healthz?js-enabled-only=true"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  platform-core:
+    <<: *app
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    command: ["platform-core"]
+    environment:
+      TS_BIND: "0.0.0.0:8080"
+      TS_CONTAINER_LOCAL: "1"
+      TS_MODE: PAPER
+      TS_SEC_USER_AGENT: ""
+      TS_LOCAL_DEV_TOKEN_FILE: /run/secrets/api_token
+      DATABASE_URL_FILE: /run/secrets/database_url
+      TS_DASHBOARD_ORIGIN: "http://127.0.0.1:${TS_DEV_FRONTEND_PORT:?}"
+    secrets: [api_token, database_url]
+    ports: ["127.0.0.1:${TS_DEV_API_PORT:?}:8080"]
+    networks: [internal, edge]
+    depends_on:
+      dev-postgres: {condition: service_healthy}
+      dev-nats: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/python3.14", "-I", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/v1/health', timeout=3)"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  # One-shot: loads the synthetic paper fixtures through platform-core's own
+  # loopback, which keeps market-ingestion's loopback-only rule unchanged.
+  market-ingestion:
+    <<: *app
+    profiles: [jobs]
+    command: ["market-ingestion"]
+    network_mode: service:platform-core
+    environment:
+      TS_API_URL: "http://127.0.0.1:8080"
+      TS_MARKET_PROVIDER: fixture
+      TS_LOCAL_DEV_TOKEN_FILE: /run/secrets/api_token
+    secrets: [api_token]
+    depends_on:
+      platform-core: {condition: service_healthy}
+
+  # One-shot: research-worker on the synthetic requests (read-only), then the
+  # fixture adapter fixtures/synthetic/label.py, which marks every result
+  # SYNTHETIC and removes the SEC labels and links the parser would claim. Only
+  # the labelled results are stored, in its volume. No network at all.
+  research-worker:
+    <<: *app
+    profiles: [jobs]
+    network_mode: none
+    command: ["sh", "-c", "research-worker < /fixtures/research/requests.jsonl | python3.14 -I /fixtures/label.py /fixtures/research/requests.jsonl > /results/results.jsonl.new && mv /results/results.jsonl.new /results/results.jsonl"]
+    volumes:
+      - "../fixtures/synthetic:/fixtures:ro"
+      - "research-results:/results"
+
+secrets:
+  postgres_password:
+    file: ${TS_DEV_SECRETS:?}/postgres_password
+  api_token:
+    file: ${TS_DEV_SECRETS:?}/api_token
+  database_url:
+    file: ${TS_DEV_SECRETS:?}/database_url
+
+volumes:
+  pgdata: {}
+  natsdata: {}
+  research-results: {}
+
+networks:
+  internal:
+    internal: true
+  edge: {}

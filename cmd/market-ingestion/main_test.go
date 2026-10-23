@@ -90,3 +90,26 @@ func TestFailedOrRedirectedLoadFails(t *testing.T) {
 		})
 	}
 }
+
+func TestTokenFromFile(t *testing.T) {
+	token := strings.Repeat("f", 32)
+	path := t.TempDir() + "/token"
+	if err := os.WriteFile(path, []byte(token+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var got string
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r.Header.Get("Authorization")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer api.Close()
+	setup(t, api.URL, "", "")
+	t.Setenv("TS_LOCAL_DEV_TOKEN_FILE", path)
+	if e := run(); e != nil || got != "Bearer "+token {
+		t.Fatalf("token file not used: %v, header %q", e, got)
+	}
+	t.Setenv("TS_LOCAL_DEV_TOKEN", token)
+	if e := run(); e == nil || !strings.Contains(e.Error(), "not both") || strings.Contains(e.Error(), token) {
+		t.Fatalf("both token forms: %v", e)
+	}
+}

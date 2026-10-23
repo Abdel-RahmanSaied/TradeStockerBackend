@@ -1,0 +1,9 @@
+{
+  "files": {
+    "paper-accounts.json": "e564c1a9074412a7a94dab2c5a07de805c8fd3a44c52c7f2476724e1f47581b7",
+    "research/expected-results.jsonl": "e886cd1fa04d10f24c348c93f51c727d7bf0fb6c00c147c31924fc296d489adb",
+    "research/requests.jsonl": "1fb5e3c9b2d82e114412d5a96e92ac054c3bfcbfc9b9f9f9f6f69aee4d06d58e"
+  },
+  "notice": "SYNTHETIC: invented for local development and tests; not real market, filing or account data",
+  "synthetic": true
+}

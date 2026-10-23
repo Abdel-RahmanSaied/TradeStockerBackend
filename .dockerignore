@@ -1,0 +1,16 @@
+# Keep secrets, history, caches and outputs out of the image build context.
+.git
+.env
+.env.*
+.local
+.remember
+.tools
+.claude
+bin
+dist
+spikes
+node_modules
+**/__pycache__
+**/*.pyc
+docs
+fixtures

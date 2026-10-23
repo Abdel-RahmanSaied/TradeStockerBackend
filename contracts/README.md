@@ -23,7 +23,7 @@ The NATS message platform-core publishes today (`tradestocker.research.job.creat
 
 - **Decimals** (events and the SEC report) are JSON strings: optional minus, no exponent, no leading zeros, at most 30 integer and 18 fraction digits. Trailing zeros are kept as written (`1.50` stays `1.50`); nothing is rounded. A JSON number where a decimal is expected is refused. `positive_decimal` must contain a non-zero digit.
 - **PAPER money and quantities** in the local API are exact JSON integers in minor units (cents, piastres) and whole shares, within ±(2^53 − 1). They are not decimals: the paper domain has no fractions of a minor unit. This is the existing, deliberate local PAPER format (`contracts/local-paper-api.md`); it is unchanged and not relabelled as decimal.
-- **Timestamps** are RFC 3339 in UTC with a real calendar date, hours 00–23, no leap second and 1 to 9 fraction digits. Events and the API write `Z`; the SEC report writes `+00:00` (Python `isoformat`); `-00:00` and other offsets are refused. Dates are `YYYY-MM-DD`. Validators enforce this; `format` is never only an annotation here.
+- **Timestamps** are RFC 3339 in UTC with a real calendar date, hours 00–23, no leap second and 1 to 9 fraction digits. Events and the API write `Z`; the SEC report writes `+00:00` (Python `isoformat`); `-00:00` and other offsets are refused. The PostgreSQL driver reads times in the server's local zone, so the research API converts each one to UTC before serving it (stored rows are not changed). Dates are `YYYY-MM-DD`. Validators enforce this; `format` is never only an annotation here.
 - **Identifiers** in events are opaque ASCII tokens, never free text or a ticker.
 - Integers in every schema have both bounds, inside ±(2^53 − 1).
 

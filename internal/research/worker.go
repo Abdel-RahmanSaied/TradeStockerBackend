@@ -336,7 +336,7 @@ ON CONFLICT (provider) DO UPDATE SET not_before=GREATEST(research_provider_state
 RETURNING not_before`, seconds, code).Scan(&until); err != nil {
 		return err
 	}
-	return addEvent(ctx, tx, jobID, "PROVIDER_COOLDOWN_STARTED", map[string]any{"provider": "SEC", "code": code, "until": until})
+	return addEvent(ctx, tx, jobID, "PROVIDER_COOLDOWN_STARTED", map[string]any{"provider": "SEC", "code": code, "until": until.UTC()})
 }
 
 // release returns an interrupted attempt to the queue at once. A crash instead

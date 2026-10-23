@@ -102,7 +102,59 @@ const jobColumns = `id,symbol,cik,status,attempts,created_at,updated_at,CASE WHE
 func scanJob(row pgx.Row) (Job, error) {
 	j := Job{MaxAttempts: maxAttempts}
 	err := row.Scan(&j.ID, &j.Symbol, &j.CIK, &j.Status, &j.Attempts, &j.CreatedAt, &j.UpdatedAt, &j.NextAttemptAt, &j.Result, &j.Error, &j.LastError, &j.TraceID)
+	j.CreatedAt, j.UpdatedAt, j.NextAttemptAt = j.CreatedAt.UTC(), j.UpdatedAt.UTC(), utcPtr(j.NextAttemptAt)
 	return j, err
+}
+
+func scanSource(row pgx.Row) (Source, error) {
+	var src Source
+	err := row.Scan(&src.Attempt, &src.Kind, &src.SHA256, &src.URL, &src.ReceivedAt, &src.Size)
+	src.ReceivedAt = src.ReceivedAt.UTC()
+	return src, err
+}
+
+func scanEvent(row pgx.Row) (Event, error) {
+	var e Event
+	err := row.Scan(&e.At, &e.Action, &e.Detail)
+	e.At, e.Detail = e.At.UTC(), utcDetail(e.Detail)
+	return e, err
+}
+
+// pgx reads timestamptz in the server's local zone. The API contract writes
+// every instant in UTC (Z), so each time read from PostgreSQL is converted to
+// UTC before it is served. The instant does not change.
+func utcPtr(t *time.Time) *time.Time {
+	if t == nil {
+		return nil
+	}
+	u := t.UTC()
+	return &u
+}
+
+// utcDetail serves a stored event detail's "until" in UTC. Cooldown events
+// stored before this conversion hold it in the server's local offset; the
+// stored row is not changed. A detail without a readable "until" is served as stored.
+func utcDetail(detail json.RawMessage) json.RawMessage {
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(detail, &fields) != nil || fields["until"] == nil {
+		return detail
+	}
+	var text string
+	if json.Unmarshal(fields["until"], &text) != nil {
+		return detail
+	}
+	until, err := time.Parse(time.RFC3339Nano, text)
+	if err != nil {
+		return detail
+	}
+	if fields["until"], err = json.Marshal(until.UTC()); err != nil {
+		return detail
+	}
+	out, err := json.Marshal(fields)
+	if err != nil {
+		return detail
+	}
+	return out
 }
 
 var keyPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]{8,128}$`)
@@ -136,7 +188,7 @@ func (s *Service) Handler() http.Handler {
 			return
 		}
 		respond(w, http.StatusOK, map[string]any{"configured": s.Configured, "source": "SEC_PUBLIC", "mode": "READ_ONLY_RESEARCH", "parser_version": ParserVersion,
-			"max_attempts": maxAttempts, "provider_cooldown_until": cooldown, "live_advisory_enabled": false})
+			"max_attempts": maxAttempts, "provider_cooldown_until": utcPtr(cooldown), "live_advisory_enabled": false})
 	})
 	mux.HandleFunc("POST /api/v1/research/jobs", s.create)
 	mux.HandleFunc("GET /api/v1/research/jobs", s.list)
@@ -302,11 +354,7 @@ func (s *Service) detail(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusServiceUnavailable, "RESEARCH_STORAGE_UNAVAILABLE")
 		return
 	}
-	sources, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (Source, error) {
-		var src Source
-		err := row.Scan(&src.Attempt, &src.Kind, &src.SHA256, &src.URL, &src.ReceivedAt, &src.Size)
-		return src, err
-	})
+	sources, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (Source, error) { return scanSource(row) })
 	if err != nil {
 		fail(w, http.StatusServiceUnavailable, "RESEARCH_STORAGE_UNAVAILABLE")
 		return
@@ -316,11 +364,7 @@ func (s *Service) detail(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusServiceUnavailable, "RESEARCH_STORAGE_UNAVAILABLE")
 		return
 	}
-	events, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (Event, error) {
-		var e Event
-		err := row.Scan(&e.At, &e.Action, &e.Detail)
-		return e, err
-	})
+	events, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (Event, error) { return scanEvent(row) })
 	if err != nil {
 		fail(w, http.StatusServiceUnavailable, "RESEARCH_STORAGE_UNAVAILABLE")
 		return

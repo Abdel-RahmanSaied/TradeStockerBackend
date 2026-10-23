@@ -51,19 +51,40 @@ def documents():
     return out
 
 
-def resolve(docs, base, ref):
+def target(base, ref):
+    """The (document, pointer) a $ref names."""
     file, _, pointer = ref.partition("#")
-    name = base if not file else str(pathlib.PurePosixPath(base).parent / file)
+    return (base if not file else str(pathlib.PurePosixPath(base).parent / file)), pointer
+
+
+def resolve(docs, base, ref):
+    name, pointer = target(base, ref)
     node = json.loads(docs[name])
     for part in [p for p in pointer.split("/") if p]:
         node = node[part]
     return name, node
 
 
+MAX_REF_STEPS = 64
+
+
+def follow(docs, base, schema):
+    """Follows $ref while a schema has no type. A reference reached twice, or more than
+    MAX_REF_STEPS of them, stops with an error instead of looping. preflight() has
+    already refused such schemas with the shared compiler; this is a second guard."""
+    seen: set[tuple[str, str]] = set()
+    while isinstance(schema, dict) and "type" not in schema and "$ref" in schema:
+        key = target(base, schema["$ref"])
+        if key in seen or len(seen) >= MAX_REF_STEPS:
+            raise SystemExit("contract generation: reference loop or more than %d references from %s" % (MAX_REF_STEPS, base))
+        seen.add(key)
+        base, schema = resolve(docs, base, schema["$ref"])
+    return base, schema
+
+
 def field_type(docs, base, schema):
     """Returns (kind, nullable): kind is string, integer, boolean or strings."""
-    while "type" not in schema and "$ref" in schema:
-        base, schema = resolve(docs, base, schema["$ref"])
+    base, schema = follow(docs, base, schema)
     if "type" not in schema and "const" in schema:
         return ("boolean" if isinstance(schema["const"], bool) else "string"), False
     t = schema["type"]
@@ -74,10 +95,8 @@ def field_type(docs, base, schema):
         raise SystemExit("unsupported type %r" % t)
     kind = kinds[0]
     if kind == "array":
-        item_base, item = base, schema["items"]
-        while "type" not in item:
-            item_base, item = resolve(docs, item_base, item["$ref"])
-        if item["type"] != "string":
+        _, item = follow(docs, base, schema["items"])
+        if not isinstance(item, dict) or item.get("type") != "string":
             raise SystemExit("only arrays of strings are generated")
         return "strings", nullable
     if kind not in ("string", "integer", "boolean"):
@@ -266,12 +285,27 @@ def compatibility(check, lock_now):
     return 0
 
 
+def preflight():
+    """Compiles every contract surface with the shared strict compiler (compat.surfaces)
+    before anything is generated, formatted or written. Returns an error text or None."""
+    compat = load_compat()
+    try:
+        compat.surfaces(compat.load_documents(CONTRACTS))
+    except compat.CompatError as error:
+        return str(error)
+    return None
+
+
 def main(argv):
     check = argv == ["--check"]
     lock_now = argv == ["--lock"]
     if argv and not check and not lock_now:
         print(__doc__, file=sys.stderr)
         return 2
+    problem = preflight()
+    if problem:
+        print("contracts do not compile; nothing generated: " + problem, file=sys.stderr)
+        return 1
     if lock_now:
         return compatibility(False, True)
     docs = documents()

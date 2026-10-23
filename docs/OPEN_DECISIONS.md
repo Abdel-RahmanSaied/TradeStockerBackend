@@ -23,3 +23,7 @@ Record authority, date, scope, evidence and expiry/review date. Update `decision
 A task may contain engineering work that proceeds with fixtures while a decision is open. The claim tool prints this fact; it does not authorize real provider access or production use. Completion evidence must distinguish fixture-level validation from real integration.
 
 If a missing market provider blocks only one market, split the task explicitly with stable new IDs and scope; do not erase the missing prerequisite or mislabel the market as ready.
+
+## Account-rule research input
+
+[S00-T04 research](evidence/broker-rules-research.md) records dated public sources, corrected free-riding exceptions and separate hypothetical capability matrices. It does not verify the owner's actual accounts, Alpaca key scopes, fees or legal distribution rights. The questions in its section 5 remain inputs to D-03/D-08; neither decision is resolved by that document. Unread official EGX sources and announcement-only tax rates cannot authorize market rules or cost models. Local S01 containers/fixtures can proceed independently.

@@ -13,9 +13,11 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"tradestocker/internal/paper"
+	"tradestocker/internal/telemetry"
 )
 
 type Executor interface {
@@ -29,7 +31,34 @@ type API struct {
 	Research http.Handler
 	// Origins the local dashboard may send. Empty means the default dev ports.
 	Origins []string
+	// Logger gets one line per request, in the request's trace (nil: slog.Default()).
+	Logger *slog.Logger
+	// Dependencies are checked by /api/v1/ready. Once Draining is true,
+	// /api/v1/ready answers 503 so traffic moves away before shutdown.
+	Dependencies []Dependency
+	Draining     *atomic.Bool
 }
+
+// Dependency is one readiness check. Check returns DependencyOK,
+// DependencyUnavailable or DependencyNotConfigured, never error text, so the
+// unauthenticated readiness answer cannot leak a secret. A required dependency
+// that is not ok makes the service not ready. An optional one (NATS: job
+// notifications are only a hint; workers also poll PostgreSQL) is reported as
+// degraded but leaves the service ready.
+type Dependency struct {
+	Name     string
+	Required bool
+	Check    func(context.Context) string
+}
+
+const (
+	DependencyOK            = "ok"
+	DependencyUnavailable   = "unavailable"
+	DependencyNotConfigured = "not_configured"
+)
+
+// Routes that answer without the owner token: they expose no paper or research data.
+var public = map[string]bool{"/api/v1/health": true, "/api/v1/live": true, "/api/v1/ready": true}
 
 var defaultOrigins = []string{"http://127.0.0.1:5173", "http://localhost:5173"}
 
@@ -53,6 +82,13 @@ func (a *API) Handler() http.Handler {
 	if a.Research != nil {
 		mux.Handle("/api/v1/research/", a.Research)
 	}
+	// Liveness: the process answers. It checks no dependency, so an outage
+	// never makes a supervisor restart a healthy process.
+	mux.HandleFunc("GET /api/v1/live", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]any{"status": "alive"})
+	})
+	mux.HandleFunc("GET /api/v1/ready", a.ready)
 	mux.HandleFunc("GET /api/v1/health", a.handle(func(s *paper.State, _ *http.Request, _ []byte, _ time.Time) (any, error) {
 		return map[string]any{"status": "ok", "storage": "postgresql", "mode": "PAPER", "live_advisory_enabled": false}, nil
 	}))
@@ -145,25 +181,57 @@ func (a *API) Handler() http.Handler {
 		s.Event(n, "RESEARCH_STUB_REQUESTED", in.Symbol, result)
 		return result, nil
 	}))
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	logger := a.Logger
+	if logger == nil {
+		logger = slog.Default()
+	}
+	return telemetry.HTTP(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
 		// No credentialed CORS. The local frontend uses its same-origin proxy.
 		if origin := r.Header.Get("Origin"); origin != "" && !a.originAllowed(origin) {
-			writeError(w, paper.Fail("ORIGIN_DENIED", "Origin is not the local dashboard", 403))
+			writeError(r.Context(), w, paper.Fail("ORIGIN_DENIED", "Origin is not the local dashboard", 403))
 			return
 		}
-		if r.URL.Path != "/api/v1/health" {
+		if !public[r.URL.Path] {
 			provided := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 			if !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") || len(a.Token) < 24 || subtle.ConstantTimeCompare([]byte(provided), []byte(a.Token)) != 1 {
-				writeError(w, paper.Fail("UNAUTHORIZED", "Local owner token required", 401))
+				writeError(r.Context(), w, paper.Fail("UNAUTHORIZED", "Local owner token required", 401))
 				return
 			}
 		}
 		mux.ServeHTTP(w, r)
-	})
+	}), logger)
+}
+
+// ready reports readiness from the dependency checks, with a short deadline.
+func (a *API) ready(w http.ResponseWriter, r *http.Request) {
+	if a.Draining != nil && a.Draining.Load() {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_ = json.NewEncoder(w).Encode(map[string]any{"status": "draining"})
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	status, code := "ready", http.StatusOK
+	checks := map[string]string{}
+	for _, d := range a.Dependencies {
+		got := d.Check(ctx)
+		if got != DependencyOK && got != DependencyNotConfigured {
+			got = DependencyUnavailable
+		}
+		checks[d.Name] = got
+		switch {
+		case d.Required && got != DependencyOK:
+			status, code = "not_ready", http.StatusServiceUnavailable
+		case !d.Required && got == DependencyUnavailable && status == "ready":
+			status = "degraded"
+		}
+	}
+	w.WriteHeader(code)
+	_ = json.NewEncoder(w).Encode(map[string]any{"status": status, "checks": checks})
 }
 
 type operation func(*paper.State, *http.Request, []byte, time.Time) (any, error)
@@ -176,18 +244,18 @@ func (a *API) handle(fn operation) http.HandlerFunc {
 		var key, hash string
 		if r.Method == http.MethodPost {
 			if ct := r.Header.Get("Content-Type"); ct != "application/json" {
-				writeError(w, paper.Fail("VALIDATION_FAILED", "Content-Type must be application/json", 415))
+				writeError(r.Context(), w, paper.Fail("VALIDATION_FAILED", "Content-Type must be application/json", 415))
 				return
 			}
 			key = r.Header.Get("Idempotency-Key")
 			if !keyPattern.MatchString(key) {
-				writeError(w, paper.Fail("VALIDATION_FAILED", "An 8–128 character Idempotency-Key is required", 422))
+				writeError(r.Context(), w, paper.Fail("VALIDATION_FAILED", "An 8–128 character Idempotency-Key is required", 422))
 				return
 			}
 			var err error
 			body, err = io.ReadAll(http.MaxBytesReader(w, r.Body, 64*1024))
 			if err != nil {
-				writeError(w, paper.Fail("VALIDATION_FAILED", "Request body exceeds limit or cannot be read", 413))
+				writeError(r.Context(), w, paper.Fail("VALIDATION_FAILED", "Request body exceeds limit or cannot be read", 413))
 				return
 			}
 			h := sha256.Sum256(append([]byte(r.Method+" "+r.URL.RequestURI()+"\n"), body...))
@@ -204,7 +272,7 @@ func (a *API) handle(fn operation) http.HandlerFunc {
 			result, err = a.Store.Read(ctx, op)
 		}
 		if err != nil {
-			writeError(w, err)
+			writeError(r.Context(), w, err)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -223,10 +291,10 @@ func decode(b []byte, v any) error {
 	}
 	return nil
 }
-func writeError(w http.ResponseWriter, err error) {
+func writeError(ctx context.Context, w http.ResponseWriter, err error) {
 	var f *paper.Fault
 	if !errors.As(err, &f) {
-		slog.Error("request failed", "error", err)
+		slog.ErrorContext(ctx, "request failed", "error", err)
 		f = &paper.Fault{Code: "INTERNAL_ERROR", Message: "Storage or internal operation failed; no success is assumed", Status: 503}
 	}
 	w.WriteHeader(f.Status)

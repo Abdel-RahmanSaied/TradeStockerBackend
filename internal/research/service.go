@@ -9,12 +9,17 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"regexp"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"tradestocker/internal/telemetry"
 )
 
 // Service runs durable SEC research jobs. It never reads or writes paper financial state.
@@ -24,7 +29,51 @@ type Service struct {
 	Configured bool
 	Python     string // interpreter; default python3
 	Script     string // parser source; default the embedded research/financials.py
+
+	// Notifier, if set, is told after a new job is committed (NATS). It is best
+	// effort: the job is durable in PostgreSQL and workers also find it by polling.
+	Notifier Notifier
+	// Workers is how many jobs one leader runs at once (1 if unset, at most 4).
+	// SEC requests stay serialized at the provider's own rate limit regardless.
+	Workers int
+	// LeaseSeconds is how long a claimed attempt is owned (150 if unset).
+	LeaseSeconds int
+	// Retries limits how many retries start across all jobs (DefaultRetryBudget if unset).
+	Retries RetryBudget
+
+	wakeOnce    sync.Once
+	wake        chan struct{}
+	retriesHeld atomic.Bool // the retry budget was used up at the last claim
+	// afterAnalysis, in tests only, runs between analysis and settlement.
+	afterAnalysis func()
 }
+
+// Notifier hears about committed jobs; JobCreated must not block for long.
+type Notifier interface {
+	JobCreated(ctx context.Context, jobID string) error
+}
+
+func (s *Service) wakeChannel() chan struct{} {
+	s.wakeOnce.Do(func() { s.wake = make(chan struct{}, 1) })
+	return s.wake
+}
+
+// Wake is called when a job notification arrives (from NATS, in ctx's trace).
+// It only makes an idle worker look for due jobs sooner; the job itself is
+// always read from PostgreSQL.
+func (s *Service) Wake(ctx context.Context, jobID string) {
+	if !jobIDPattern.MatchString(jobID) {
+		slog.WarnContext(ctx, "research job notification ignored: invalid job id")
+		return
+	}
+	slog.InfoContext(ctx, "research job notification received", "job", jobID)
+	select {
+	case s.wakeChannel() <- struct{}{}:
+	default:
+	}
+}
+
+var jobIDPattern = regexp.MustCompile(`^research_[0-9a-f]{32}$`)
 
 type Job struct {
 	ID            string          `json:"id"`
@@ -39,6 +88,7 @@ type Job struct {
 	Result        json.RawMessage `json:"result,omitempty"`
 	Error         *string         `json:"error_code,omitempty"`
 	LastError     *string         `json:"last_error,omitempty"`
+	TraceID       *string         `json:"trace_id,omitempty"`
 }
 
 type Event struct {
@@ -47,11 +97,11 @@ type Event struct {
 	Detail json.RawMessage `json:"detail"`
 }
 
-const jobColumns = `id,symbol,cik,status,attempts,created_at,updated_at,CASE WHEN status='QUEUED' THEN not_before END,result,error_code,last_error`
+const jobColumns = `id,symbol,cik,status,attempts,created_at,updated_at,CASE WHEN status='QUEUED' THEN not_before END,result,error_code,last_error,trace_id`
 
 func scanJob(row pgx.Row) (Job, error) {
 	j := Job{MaxAttempts: maxAttempts}
-	err := row.Scan(&j.ID, &j.Symbol, &j.CIK, &j.Status, &j.Attempts, &j.CreatedAt, &j.UpdatedAt, &j.NextAttemptAt, &j.Result, &j.Error, &j.LastError)
+	err := row.Scan(&j.ID, &j.Symbol, &j.CIK, &j.Status, &j.Attempts, &j.CreatedAt, &j.UpdatedAt, &j.NextAttemptAt, &j.Result, &j.Error, &j.LastError, &j.TraceID)
 	return j, err
 }
 
@@ -185,9 +235,17 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id = "research_" + hex.EncodeToString(b[:])
-	j, err := scanJob(tx.QueryRow(ctx, `INSERT INTO research_jobs(id,operation_key,request_hash,symbol,cik,status) VALUES($1,$2,$3,$4,$5,'QUEUED') RETURNING `+jobColumns, id, key, hash, in.Symbol, in.CIK))
+	// The request's trace (from the HTTP middleware) is stored with the job, so
+	// the worker that runs it continues the same trace.
+	var traceID *string
+	var requested map[string]any
+	if t, ok := telemetry.FromContext(r.Context()); ok {
+		traceID = &t.TraceID
+		requested = map[string]any{"trace_id": t.TraceID}
+	}
+	j, err := scanJob(tx.QueryRow(ctx, `INSERT INTO research_jobs(id,operation_key,request_hash,symbol,cik,status,trace_id) VALUES($1,$2,$3,$4,$5,'QUEUED',$6) RETURNING `+jobColumns, id, key, hash, in.Symbol, in.CIK, traceID))
 	if err == nil {
-		err = addEvent(ctx, tx, id, "REQUESTED", nil)
+		err = addEvent(ctx, tx, id, "REQUESTED", requested)
 	}
 	if err == nil {
 		err = tx.Commit(ctx)
@@ -196,6 +254,14 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusServiceUnavailable, "RESEARCH_STORAGE_UNAVAILABLE")
 		return
 	}
+	slog.InfoContext(r.Context(), "research job created", "job", id)
+	// Best effort, after the commit: a notification that fails is logged and
+	// never turns the committed job into an error. Workers poll PostgreSQL.
+	if s.Notifier != nil {
+		if err := s.Notifier.JobCreated(r.Context(), id); err != nil {
+			slog.WarnContext(r.Context(), "research job notification not sent; workers will find the job by polling", "job", id, "error", err)
+		}
+	}
 	respond(w, http.StatusAccepted, j)
 }
 
@@ -203,7 +269,7 @@ func (s *Service) list(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	// Results are omitted from the list; read one job for its report.
-	rows, err := s.Pool.Query(ctx, `SELECT id,symbol,cik,status,attempts,created_at,updated_at,CASE WHEN status='QUEUED' THEN not_before END,NULL::jsonb,error_code,last_error FROM research_jobs ORDER BY created_at DESC, id LIMIT 50`)
+	rows, err := s.Pool.Query(ctx, `SELECT id,symbol,cik,status,attempts,created_at,updated_at,CASE WHEN status='QUEUED' THEN not_before END,NULL::jsonb,error_code,last_error,trace_id FROM research_jobs ORDER BY created_at DESC, id LIMIT 50`)
 	if err != nil {
 		fail(w, http.StatusServiceUnavailable, "RESEARCH_STORAGE_UNAVAILABLE")
 		return
@@ -295,6 +361,15 @@ func (s *Service) source(w http.ResponseWriter, r *http.Request) {
 }
 
 func addEvent(ctx context.Context, tx pgx.Tx, jobID, action string, detail map[string]any) error {
+	return insertEvent(ctx, tx, jobID, action, detail, nil)
+}
+
+// addEventAt records an event at an explicit time, such as a claim's admission time.
+func addEventAt(ctx context.Context, tx pgx.Tx, jobID, action string, detail map[string]any, at time.Time) error {
+	return insertEvent(ctx, tx, jobID, action, detail, &at)
+}
+
+func insertEvent(ctx context.Context, tx pgx.Tx, jobID, action string, detail map[string]any, at *time.Time) error {
 	if detail == nil {
 		detail = map[string]any{}
 	}
@@ -302,6 +377,6 @@ func addEvent(ctx context.Context, tx pgx.Tx, jobID, action string, detail map[s
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(ctx, `INSERT INTO research_events(job_id,action,detail) VALUES($1,$2,$3)`, jobID, action, b)
+	_, err = tx.Exec(ctx, `INSERT INTO research_events(job_id,action,detail,at) VALUES($1,$2,$3,COALESCE($4::timestamptz,now()))`, jobID, action, b, at)
 	return err
 }

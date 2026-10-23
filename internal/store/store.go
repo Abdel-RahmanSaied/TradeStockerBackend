@@ -39,7 +39,7 @@ func (s *Store) Migrate(ctx context.Context) error {
 	if _, err = tx.Exec(ctx, "SELECT pg_advisory_xact_lock(81342101)"); err != nil {
 		return err
 	}
-	if _, err = tx.Exec(ctx, db.Migration+"\n"+db.ResearchMigration); err != nil {
+	if _, err = tx.Exec(ctx, db.Migration+"\n"+db.ResearchMigration+"\n"+db.TraceMigration); err != nil {
 		return err
 	}
 	b, err := json.Marshal(paper.Persisted{State: paper.NewState(), Receipts: map[string]paper.Receipt{}})

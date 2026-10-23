@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+
+	"tradestocker/internal/telemetry"
 )
 
 const (
@@ -40,7 +43,7 @@ func retryDelay(code string, attempt int) time.Duration {
 func (s *Service) Run(ctx context.Context) {
 	for ctx.Err() == nil {
 		if err := s.runLeader(ctx); err != nil && ctx.Err() == nil {
-			slog.Error("research worker database unavailable", "error", err)
+			slog.ErrorContext(ctx, "research worker database unavailable", "error", err)
 		}
 		sleep(ctx, time.Second)
 	}
@@ -73,19 +76,80 @@ func (s *Service) runLeader(ctx context.Context) error {
 		defer cancel()
 		_, _ = conn.Exec(c, `SELECT pg_advisory_unlock(81342104)`)
 	}()
-	for ctx.Err() == nil {
+	// A bounded pool: exactly s.workers() job loops, never more. Each claims at
+	// most one job at a time (FOR UPDATE SKIP LOCKED keeps claims apart).
+	lead, stopLeading := context.WithCancel(ctx)
+	defer stopLeading()
+	workers := s.workers()
+	slog.InfoContext(ctx, "research worker leading", "workers", workers)
+	failed := make(chan error, workers)
+	var wg sync.WaitGroup
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := s.workLoop(lead); err != nil {
+				failed <- err
+				stopLeading()
+			}
+		}()
+	}
+	defer wg.Wait() // runs before the unlock above: every attempt is settled or released first
+	for lead.Err() == nil {
 		// The lock lives with this session; stop leading if the session is gone.
-		if _, err = conn.Exec(ctx, `SELECT 1`); err != nil {
+		if _, err = conn.Exec(lead, `SELECT 1`); err != nil {
+			stopLeading()
+			if ctx.Err() != nil {
+				return nil
+			}
 			return err
 		}
+		sleep(lead, time.Second)
+	}
+	select {
+	case err = <-failed:
+		return err
+	default:
+		return nil
+	}
+}
+
+// workers is the pool size: 1 by default, at most 4.
+func (s *Service) workers() int {
+	switch {
+	case s.Workers < 1:
+		return 1
+	case s.Workers > 4:
+		return 4
+	}
+	return s.Workers
+}
+
+func (s *Service) leaseSeconds() int {
+	if s.LeaseSeconds > 0 {
+		return s.LeaseSeconds
+	}
+	return leaseSeconds
+}
+
+// workLoop runs jobs until ctx ends. It waits for a notification (Wake) or one
+// second between empty polls.
+func (s *Service) workLoop(ctx context.Context) error {
+	for ctx.Err() == nil {
 		processed, err := s.ProcessOne(ctx)
 		if errors.Is(err, errLeaseLost) {
-			slog.Warn("research attempt result discarded; a newer attempt owns the job")
+			slog.WarnContext(ctx, "research attempt result discarded; a newer attempt owns the job")
 		} else if err != nil {
 			return err
 		}
 		if !processed {
-			sleep(ctx, time.Second)
+			timer := time.NewTimer(time.Second)
+			select {
+			case <-ctx.Done():
+			case <-s.wakeChannel():
+			case <-timer.C:
+			}
+			timer.Stop()
 		}
 	}
 	return nil
@@ -97,6 +161,18 @@ func (s *Service) ProcessOne(ctx context.Context) (bool, error) {
 	if err != nil || j == nil {
 		return false, err
 	}
+	// Continue the trace of the request that created the job (a new span), or
+	// start one for older jobs that have none.
+	tr := telemetry.NewTrace()
+	if j.TraceID != nil && telemetry.ValidTraceID(*j.TraceID) {
+		tr = telemetry.Trace{TraceID: *j.TraceID}.Child()
+	}
+	ctx = telemetry.WithTrace(ctx, tr)
+	started := time.Now()
+	slog.InfoContext(ctx, "research attempt started", "job", j.ID, "attempt", j.Attempts)
+	defer func() {
+		slog.InfoContext(ctx, "research attempt ended", "job", j.ID, "attempt", j.Attempts, "duration_ms", time.Since(started).Milliseconds())
+	}()
 	work, cancel := context.WithTimeout(ctx, attemptDeadline)
 	defer cancel()
 	sources, err := s.Provider.Fetch(work, j.Symbol, j.CIK)
@@ -111,15 +187,38 @@ func (s *Service) ProcessOne(ctx context.Context) (bool, error) {
 		return true, err
 	}
 	report, err := s.analyze(work, *j, sources)
+	if s.afterAnalysis != nil {
+		s.afterAnalysis()
+	}
 	if err != nil {
 		if ctx.Err() != nil {
 			return true, s.release(*j)
 		}
-		return true, s.settle(ctx, *j, "FAILED", map[string]any{"attempt": j.Attempts, "code": "RESEARCH_ANALYSIS_FAILED"},
+		return true, s.finish(ctx, *j, "FAILED", map[string]any{"attempt": j.Attempts, "code": "RESEARCH_ANALYSIS_FAILED"},
 			`status='FAILED',error_code='RESEARCH_ANALYSIS_FAILED',last_error='RESEARCH_ANALYSIS_FAILED'`)
 	}
-	return true, s.settle(ctx, *j, "SUCCEEDED", map[string]any{"attempt": j.Attempts, "parser_version": ParserVersion},
+	return true, s.finish(ctx, *j, "SUCCEEDED", map[string]any{"attempt": j.Attempts, "parser_version": ParserVersion},
 		`status='SUCCEEDED',result=$3,last_error=NULL`, json.RawMessage(report))
+}
+
+// finish records an attempt whose outcome is already known, such as a valid
+// report. It uses its own short deadline, so a stop signal that arrives after
+// the parser answered does not leave the job RUNNING until its lease expires.
+// If the settlement fails, release returns the attempt to the queue. Both
+// writes check status and attempt number, so when a commit's outcome is unknown
+// the fallback changes nothing if the settlement was in fact written.
+func (s *Service) finish(ctx context.Context, j Job, action string, detail map[string]any, set string, args ...any) error {
+	bounded, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+	defer cancel()
+	err := s.settle(bounded, j, action, detail, set, args...)
+	if err == nil || errors.Is(err, errLeaseLost) {
+		return err
+	}
+	slog.WarnContext(ctx, "research settlement failed; releasing the attempt", "job", j.ID, "attempt", j.Attempts, "error", err)
+	if released := s.release(j); released != nil && !errors.Is(released, errLeaseLost) {
+		return errors.Join(err, released)
+	}
+	return nil
 }
 
 func (s *Service) claim(ctx context.Context) (*Job, error) {
@@ -128,9 +227,21 @@ func (s *Service) claim(ctx context.Context) (*Job, error) {
 		return nil, err
 	}
 	defer tx.Rollback(context.Background())
+	// One claim at a time, across all worker loops and processes, so the retry
+	// budget count below is exact.
+	if _, err = tx.Exec(ctx, `SELECT pg_advisory_xact_lock(81342105)`); err != nil {
+		return nil, err
+	}
+	// The clock is read once the lock is held. now() is the transaction start,
+	// which can be long before admission when the lock was waited for, so every
+	// check, the lease and the events below use this one admission time.
+	var at time.Time
+	if err = tx.QueryRow(ctx, `SELECT clock_timestamp()`).Scan(&at); err != nil {
+		return nil, err
+	}
 	// A crashed attempt keeps its lease until expiry. A job with no attempts left,
 	// crashed or queued, becomes a visible failure and is never claimed again.
-	rows, err := tx.Query(ctx, `UPDATE research_jobs SET status='FAILED',error_code='WORKER_ATTEMPTS_EXHAUSTED',lease_until=NULL,updated_at=now() WHERE attempts>=$1 AND (status='QUEUED' OR (status='RUNNING' AND lease_until<now())) RETURNING id`, maxAttempts)
+	rows, err := tx.Query(ctx, `UPDATE research_jobs SET status='FAILED',error_code='WORKER_ATTEMPTS_EXHAUSTED',lease_until=NULL,updated_at=$2 WHERE attempts>=$1 AND (status='QUEUED' OR (status='RUNNING' AND lease_until<$2)) RETURNING id`, maxAttempts, at)
 	if err != nil {
 		return nil, err
 	}
@@ -139,36 +250,50 @@ func (s *Service) claim(ctx context.Context) (*Job, error) {
 		return nil, err
 	}
 	for _, id := range exhausted {
-		if err = addEvent(ctx, tx, id, "WORKER_ATTEMPTS_EXHAUSTED", nil); err != nil {
+		if err = addEventAt(ctx, tx, id, "WORKER_ATTEMPTS_EXHAUSTED", nil, at); err != nil {
 			return nil, err
 		}
 	}
 	// While SEC limits access, no job may contact it, whichever job caused the limit.
 	var cooling bool
-	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM research_provider_state WHERE provider='SEC' AND not_before>now())`).Scan(&cooling); err != nil {
+	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM research_provider_state WHERE provider='SEC' AND not_before>$1)`, at).Scan(&cooling); err != nil {
 		return nil, err
 	}
 	if cooling {
 		return nil, tx.Commit(ctx)
 	}
+	// Retries start only within the budget, counted from the durable event log.
+	budget := s.retryBudget()
+	var retriesStarted int
+	if err = tx.QueryRow(ctx, `SELECT count(*) FROM research_events WHERE action='ATTEMPT_STARTED' AND (detail->>'attempt')::int>1 AND at>$1`, at.Add(-budget.Window)).Scan(&retriesStarted); err != nil {
+		return nil, err
+	}
+	retryAllowed := retriesStarted < budget.Capacity
+	if s.retriesHeld.Swap(!retryAllowed) == retryAllowed {
+		if retryAllowed {
+			slog.InfoContext(ctx, "research retry budget available again")
+		} else {
+			slog.WarnContext(ctx, "research retry budget used up; due retries wait", "retries_started", retriesStarted, "window_seconds", int(budget.Window.Seconds()))
+		}
+	}
 	var id, previous string
-	err = tx.QueryRow(ctx, `SELECT id,status FROM research_jobs WHERE attempts<$1 AND ((status='QUEUED' AND not_before<=now()) OR (status='RUNNING' AND lease_until<now())) ORDER BY not_before,created_at,id FOR UPDATE SKIP LOCKED LIMIT 1`, maxAttempts).Scan(&id, &previous)
+	err = tx.QueryRow(ctx, `SELECT id,status FROM research_jobs WHERE attempts<$1 AND (attempts=0 OR $2) AND ((status='QUEUED' AND not_before<=$3) OR (status='RUNNING' AND lease_until<$3)) ORDER BY not_before,created_at,id FOR UPDATE SKIP LOCKED LIMIT 1`, maxAttempts, retryAllowed, at).Scan(&id, &previous)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, tx.Commit(ctx)
 	}
 	if err != nil {
 		return nil, err
 	}
-	j, err := scanJob(tx.QueryRow(ctx, `UPDATE research_jobs SET status='RUNNING',attempts=attempts+1,lease_until=now()+$2*interval '1 second',updated_at=now() WHERE id=$1 RETURNING `+jobColumns, id, leaseSeconds))
+	j, err := scanJob(tx.QueryRow(ctx, `UPDATE research_jobs SET status='RUNNING',attempts=attempts+1,lease_until=$3::timestamptz+$2*interval '1 second',updated_at=$3 WHERE id=$1 RETURNING `+jobColumns, id, s.leaseSeconds(), at))
 	if err != nil {
 		return nil, err
 	}
 	if previous == "RUNNING" {
-		if err = addEvent(ctx, tx, id, "LEASE_RECOVERED", map[string]any{"previous_attempt": j.Attempts - 1}); err != nil {
+		if err = addEventAt(ctx, tx, id, "LEASE_RECOVERED", map[string]any{"previous_attempt": j.Attempts - 1}, at); err != nil {
 			return nil, err
 		}
 	}
-	if err = addEvent(ctx, tx, id, "ATTEMPT_STARTED", map[string]any{"attempt": j.Attempts}); err != nil {
+	if err = addEventAt(ctx, tx, id, "ATTEMPT_STARTED", map[string]any{"attempt": j.Attempts}, at); err != nil {
 		return nil, err
 	}
 	return &j, tx.Commit(ctx)

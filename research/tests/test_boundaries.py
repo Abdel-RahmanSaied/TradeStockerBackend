@@ -9,7 +9,7 @@ from pathlib import Path
 import unittest
 
 PACKAGE = Path(__file__).resolve().parents[1] / "src" / "tradestocker_research"
-ALLOWED = {"collections", "datetime", "decimal", "json", "re", "sys", "tradestocker_research"}
+ALLOWED = {"collections", "datetime", "decimal", "json", "re", "secrets", "sys", "time", "tradestocker_research"}
 
 
 def imports(source):
@@ -27,7 +27,7 @@ def imports(source):
 class PackageBoundaryTests(unittest.TestCase):
     def test_modules_import_only_allowed_standard_library(self):
         modules = sorted(PACKAGE.glob("*.py"))
-        self.assertEqual([m.name for m in modules], ["__init__.py", "financials.py", "worker.py"])
+        self.assertEqual([m.name for m in modules], ["__init__.py", "financials.py", "telemetry.py", "worker.py"])
         for module in modules:
             with self.subTest(module=module.name):
                 self.assertLessEqual(imports(module.read_text()), ALLOWED)

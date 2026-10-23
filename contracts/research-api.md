@@ -18,10 +18,11 @@ Idempotency: the same key with the same body returns the same job in its **curre
 
 ## Job
 
-`{id, symbol, cik, status, attempts, max_attempts, created_at, updated_at, next_attempt_at?, error_code?, last_error?, result?}`
+`{id, symbol, cik, status, attempts, max_attempts, created_at, updated_at, next_attempt_at?, error_code?, last_error?, result?, trace_id?}`
 
+- `trace_id`: the W3C trace ID of the request that created the job (also in the `REQUESTED` event). The worker's log lines for the job use it. A replay of the same `Idempotency-Key` returns the job without changing it.
 - `status`: `QUEUED` → `RUNNING` → `SUCCEEDED` or `FAILED`. A retry goes back to `QUEUED` with `next_attempt_at` and `last_error`.
-- At most **3 attempts**. Retryable failures wait 30 s, then 2 min. `SEC_ACCESS_LIMITED` (HTTP 403/429, our classification) waits 10 min **and pauses all jobs** for 10 min, a conservative use of SEC's statement that access may resume after 10 minutes below its threshold; it does not guarantee an unblock. A crashed attempt is recovered after its 150 s lease. A graceful shutdown re-queues the attempt at once; an interrupted last attempt fails as `WORKER_ATTEMPTS_EXHAUSTED`.
+- At most **3 attempts**. Retryable failures wait 30 s, then 2 min. `SEC_ACCESS_LIMITED` (HTTP 403/429, our classification) waits 10 min **and pauses all jobs** for 10 min, a conservative use of SEC's statement that access may resume after 10 minutes below its threshold; it does not guarantee an unblock. A crashed attempt is recovered after its 150 s lease. A graceful shutdown re-queues the attempt at once; an interrupted last attempt fails as `WORKER_ATTEMPTS_EXHAUSTED`. A shared retry budget lets at most 6 retries start in any 10 minutes across all jobs, counted from the stored `ATTEMPT_STARTED` events, so it holds across restarts; a held retry waits in the queue and is never dropped. Any attempt after a job's first counts, including recovered and re-queued ones. A stop that arrives after a valid report still records it.
 - `sources[]`: `{attempt, kind, sha256, url, received_at, size_bytes}`. Originals are stored before analysis and kept even if analysis fails.
 - `events[]`: `{at, action, detail}`. Actions: `REQUESTED`, `ATTEMPT_STARTED`, `LEASE_RECOVERED`, `SEC_SOURCES_STORED`, `ATTEMPT_FAILED_RETRY_SCHEDULED`, `PROVIDER_COOLDOWN_STARTED`, `ATTEMPT_INTERRUPTED`, `WORKER_ATTEMPTS_EXHAUSTED`, `SUCCEEDED`, `FAILED`.
 

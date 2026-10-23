@@ -56,6 +56,17 @@ Use only a contact the owner approved; restart the API after setting it. Without
 
 `./scripts/research-smoke.sh [SYMBOL] [CIK]` runs one real SEC job through the real API on a disposable database and port 18080, then verifies the downloaded originals. It makes two SEC requests.
 
+## Logs, traces and health
+
+platform-core writes one JSON log line per event on stderr. The owner token, the database URL and password and the SEC contact are removed wherever they appear; secret-named and content-named fields (bodies, documents, sources, parser output) are never logged, only their size. Every response carries `traceparent` and `X-Trace-Id`. A research job keeps the trace of the request that created it, so the job's HTTP, NATS and worker log lines share one `trace_id`.
+
+- `GET /api/v1/live`: the process answers. It checks nothing else.
+- `GET /api/v1/ready`: `ready`, `degraded` (NATS down; workers still poll PostgreSQL), `not_ready` (PostgreSQL down, HTTP 503) or `draining` (stopping, 503). Each check shows only `ok`, `unavailable` or `not_configured`, never error text.
+- `TS_NATS_URL` (optional, `nats://host:port`, no credentials): new research jobs are announced on NATS so an idle worker starts at once. It is only a hint, sent after the job is committed; a NATS failure never fails the request.
+- `TS_RESEARCH_WORKERS` (1 to 4, default 1): research jobs run at once. SEC requests stay one per second in total.
+
+`scripts/test-isolated.sh [./pkg ...]` runs the PostgreSQL tests on a new labelled container on a random local port, with its data in memory, and stops only that container afterwards. The normal database is not used.
+
 ## Build and test
 
 Three entrypoints, one Go module (`go.mod`, module `tradestocker`) and one Python package:

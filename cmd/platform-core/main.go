@@ -11,13 +11,19 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
+
 	"tradestocker/internal/httpapi"
+	"tradestocker/internal/natsbus"
 	"tradestocker/internal/research"
 	"tradestocker/internal/store"
+	"tradestocker/internal/telemetry"
 )
 
 var loopbackOrigin = regexp.MustCompile(`^http://(127\.0\.0\.1|localhost):[1-9][0-9]{1,4}$`)
@@ -55,6 +61,33 @@ func secret(name string) (string, error) {
 	return strings.TrimRight(string(b), "\r\n"), nil
 }
 
+// config is everything serve needs, checked by run.
+type config struct {
+	token, databaseURL, bind string
+	origins                  []string
+	python, pythonVersion    string
+	fetcher                  research.Fetcher // the SEC provider; tests pass a fake
+	researchConfigured       bool
+	natsURL                  string // empty: no NATS, workers poll only
+	workers                  int
+}
+
+// newLogger is the process logger: JSON lines (stderr in production), with
+// the given secrets removed wherever they appear.
+func newLogger(w io.Writer, secrets ...string) *slog.Logger {
+	r := &telemetry.Redactor{}
+	r.Add(secrets...)
+	return telemetry.NewLogger(w, r, slog.LevelInfo)
+}
+
+// databasePassword returns the password inside a PostgreSQL URL or DSN, if any.
+func databasePassword(url string) string {
+	if c, err := pgconn.ParseConfig(url); err == nil {
+		return c.Password
+	}
+	return ""
+}
+
 func run() error {
 	token, err := secret("TS_LOCAL_DEV_TOKEN")
 	if err != nil {
@@ -73,11 +106,14 @@ func run() error {
 	if url == "" {
 		return errors.New("DATABASE_URL required")
 	}
-	bind := os.Getenv("TS_BIND")
-	if bind == "" {
-		bind = "127.0.0.1:8080"
+	agent := os.Getenv("TS_SEC_USER_AGENT")
+	// From here on every log line is JSON with the secrets removed.
+	slog.SetDefault(newLogger(os.Stderr, token, url, databasePassword(url), agent))
+	cfg := config{token: token, databaseURL: url, bind: os.Getenv("TS_BIND")}
+	if cfg.bind == "" {
+		cfg.bind = "127.0.0.1:8080"
 	}
-	host, _, err := net.SplitHostPort(bind)
+	host, _, err := net.SplitHostPort(cfg.bind)
 	if err != nil {
 		return err
 	}
@@ -86,29 +122,48 @@ func run() error {
 	}
 	// An isolated dashboard (for example a test on another port) may name its own
 	// origin, but only a loopback http origin with an explicit port.
-	var origins []string
 	if origin := os.Getenv("TS_DASHBOARD_ORIGIN"); origin != "" {
 		if !loopbackOrigin.MatchString(origin) {
 			return errors.New("TS_DASHBOARD_ORIGIN must be http://127.0.0.1:<port> or http://localhost:<port>")
 		}
-		origins = []string{origin}
+		cfg.origins = []string{origin}
+	}
+	cfg.workers = 1
+	if text := os.Getenv("TS_RESEARCH_WORKERS"); text != "" {
+		if cfg.workers, err = strconv.Atoi(text); err != nil || cfg.workers < 1 || cfg.workers > 4 {
+			return errors.New("TS_RESEARCH_WORKERS must be a whole number from 1 to 4")
+		}
+	}
+	// NATS is optional: without it, workers find new jobs by polling PostgreSQL.
+	if cfg.natsURL = os.Getenv("TS_NATS_URL"); cfg.natsURL != "" {
+		if err = natsbus.CheckURL(cfg.natsURL); err != nil {
+			return err
+		}
 	}
 	// The research parser runs only on the exact CPython it is tested on.
-	python := os.Getenv("TS_PYTHON")
-	if python == "" {
-		python = "python3"
+	cfg.python = os.Getenv("TS_PYTHON")
+	if cfg.python == "" {
+		cfg.python = "python3"
 	}
 	check, cancelCheck := context.WithTimeout(context.Background(), 10*time.Second)
-	pythonVersion, err := research.CheckPython(check, python)
+	cfg.pythonVersion, err = research.CheckPython(check, cfg.python)
 	cancelCheck()
 	if err != nil {
 		return err
 	}
+	provider := research.NewSEC(agent)
+	cfg.fetcher, cfg.researchConfigured = provider, provider.Configured()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	return serve(ctx, cfg, nil)
+}
+
+// serve runs platform-core until ctx ends, then stops in order. listening, if
+// set, is told the address once the API accepts connections.
+func serve(ctx context.Context, cfg config, listening func(addr string)) error {
 	start, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
-	db, err := store.Open(start, url)
+	db, err := store.Open(start, cfg.databaseURL)
 	if err != nil {
 		return err
 	}
@@ -116,26 +171,71 @@ func run() error {
 	if err = db.Migrate(start); err != nil {
 		return err
 	}
-	provider := research.NewSEC(os.Getenv("TS_SEC_USER_AGENT"))
-	researchService := &research.Service{Pool: db.Pool, Provider: provider, Configured: provider.Configured(), Python: python}
+	researchService := &research.Service{Pool: db.Pool, Provider: cfg.fetcher, Configured: cfg.researchConfigured, Python: cfg.python, Workers: cfg.workers}
+	natsState := func(context.Context) string { return httpapi.DependencyNotConfigured }
+	if cfg.natsURL != "" {
+		bus, err := natsbus.Connect(cfg.natsURL, "platform-core")
+		if err != nil {
+			return err
+		}
+		defer bus.Close()
+		if err = bus.Subscribe(researchService.Wake); err != nil {
+			return err
+		}
+		researchService.Notifier = bus
+		natsState = func(context.Context) string {
+			if bus.Ready() {
+				return httpapi.DependencyOK
+			}
+			return httpapi.DependencyUnavailable
+		}
+	}
+	var draining atomic.Bool
+	api := &httpapi.API{Store: db, Token: cfg.token, Research: researchService.Handler(), Origins: cfg.origins, Draining: &draining,
+		Dependencies: []httpapi.Dependency{
+			{Name: "postgres", Required: true, Check: func(ctx context.Context) string {
+				if db.Pool.Ping(ctx) != nil {
+					return httpapi.DependencyUnavailable
+				}
+				return httpapi.DependencyOK
+			}},
+			{Name: "nats", Check: natsState},
+		}}
+	listener, err := net.Listen("tcp", cfg.bind)
+	if err != nil {
+		return err
+	}
+	server := &http.Server{Handler: api.Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 16 * 1024}
+
+	// The worker gets its own context, so it is stopped at a chosen point below.
+	work, stopWorker := context.WithCancel(context.WithoutCancel(ctx))
 	workerDone := make(chan struct{})
-	go func() { defer close(workerDone); researchService.Run(ctx) }()
-	defer func() { stop(); <-workerDone }()
-	server := &http.Server{Addr: bind, Handler: (&httpapi.API{Store: db, Token: token, Research: researchService.Handler(), Origins: origins}).Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 16 * 1024}
+	go func() { defer close(workerDone); researchService.Run(work) }()
+	defer func() { stopWorker(); <-workerDone }()
+
 	result := make(chan error, 1)
-	go func() {
-		slog.Info("local paper API ready", "address", bind, "mode", "PAPER", "live_advisory_enabled", false, "research_python", pythonVersion)
-		result <- server.ListenAndServe()
-	}()
+	go func() { result <- server.Serve(listener) }()
+	slog.InfoContext(ctx, "local paper API ready", "address", listener.Addr().String(), "mode", "PAPER", "live_advisory_enabled", false,
+		"research_python", cfg.pythonVersion, "research_configured", cfg.researchConfigured, "research_workers", researchService.Workers, "nats_configured", cfg.natsURL != "")
+	if listening != nil {
+		listening(listener.Addr().String())
+	}
 	select {
 	case err = <-result:
-		if errors.Is(err, http.ErrServerClosed) {
-			return nil
-		}
 		return err
 	case <-ctx.Done():
-		end, c := context.WithTimeout(context.Background(), 10*time.Second)
-		defer c()
-		return server.Shutdown(end)
 	}
+	// Graceful stop, in order: readiness reports draining; HTTP stops taking
+	// requests and finishes those in flight; the research workers settle or
+	// release their attempts; then (deferred) NATS drains and the database
+	// closes last.
+	slog.Info("platform-core stopping")
+	draining.Store(true)
+	stopWorker()
+	end, cancelEnd := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancelEnd()
+	err = server.Shutdown(end)
+	<-workerDone
+	slog.Info("platform-core stopped", "http_shutdown_error", err)
+	return err
 }

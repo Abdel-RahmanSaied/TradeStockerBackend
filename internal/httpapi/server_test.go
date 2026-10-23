@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
+
 	"tradestocker/internal/paper"
+	"tradestocker/internal/telemetry"
 )
 
 type fakeStore struct {
@@ -159,5 +162,72 @@ func TestHTTPBoundary(t *testing.T) {
 				t.Fatal("cacheable auth response")
 			}
 		})
+	}
+}
+
+// Liveness checks nothing; readiness follows the dependencies, never shows
+// error text, and turns 503 while draining. Both answer without the token.
+func TestLivenessAndReadiness(t *testing.T) {
+	secret := "fixture-dependency-detail"
+	state := map[string]string{"postgres": DependencyOK, "nats": DependencyOK}
+	var draining atomic.Bool
+	api := &API{Store: &fakeStore{state: paper.NewState()}, Token: strings.Repeat("a", 32), Draining: &draining,
+		Dependencies: []Dependency{
+			{Name: "postgres", Required: true, Check: func(context.Context) string { return state["postgres"] }},
+			{Name: "nats", Check: func(context.Context) string { return state["nats"] }},
+		}}
+	h := api.Handler()
+	call := func(path string) (int, map[string]any) {
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, httptest.NewRequest(http.MethodGet, path, nil))
+		if strings.Contains(w.Body.String(), secret) {
+			t.Fatalf("%s leaked dependency detail: %s", path, w.Body)
+		}
+		var body map[string]any
+		_ = json.Unmarshal(w.Body.Bytes(), &body)
+		return w.Code, body
+	}
+	for _, tc := range []struct {
+		postgres, nats string
+		draining       bool
+		code           int
+		status         string
+	}{
+		{DependencyOK, DependencyOK, false, 200, "ready"},
+		{DependencyOK, DependencyNotConfigured, false, 200, "ready"},
+		{DependencyOK, DependencyUnavailable, false, 200, "degraded"},
+		{DependencyUnavailable, DependencyOK, false, 503, "not_ready"},
+		{DependencyNotConfigured, DependencyOK, false, 503, "not_ready"},
+		{secret, DependencyOK, false, 503, "not_ready"}, // unknown values count as unavailable
+		{DependencyOK, DependencyOK, true, 503, "draining"},
+	} {
+		state["postgres"], state["nats"] = tc.postgres, tc.nats
+		draining.Store(tc.draining)
+		code, body := call("/api/v1/ready")
+		if code != tc.code || body["status"] != tc.status {
+			t.Fatalf("%+v: got %d %v", tc, code, body)
+		}
+		if live, _ := call("/api/v1/live"); live != 200 {
+			t.Fatalf("liveness followed a dependency: %d in %+v", live, tc)
+		}
+	}
+	state["postgres"] = secret
+	draining.Store(false)
+	if _, body := call("/api/v1/ready"); body["checks"].(map[string]any)["postgres"] != DependencyUnavailable {
+		t.Fatalf("checks %v", body["checks"])
+	}
+}
+
+func TestEveryResponseCarriesTheTrace(t *testing.T) {
+	h := (&API{Store: &fakeStore{state: paper.NewState()}, Token: strings.Repeat("a", 32)}).Handler()
+	parent := telemetry.NewTrace()
+	for _, path := range []string{"/api/v1/live", "/api/v1/health", "/api/v1/dashboard"} {
+		r := httptest.NewRequest(http.MethodGet, path, nil)
+		r.Header.Set("traceparent", parent.Traceparent())
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		if got, ok := telemetry.ParseTraceparent(w.Header().Get("traceparent")); !ok || got.TraceID != parent.TraceID || w.Header().Get("X-Trace-Id") != parent.TraceID {
+			t.Fatalf("%s: traceparent %q", path, w.Header().Get("traceparent"))
+		}
 	}
 }

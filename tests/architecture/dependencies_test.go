@@ -21,6 +21,7 @@ type layer string
 
 const (
 	domain  layer = "domain"     // pure business rules: no I/O, framework or network
+	support layer = "support"    // cross-cutting helpers (telemetry): standard library only
 	adapter layer = "adapter"    // database, HTTP, processes and providers
 	asset   layer = "asset"      // embedded files only (migrations, parser source)
 	entry   layer = "entrypoint" // cmd/*: wires adapters to domain code
@@ -32,6 +33,8 @@ const (
 // classified here, so its dependency rules are a reviewed choice.
 var layers = map[string]layer{
 	"internal/paper":       domain,
+	"internal/telemetry":   support,
+	"internal/natsbus":     adapter,
 	"internal/httpapi":     adapter,
 	"internal/store":       adapter,
 	"internal/research":    adapter,
@@ -101,7 +104,9 @@ func violations(graph map[string][]string) []string {
 				bad("domain %s imports %s %s", pkg, to, rel)
 			case from == asset && (k != "std" || !assetStdlib[rel]):
 				bad("asset %s imports %s", pkg, imp)
-			case from == adapter && k == "module" && to != domain && to != asset:
+			case from == support && k != "std":
+				bad("support %s imports %s (only the standard library)", pkg, imp)
+			case from == adapter && k == "module" && to != domain && to != asset && to != support:
 				bad("adapter %s imports %s %s", pkg, to, rel)
 			case k == "module" && (to == entry || to == tool || to == check):
 				bad("%s imports %s %s", pkg, to, rel)
@@ -113,7 +118,8 @@ func violations(graph map[string][]string) []string {
 		bad("Go entrypoints are %v, want exactly %v", cmds, entrypoints)
 	}
 	// market-ingestion stays independent of core authority: it reaches no
-	// database, research or HTTP-server adapter and no third-party code.
+	// database, research, NATS or HTTP-server adapter and no third-party code;
+	// only domain and support packages.
 	seen := map[string]bool{}
 	var walk func(string)
 	walk = func(pkg string) {
@@ -124,7 +130,7 @@ func violations(graph map[string][]string) []string {
 			}
 			if k == "module" && !seen[rel] {
 				seen[rel] = true
-				if layers[rel] != domain {
+				if layers[rel] != domain && layers[rel] != support {
 					bad("market-ingestion reaches %s %s via %s", layers[rel], rel, pkg)
 				}
 				walk(rel)
@@ -288,6 +294,8 @@ func TestUnexpectedNestedModuleIsReported(t *testing.T) {
 func TestRulesCatchViolations(t *testing.T) {
 	good := map[string][]string{
 		"internal/paper":       {"errors", "time"},
+		"internal/telemetry":   {"log/slog", "net/http"},
+		"internal/natsbus":     {"github.com/nats-io/nats.go", "tradestocker/internal/telemetry"},
 		"internal/store":       {"tradestocker/internal/paper", "tradestocker/db", "github.com/jackc/pgx/v5"},
 		"internal/httpapi":     {"net/http", "tradestocker/internal/paper"},
 		"internal/research":    {"os/exec", "tradestocker/research"},
@@ -331,6 +339,18 @@ func TestRulesCatchViolations(t *testing.T) {
 		},
 		"ingestion uses third-party": func(g map[string][]string) {
 			g["cmd/market-ingestion"] = append(g["cmd/market-ingestion"], "github.com/x/feed")
+		},
+		"ingestion reaches NATS": func(g map[string][]string) {
+			g["cmd/market-ingestion"] = append(g["cmd/market-ingestion"], "tradestocker/internal/natsbus")
+		},
+		"support uses third-party code": func(g map[string][]string) {
+			g["internal/telemetry"] = append(g["internal/telemetry"], "github.com/x/otel")
+		},
+		"support imports an adapter": func(g map[string][]string) {
+			g["internal/telemetry"] = append(g["internal/telemetry"], "tradestocker/internal/store")
+		},
+		"domain imports support": func(g map[string][]string) {
+			g["internal/paper"] = append(g["internal/paper"], "tradestocker/internal/telemetry")
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

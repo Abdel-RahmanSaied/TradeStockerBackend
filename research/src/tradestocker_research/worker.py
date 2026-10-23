@@ -1,16 +1,19 @@
 """research-worker: the Python research entrypoint.
 
 Reads one JSON request per line on stdin and writes one JSON result per line on
-stdout. A request is {"task": <name>, "input": <object>}. Its code opens no
-network, database or file connection and is given no credentials: the caller
-hands it stored source documents. It runs with the caller's OS permissions, so
-this is a code boundary, not a sandbox.
+stdout. A request is {"task": <name>, "input": <object>}, with an optional
+"traceparent" (W3C) that the request's log line continues. Each request logs
+one JSON line on stderr with its task, outcome, sizes and duration, never its
+input or error text. Its code opens no network, database or file connection and
+is given no credentials: the caller hands it stored source documents. It runs
+with the caller's OS permissions, so this is a code boundary, not a sandbox.
 """
 import json
 import re
 import sys
+import time
 
-from tradestocker_research import financials
+from tradestocker_research import financials, telemetry
 
 STUB_VERSION = "research-stub-v1"
 # A request line carries the task envelope around at most one parser input.
@@ -43,8 +46,8 @@ TASKS = {financials.VERSION: financials.assess, STUB_VERSION: assess}
 
 
 def handle(request):
-    if not isinstance(request, dict) or set(request) != {"task", "input"}:
-        raise ValueError("A request is exactly {task, input}")
+    if not isinstance(request, dict) or set(request) - {"traceparent"} != {"task", "input"}:
+        raise ValueError("A request is exactly {task, input}, with an optional traceparent")
     task = TASKS.get(request["task"]) if isinstance(request["task"], str) else None
     if task is None:
         raise ValueError("Unknown task; known: %s" % ", ".join(sorted(TASKS)))
@@ -70,15 +73,39 @@ def main(argv=None):
         print("usage: research-worker < requests.jsonl", file=sys.stderr)
         return 2
     for line in lines(sys.stdin.buffer, LINE_LIMIT):
+        started = time.monotonic()
+        request = None
+        error_type = None
         try:
             if line is None:
                 raise ValueError("Request line exceeds limit")
-            output = handle(json.loads(line))
+            request = json.loads(line)
+            output = handle(request)
         except REJECTED as error:
             output = {"status": "REJECTED", "error": "%s: %s" % (type(error).__name__, error)}
+            error_type = type(error).__name__
         # Same encoding as the parser process, so a report is byte-identical.
-        print(json.dumps(output, allow_nan=False, separators=(",", ":")), flush=True)
+        text = json.dumps(output, allow_nan=False, separators=(",", ":"))
+        print(text, flush=True)
+        log_request(request, line, text, error_type, started)
     return 0
+
+
+def log_request(request, line, text, error_type, started):
+    """One log line per request: names, sizes and timing only."""
+    envelope = request if isinstance(request, dict) else {}
+    task = envelope.get("task")
+    fields = {
+        "task": task if isinstance(task, str) and task in TASKS else "unknown",
+        "status": "REJECTED" if error_type else "ok",
+        "duration_ms": int((time.monotonic() - started) * 1000),
+        "output_bytes": len(text),
+    }
+    if line is not None:
+        fields["input_bytes"] = len(line)
+    if error_type:
+        fields["error_type"] = error_type
+    telemetry.event("research task ended", telemetry.continue_trace(envelope.get("traceparent")), **fields)
 
 
 if __name__ == "__main__":

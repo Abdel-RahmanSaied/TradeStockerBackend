@@ -75,6 +75,8 @@ services:
       TS_LOCAL_DEV_TOKEN_FILE: /run/secrets/api_token
       DATABASE_URL_FILE: /run/secrets/database_url
       TS_DASHBOARD_ORIGIN: "http://127.0.0.1:${TS_DEV_FRONTEND_PORT:?}"
+      # Job notifications (a hint; workers also poll PostgreSQL). No credentials.
+      TS_NATS_URL: "nats://dev-nats:4222"
     secrets: [api_token, database_url]
     ports: ["127.0.0.1:${TS_DEV_API_PORT:?}:8080"]
     networks: [internal, edge]

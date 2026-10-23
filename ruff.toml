@@ -2,7 +2,7 @@
 # explicitly so results do not change with ruff's own defaults: pyflakes (F)
 # and the pycodestyle error families E4, E7 and E9.
 target-version = "py314"
-include = ["research/src/**/*.py", "research/tests/**/*.py", "fixtures/synthetic/*.py", "scripts/*.py"]
+include = ["research/src/**/*.py", "research/tests/**/*.py", "research/parser_launcher.py", "fixtures/synthetic/*.py", "scripts/*.py"]
 
 [lint]
 select = ["E4", "E7", "E9", "F"]

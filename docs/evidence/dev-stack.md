@@ -9,7 +9,7 @@ Create local containers and deterministic fixtures.
 | Code | The checkpoint commit that adds this record; no frontend change |
 | Environment | macOS 27.0.1 arm64, Docker Desktop (Docker client and server 29.7.2, Compose 5.3.1), Go 1.26.10, CPython 3.14.8 |
 | Logs | Author logs outside the repository in the session scratch folder `s01t02/run/` (numbered by step); smoke evidence in `.local/dev-stack-smoke/<project>/` (ignored by Git) |
-| Static reviews before running | Codex root and the independent reviewer reviewed every script, the Compose file and the tests by exact hash before they ran (snapshot 2, then one stdout delta). All results below are author runs, not reviewer runs. |
+| Static reviews before running | Codex root and the independent reviewer reviewed the scripts, the Compose file and the tests by exact hash before any stack run (snapshot 2, then one stdout delta). One exception, disclosed below: the changed fake-only `test_dev_stack.py` (record-only stubs, no Docker) ran once before its delta was cleared. All results below are author runs, not reviewer runs. |
 | Normal app | Not stopped or restarted. API PID 78497 and Vite PID 78502 ran throughout; paper MD5 `51285359c2d98893a4d47ead4c2fb4da`, 1 research job and its 2 source hashes, identical before and after (read-only queries). `.env.local` unchanged (mode 600, ignored). |
 
 ## What exists now
@@ -23,7 +23,7 @@ Create local containers and deterministic fixtures.
 | `scripts/dev-stack-smoke.sh` | The full check on a new throwaway project (below). |
 | `fixtures/synthetic/` | Invented fixtures with a hash manifest, a generator that reproduces them byte for byte, and `label.py`, the fixture adapter that marks every research result SYNTHETIC. |
 | `config/example.env` | The settings (project, ports) with no secret; `config/dev.env` is ignored by Git. |
-| platform-core and market-ingestion | Read `TS_LOCAL_DEV_TOKEN_FILE` and `DATABASE_URL_FILE` (Compose secrets). Setting both forms is refused, the file is capped at 4096 bytes, and errors never contain the secret. |
+| platform-core and market-ingestion | platform-core reads `TS_LOCAL_DEV_TOKEN_FILE` and `DATABASE_URL_FILE`; market-ingestion reads only `TS_LOCAL_DEV_TOKEN_FILE`, so it never gets database access (Compose secrets). Setting both the variable and its file is refused, the file is capped at 4096 bytes, and errors never contain the secret. |
 
 Resource map: Compose project `tradestocker-dev` (smoke and review instances `tradestocker-dev-<suffix>` only); image `tradestocker-dev-app:<project>`; volumes `<project>_pgdata`, `_natsdata`, `_research-results`; networks `<project>_internal` (no route out) and `_edge` (platform-core only); API `127.0.0.1:18280` (smoke `18380`), frontend `15273`; PostgreSQL and NATS not published; secrets `.local/dev-stack/<project>/` (700/600).
 

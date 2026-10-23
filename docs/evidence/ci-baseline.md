@@ -21,7 +21,7 @@ Implement the CI baseline and documentation drift checks.
 | `make ci-security` | Waiver check; gitleaks over the committed history (`--redact`; only Git objects are read, so ignored local files are never scanned); govulncheck (only vulnerable code the module actually reaches counts); OSV for every locked PyPI package and the uv pin. `scripts/scan_checks.py` fails on any open finding and on any invalid, expired, self-reviewed or unused waiver. |
 | `make ci-package` | Both binaries, `scripts/package.sh` into a new folder, and the two-build reproducibility check. |
 | `make ci-report` | `scripts/ci_suite.py report`: every suite with its real counts (from `go test -json` events and unittest summaries; a suite with no counts fails), the skipped Go tests with their reasons, and the suites CI never runs. |
-| `security/scan-waivers.json` | W-002 (since `01238982`, reviewed in `19da95f6`): the exact historical finding of an invented test value in `7ed1c760`, reviewed by `independent_review` on 2026-10-23, expires 2026-11-22 (see the negative controls). W-001: an exact gitleaks fingerprint, a false positive on the public SHA-256 hashes of the SEC source files. Owner `claude-code-agent`, reviewed by `codex-reviewer` on 2026-10-23 (who checked privately that no protected credential occurs there), expires 2026-11-22. No rule, file or history exclusion. |
+| `security/scan-waivers.json` | Two reviewed waivers, each for one exact gitleaks fingerprint, both owned by `claude-code-agent` and expiring 2026-11-22. No rule, file or history exclusion. **W-001**: a false positive on the public SHA-256 hashes of the SEC source files; reviewed by `codex-reviewer` on 2026-10-23, who checked privately that no protected credential occurs there. **W-002** (added in `01238982`, review recorded in `19da95f6`): the historical finding of an invented test value in `7ed1c760`; reviewed by `independent_review` on 2026-10-23 (see the negative controls). |
 
 ## Finding fixed on the way: vulnerable uv
 
@@ -29,15 +29,19 @@ The second full `make ci` run (the first had stopped at ruff on 3 lint findings 
 
 ## Acceptance criteria
 
+Every result in this record is an **author run**. The independent reviewer's own runs and counts are in its separate report and are not repeated or claimed here.
+
 | Criterion | Outcome (author run) | Evidence |
 |---|---|---|
 | Go format/vet/race tests and Python lint/type/unit tests run with pinned tooling | **Met locally.** All pass in `make ci`. Go from `go.mod` via `GOTOOLCHAIN`; Python tools from the locked group; the lint run first found and fixed 3 real issues in tests and 3 in the new CI scripts. | `make ci` below |
-| Dependency/secret scans are enabled; explicit reviewed waivers have owners and expiry | **Met locally.** gitleaks, govulncheck and OSV run in `make ci-security`; W-001 is the only waiver. The OSV scan found a real critical advisory, which was fixed, not waived. | `test_scan_checks.py` (9 tests: unreviewed, self-reviewed, expired, future-dated, duplicate, unused and prefix waivers all refused) |
+| Dependency/secret scans are enabled; explicit reviewed waivers have owners and expiry | **Met locally.** gitleaks, govulncheck and OSV run in `make ci-security`, with the two reviewed waivers W-001 and W-002. The OSV scan found a real critical advisory, which was fixed, not waived; the negative-control baseline found a committed key-shaped test value, which was replaced, and only its historical fingerprint is waived. | `test_scan_checks.py` (9 tests: unreviewed, self-reviewed, expired, future-dated, duplicate, unused and prefix waivers all refused) |
 | planctl validate and render --check run on docs changes | **Met locally.** Both run in `make ci-docs`, on every push and pull request. | `make ci` below |
 | CI reports test counts and unrun integration suites honestly | **Met locally.** See the report below; 13 PostgreSQL tests are reported as skipped locally with their reason, and 5 suites as never run by CI. | `test_ci_suite.py` (6 tests) |
-| Validation: intentional test, schema and docs drift failures in an isolated branch | **Breaks all caught; baseline not yet green.** On `7ed1c760` all 10 breaks failed their target with their own diagnosis, but the baseline `ci-security` failed on a real finding in that commit (below), so that run is FAILED. A rerun on the corrected commit is pending static delta review. `7ed1c760` is not a green CI commit. | Negative controls below |
+| Validation: intentional test, schema and docs drift failures in an isolated branch | **Met (author run on `749877ca`).** Baseline green on all four targets, and all 10 breaks failed their target with their own diagnosis. The earlier run on `7ed1c760` FAILED: its baseline `ci-security` failed on a real finding in that commit (below). `7ed1c760` is not a green CI commit. | Negative controls below |
 
-## Local `make ci` (third run, final tree before this commit)
+## Local `make ci` (author, third run, on the tree that became `7ed1c760`)
+
+This run predates W-002: the key-shaped test value was not yet committed, so the history scan could not see it. On `749877ca`, `make ci-python` and `make ci-security` passed again with gitleaks at 2 findings, 2 waived, 0 open.
 
 All targets exit 0. Scans: waivers 1 valid; gitleaks 1 finding, 1 waived, 0 open; govulncheck 0; OSV 0 of 8 packages. Packaging byte-identical over two builds.
 
@@ -58,7 +62,11 @@ All targets exit 0. Scans: waivers 1 valid; gitleaks 1 finding, 1 waived, 0 open
 
 Earlier runs, kept honestly: run 1 stopped at ruff (3 findings in the new CI scripts, fixed); run 2 stopped at OSV (the uv advisory, fixed in `b552c499`).
 
-## Negative controls (author run on `7ed1c760`)
+## Negative controls (author run on `749877ca`): PASS
+
+`scripts/ci_negative_controls.sh 749877cac0da91ba3f2199a25f31d14408273b04` (unchanged script, after static delta clearance), in a new folder in the author's scratch space. Baseline: `ci-go`, `ci-python`, `ci-docs` and `ci-security` all exit 0; gitleaks 2 findings, 2 waived (W-001, W-002), 0 open. All 10 breaks failed with the same diagnoses as in the table below, except that the secret break's commit differs. The clone had 0 remotes and an empty hooks folder; the real repository stayed unchanged. Clone and logs are kept.
+
+## Negative controls (author run on `7ed1c760`): FAILED
 
 `scripts/ci_negative_controls.sh 7ed1c760dd481d1b9401cd75d49bd7c392fdb634`, after static execution clearance, with `TMPDIR` a new folder in the author's scratch space. The clone had no remote; Git there ran with private settings only (no system or global configuration, empty template and hooks folder, no signing, no credential helper); the real repository stayed unchanged. The clone, every log and `results.tsv` are kept.
 

@@ -41,7 +41,7 @@ Validation in the catalog asks to build both binaries and import the Python pack
 |---|---|
 | `scripts/toolchain.sh` | uv 0.13.0, CPython 3.14.8, research package synced with `--locked` |
 | `make check` | PASS: gofmt, go vet, planctl validate (17 sprints, 107 tasks), render --check (18 documents unchanged) |
-| `make test` | PASS: 59 top-level Go tests in 8 packages with `-race` and `TS_REQUIRE_PYTHON=1` (PostgreSQL tests skip here by design); Python research package 35; launcher helpers 10 |
+| `make test` | PASS: 59 top-level Go test outcomes in 8 packages with `-race` and `TS_REQUIRE_PYTHON=1`: 46 PASS + 13 SKIP. The 13 skip because they need `TEST_DATABASE_URL`; one more database test shows PASS here only because its 2 database subtests skip. All 14 ran in `scripts/test-integration.sh` below. No test skipped for Python. (The author log has no per-test lines; this split is counted from the test source.) Python research package 35; launcher helpers 10 |
 | `make test-package` | PASS: package output guard 16; toolchain path exchange 6 |
 | `make arch` | PASS: Go architecture tests; Python import boundary 4 |
 | `make build` | Both binaries built |

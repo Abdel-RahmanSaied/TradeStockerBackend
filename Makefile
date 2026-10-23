@@ -6,6 +6,7 @@ check:
 test:
 	go test -race ./...
 	python3 -B -m unittest discover -s research -p 'test_*.py'
+	python3 -B scripts/test_disposable_api.py
 local:
 	./scripts/setup-local.sh
 run:

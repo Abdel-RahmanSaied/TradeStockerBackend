@@ -1,7 +1,8 @@
 [project]
-name = "tradestocker-research-stub"
+name = "tradestocker-research"
 version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = []
 
-# Deliberately no model or financial-state client. Real agent orchestration remains unimplemented.
+# Deterministic financial research has no network or financial-state client.
+# Model orchestration and full historical analysis remain future tasks.

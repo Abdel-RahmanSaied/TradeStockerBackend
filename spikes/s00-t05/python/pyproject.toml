@@ -1,0 +1,21 @@
+[project]
+name = "tradestocker-spike-s00t05"
+version = "0"
+description = "S00-T05 compatibility spike only: LangGraph Postgres checkpoint resume and NATS JetStream from Python."
+requires-python = "==3.14.*"
+dependencies = [
+  "langgraph==1.2.14",
+  "langgraph-checkpoint-postgres==3.1.2",
+  "psycopg[binary]==3.3.6",
+  "psycopg-pool==3.3.3",
+  "nats-py==2.16.0",
+]
+
+[tool.uv]
+package = false
+# Supply-chain cooldown: resolve nothing published after this date (14 days before the spike).
+exclude-newer = "2026-10-09T00:00:00Z"
+# Security exception to the cooldown: certifi 2026.10.19 removes emSign root CAs with
+# compromised intermediate keys (GHSA-6q48-6c7w-9gw2). Older certifi must not be used.
+exclude-newer-package = { certifi = "2026-10-23T00:00:00Z" }
+constraint-dependencies = ["certifi>=2026.10.19"]

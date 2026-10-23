@@ -1,0 +1,33 @@
+# S00-T05 compatibility spike only. Separate project, separate ports, data in
+# memory (tmpfs): `docker compose down` leaves nothing behind except the images.
+# Images are pinned to Docker Hub index digests read on 2026-10-23.
+name: tradestocker-spike-s00t05
+services:
+  postgres:
+    image: postgres:16.15-alpine@sha256:f4610795587492cd4fb887c2dc3de301b813278bb6f616992061141b5f15ac36
+    environment:
+      POSTGRES_DB: spike
+      POSTGRES_USER: spike
+      POSTGRES_PASSWORD: ${SPIKE_DB_PASSWORD:?run.sh generates a throwaway password}
+    ports:
+      - "127.0.0.1:55532:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spike -d spike"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  nats:
+    image: nats:2.15.1-alpine@sha256:7ae34c25dfd6fe2e01c6483eabef20d796690fdcac6c4d94ca780a6cf9877fde
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    ports:
+      - "127.0.0.1:54222:4222"
+      - "127.0.0.1:58222:8222"
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8222/healthz?js-enabled-only=true | grep -q ok"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

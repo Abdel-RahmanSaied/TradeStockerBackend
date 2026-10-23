@@ -117,3 +117,7 @@ python3 docs/tools/planctl.py validate
 ## 8. شكل تقرير الـAgent للمستخدم
 
 اذكر: المنجز، الملفات، الاختبارات، ما لم يُفعل (commit/push/deploy/activation)، العوائق، والخطوة التالية. لا تقل «جاهز للإنتاج» إذا الاختبارات كانت mocks فقط، ولا «تم تحديث جهازك» إذا الملفات أُنشئت في sandbox فقط.
+
+## 9. Independent review in a shared workspace
+
+The author cannot review their own change. A separately delegated reviewer may review when the owner requests independent review. The reviewer reads exact backend/frontend commits, runs reproducible checks and writes a named report, including failures and limitations. Only the coordinating owner of the task updates execution state. The reviewer must not modify implementation or claim a different identity. Re-review fixes against new exact commits before recording acceptance. Other sessions retain their claims until a documented handoff or explicit nonconflicting reassignment.

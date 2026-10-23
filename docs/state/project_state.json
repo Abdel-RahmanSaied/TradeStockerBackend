@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "plan_version": "1.0.0",
-  "revision": 15,
-  "updated_at": "2026-10-22T23:54:36Z",
+  "revision": 43,
+  "updated_at": "2026-10-23T07:04:52Z",
   "repo_observation": {
     "status": "VERIFIED",
     "root": "/Users/asaied/WorkDir/TradeStocker/TradeStockerServices/TradeStockerBackend",
@@ -14,8 +14,8 @@
     "recorded_at": "2026-10-22T23:33:06Z"
   },
   "active_sprint": "S00",
-  "last_session": "2026-10-23-codex-increment",
-  "last_handoff": "sessions/2026-10-23-codex-increment.md",
+  "last_session": "2026-10-23-claude-development-coordination",
+  "last_handoff": "sessions/2026-10-23-compatibility-review-and-read-fix.md",
   "live_advisory_enabled": false,
   "lanes": {
     "EGX_SWING": {
@@ -98,27 +98,30 @@
       "completion_summary": "Independently verified historical inventory against first commit; both directories inspected; planning test defect reproduced and documented."
     },
     "S00-T02": {
-      "status": "IN_REVIEW",
+      "status": "DONE",
       "owner": "codex-agent",
       "session_id": "2026-10-23-codex-increment",
       "started_at": "2026-10-22T23:33:06Z",
-      "updated_at": "2026-10-22T23:34:37Z",
+      "updated_at": "2026-10-23T05:28:11Z",
       "blocked_reason": null,
       "evidence": [
-        "evidence/scope-review.md"
+        "evidence/scope-review.md",
+        "evidence/independent-review-2026-10-23.md"
       ],
-      "verified_commit": null,
-      "reviewed_by": null,
-      "completion_summary": null
+      "verified_commit": "4d419a0",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Separate reviewer checked scope, operating modes, requirements and exclusions against committed baseline; accepted without findings."
     },
     "S00-T03": {
-      "status": "TODO",
-      "owner": null,
-      "session_id": null,
-      "started_at": null,
-      "updated_at": null,
-      "blocked_reason": null,
-      "evidence": [],
+      "status": "BLOCKED",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T05:30:50Z",
+      "updated_at": "2026-10-23T05:44:21Z",
+      "blocked_reason": "US consolidated-price and EGX coverage, rights, legitimate samples and cost evidence remain unverified; D01/D02 OPEN. SEC public filings do not qualify these feeds. Human direct approval has arrived; Claude takeover gate is resolved.",
+      "evidence": [
+        "sessions/2026-10-23-claude-development-handoff.md"
+      ],
       "verified_commit": null,
       "reviewed_by": null,
       "completion_summary": null
@@ -136,28 +139,34 @@
       "completion_summary": null
     },
     "S00-T05": {
-      "status": "TODO",
-      "owner": null,
-      "session_id": null,
-      "started_at": null,
-      "updated_at": null,
-      "blocked_reason": null,
-      "evidence": [],
+      "status": "BLOCKED",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T06:34:07Z",
+      "updated_at": "2026-10-23T07:04:52Z",
+      "blocked_reason": "The isolated local compatibility subset is independently accepted at1e778e4; original task still requires owner/security identity design D-05, deployment/topology and approved budget D-06, preregistered workload/SLO/RTO/RPO/freshness/cost targets D-07, plus real symbol/feed/retention inputs and sourced hosting/data/model estimates. No choices or approvals are inferred from the local spike.",
+      "evidence": [
+        "evidence/compatibility-matrix.md",
+        "evidence/load-and-cost-profile.md",
+        "evidence/compatibility-independent-review.md"
+      ],
       "verified_commit": null,
       "reviewed_by": null,
       "completion_summary": null
     },
     "S00-T06": {
-      "status": "TODO",
-      "owner": null,
-      "session_id": null,
-      "started_at": null,
-      "updated_at": null,
+      "status": "DONE",
+      "owner": "codex-agent",
+      "session_id": "2026-10-23-research-continuation",
+      "started_at": "2026-10-23T05:30:50Z",
+      "updated_at": "2026-10-23T05:36:42Z",
       "blocked_reason": null,
-      "evidence": [],
-      "verified_commit": null,
-      "reviewed_by": null,
-      "completion_summary": null
+      "evidence": [
+        "evidence/session-continuity.md"
+      ],
+      "verified_commit": "3164b0806f7abcbda77dd7e694dcce96f5b30bdb",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Separate reviewer verified preserved instructions, canonical state, isolated transitions, review identity and evidence-backed continuity against exact commit."
     },
     "S01-T01": {
       "status": "TODO",
@@ -1315,29 +1324,60 @@
       "owner": "codex-agent",
       "session_id": "2026-10-23-codex-increment",
       "started_at": "2026-10-22T23:33:40Z",
-      "updated_at": "2026-10-22T23:53:10Z",
+      "updated_at": "2026-10-23T05:30:50Z",
       "blocked_reason": null,
-      "verified_commit": null,
-      "reviewed_by": null,
-      "completion_summary": null,
-      "status": "IN_REVIEW",
+      "verified_commit": "e699bbf2eff6ada9bf6c82da03c662dde00ec6f9",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Independent source, regression, real HTTP/PostgreSQL, restart and race verification accepted risk fixes without changing policy limits.",
+      "status": "DONE",
       "evidence": [
-        "evidence/local-paper-backend.md"
+        "evidence/local-paper-backend.md",
+        "evidence/independent-review-2026-10-23.md"
       ]
     },
     "S00-T08": {
       "owner": "codex-agent",
       "session_id": "2026-10-23-codex-increment",
       "started_at": "2026-10-22T23:33:40Z",
-      "updated_at": "2026-10-22T23:53:10Z",
+      "updated_at": "2026-10-23T05:30:50Z",
+      "blocked_reason": null,
+      "verified_commit": "245abec457c4571fcdae28235fb1d0ffd5cb9002",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Independent real API client response-loss reproductions, ten unit tests, build and browser E2E accepted corrected retry safety.",
+      "status": "DONE",
+      "evidence": [
+        "evidence/local-dashboard.md",
+        "evidence/independent-review-2026-10-23.md"
+      ]
+    },
+    "S07-T07": {
+      "status": "DONE",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T05:33:22Z",
+      "updated_at": "2026-10-23T06:36:49Z",
+      "blocked_reason": null,
+      "evidence": [
+        "sessions/2026-10-23-claude-development-handoff.md",
+        "evidence/sec-research.md",
+        "evidence/sec-research-independent-review.md",
+        "evidence/sec-research-coordinator-check.md"
+      ],
+      "verified_commit": "4db63e550d6042ef1869dfe3487522041bade902",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Independent backend, frontend, adverse runner isolation and both real-API browser modes accepted bounded official SEC annual research at backend4db63e5/frontend2e18419. Original full financial/history/EGX tasks and all live gates remain incomplete."
+    },
+    "S00-T09": {
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T06:59:53Z",
+      "updated_at": "2026-10-23T06:59:53Z",
       "blocked_reason": null,
       "verified_commit": null,
       "reviewed_by": null,
       "completion_summary": null,
-      "status": "IN_REVIEW",
-      "evidence": [
-        "evidence/local-dashboard.md"
-      ]
+      "status": "IN_PROGRESS",
+      "evidence": []
     }
   },
   "history": [
@@ -1466,6 +1506,245 @@
       "action": "handoff",
       "session_id": "2026-10-23-codex-increment",
       "file": "sessions/2026-10-23-codex-increment.md"
+    },
+    {
+      "at": "2026-10-23T05:26:46Z",
+      "action": "transition",
+      "task_id": "S00-T07",
+      "from_status": "IN_REVIEW",
+      "to_status": "IN_PROGRESS",
+      "reason": "Independent review reproduced merged-stop risk bypass and stale closed-position stop; implementing regression-backed fixes.",
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:26:46Z",
+      "action": "transition",
+      "task_id": "S00-T08",
+      "from_status": "IN_REVIEW",
+      "to_status": "IN_PROGRESS",
+      "reason": "Independent review found ambiguous successful JSON-response handling loses retry key; implementing regression-backed fix.",
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:28:11Z",
+      "action": "transition",
+      "task_id": "S00-T02",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T05:30:50Z",
+      "action": "transition",
+      "task_id": "S00-T07",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:30:50Z",
+      "action": "transition",
+      "task_id": "S00-T07",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T05:30:50Z",
+      "action": "transition",
+      "task_id": "S00-T08",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:30:50Z",
+      "action": "transition",
+      "task_id": "S00-T08",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T05:30:50Z",
+      "action": "claim",
+      "task_id": "S00-T06",
+      "from_status": "TODO",
+      "owner": "codex-agent",
+      "session_id": "2026-10-23-research-continuation",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T05:30:50Z",
+      "action": "claim",
+      "task_id": "S00-T03",
+      "from_status": "TODO",
+      "owner": "codex-agent",
+      "session_id": "2026-10-23-research-continuation",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T05:33:22Z",
+      "action": "plan_extension",
+      "session_id": "2026-10-23-research-continuation",
+      "note": "Owner requests continued real research and frontend integration. Split S07-T07 for public SEC annual subset without completing original tasks or dropping EGX/history gates."
+    },
+    {
+      "at": "2026-10-23T05:33:22Z",
+      "action": "claim",
+      "task_id": "S07-T07",
+      "from_status": "TODO",
+      "owner": "codex-agent",
+      "session_id": "2026-10-23-research-continuation",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T05:36:42Z",
+      "action": "transition",
+      "task_id": "S00-T06",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:36:42Z",
+      "action": "transition",
+      "task_id": "S00-T06",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T05:39:26Z",
+      "action": "reassignment",
+      "task_id": "S00-T03",
+      "from_owner": "codex-agent",
+      "owner": "claude-code-agent",
+      "reason": "Explicit human direction in Work: Claude performs development. Codex stopped product edits; takeover communicated to existing session with detailed draft handoff. Acknowledgment pending."
+    },
+    {
+      "at": "2026-10-23T05:39:26Z",
+      "action": "reassignment",
+      "task_id": "S07-T07",
+      "from_owner": "codex-agent",
+      "owner": "claude-code-agent",
+      "reason": "Explicit human direction in Work: Claude performs development. Codex stopped product edits; takeover communicated to existing session with detailed draft handoff. Acknowledgment pending."
+    },
+    {
+      "at": "2026-10-23T05:39:26Z",
+      "action": "handoff",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "file": "sessions/2026-10-23-claude-development-handoff.md"
+    },
+    {
+      "at": "2026-10-23T05:41:39Z",
+      "action": "transition",
+      "task_id": "S07-T07",
+      "from_status": "IN_PROGRESS",
+      "to_status": "BLOCKED",
+      "reason": "Owner assigned development to existing Claude. Claude confirmed original session but refuses to start under its prior bridge rules4/5 until human writes direct approval in that chat. Concrete preserved draft and exact required line in current handoff; Work authorization already exists.",
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:41:39Z",
+      "action": "transition",
+      "task_id": "S00-T03",
+      "from_status": "IN_PROGRESS",
+      "to_status": "BLOCKED",
+      "reason": "US consolidated-price and EGX provider coverage/rights/samples remain unverified, D01/D02 OPEN. Owner-assigned Claude execution additionally awaits direct human line under that sessions existing bridge protocol; SEC public filings alone do not qualify market feeds.",
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T05:44:21Z",
+      "action": "blocker_update",
+      "task_id": "S00-T03",
+      "note": "Observed human direct approval and Claude actual takeover. Remove obsolete execution-approval blocker; vendor due diligence gate remains unchanged."
+    },
+    {
+      "at": "2026-10-23T05:44:27Z",
+      "action": "claim",
+      "task_id": "S07-T07",
+      "from_status": "BLOCKED",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T06:33:43Z",
+      "action": "transition",
+      "task_id": "S07-T07",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T06:34:07Z",
+      "action": "claim",
+      "task_id": "S00-T05",
+      "from_status": "TODO",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T06:36:49Z",
+      "action": "transition",
+      "task_id": "S07-T07",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T06:37:31Z",
+      "action": "handoff",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "file": "sessions/2026-10-23-sec-research-acceptance.md"
+    },
+    {
+      "at": "2026-10-23T06:59:53Z",
+      "action": "plan_extension",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "task_id": "S00-T09",
+      "note": "Owner renewed continued local development without per-step approval. Add bounded fix for measured unchanged-read rewrite bottleneck; retain original S00-T05 decisions and S02 relational tasks."
+    },
+    {
+      "at": "2026-10-23T06:59:53Z",
+      "action": "claim",
+      "task_id": "S00-T09",
+      "from_status": "TODO",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T07:00:52Z",
+      "action": "handoff",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "file": "sessions/2026-10-23-compatibility-review-and-read-fix.md"
+    },
+    {
+      "at": "2026-10-23T07:04:52Z",
+      "action": "transition",
+      "task_id": "S00-T05",
+      "from_status": "IN_PROGRESS",
+      "to_status": "BLOCKED",
+      "reason": "The isolated local compatibility subset is independently accepted at1e778e4; original task still requires owner/security identity design D-05, deployment/topology and approved budget D-06, preregistered workload/SLO/RTO/RPO/freshness/cost targets D-07, plus real symbol/feed/retention inputs and sourced hosting/data/model estimates. No choices or approvals are inferred from the local spike.",
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T07:04:52Z",
+      "action": "handoff",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "file": "sessions/2026-10-23-compatibility-review-and-read-fix.md"
     }
   ]
 }

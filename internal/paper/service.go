@@ -73,6 +73,17 @@ type Candidate struct {
 }
 
 func active(status string) bool { return status == "PROPOSED" || status == "ACKNOWLEDGED" }
+
+// ExpiryDue reports whether Expire(now) has work to do. It changes nothing, so a
+// read can decide whether it must take the locked write path.
+func (s *State) ExpiryDue(now time.Time) bool {
+	for _, r := range s.Recommendations {
+		if active(r.Status) && !now.Before(r.ExpiresAt) {
+			return true
+		}
+	}
+	return false
+}
 func (s *State) Expire(now time.Time) {
 	for i := range s.Recommendations {
 		r := &s.Recommendations[i]
@@ -100,6 +111,46 @@ func (s *State) quote(symbol string) *Quote {
 func Fresh(q *Quote, now time.Time) bool {
 	return q != nil && !q.AsOf.IsZero() && now.Sub(q.AsOf) >= -5*time.Second && now.Sub(q.AsOf) <= Freshness
 }
+
+// projectedOpenRisk reflects the merged-position stop model, including every
+// outstanding reservation. Separate cheap proposals cannot hide stop widening.
+func (s *State) projectedOpenRisk(accountID string, extra *Candidate) int64 {
+	type exposure struct{ quantity, cost, stop int64 }
+	bySymbol := map[string]exposure{}
+	add := func(symbol string, quantity, cost, stop int64) {
+		if quantity <= 0 {
+			return
+		}
+		x := bySymbol[symbol]
+		if x.quantity == 0 {
+			x.stop = stop
+		} else {
+			x.stop = min(x.stop, stop)
+		}
+		x.quantity += quantity
+		x.cost += cost
+		bySymbol[symbol] = x
+	}
+	for _, p := range s.Positions {
+		if p.AccountID == accountID {
+			add(p.Symbol, p.Quantity, p.Cost, p.Stop)
+		}
+	}
+	for _, r := range s.Recommendations {
+		if r.AccountID == accountID && active(r.Status) {
+			add(r.Symbol, r.Quantity, r.Reserved, r.Stop)
+		}
+	}
+	if extra != nil {
+		add(extra.Symbol, extra.Quantity, extra.Quantity*extra.Entry, extra.Stop)
+	}
+	var risk int64
+	for _, x := range bySymbol {
+		risk += max(int64(0), x.cost-x.quantity*x.stop)
+	}
+	return risk
+}
+
 func (s *State) Evaluate(c Candidate, now time.Time) (Recommendation, error) {
 	a, err := s.Account(c.AccountID)
 	if err != nil {
@@ -152,11 +203,10 @@ func (s *State) Evaluate(c Candidate, now time.Time) (Recommendation, error) {
 	risk := c.Quantity * (c.Entry - c.Stop)
 	equity := a.Cash
 	exposure := notional
-	openRisk := risk
+	openRisk := s.projectedOpenRisk(a.ID, &c)
 	for _, p := range s.Positions {
 		if p.AccountID == a.ID {
 			equity += p.Cost
-			openRisk += max(int64(0), p.Cost-p.Quantity*p.Stop)
 			if p.Symbol == c.Symbol {
 				exposure += p.Cost
 			}
@@ -164,7 +214,6 @@ func (s *State) Evaluate(c Candidate, now time.Time) (Recommendation, error) {
 	}
 	for _, other := range s.Recommendations {
 		if other.AccountID == a.ID && active(other.Status) {
-			openRisk += other.Quantity * (other.Entry - other.Stop)
 			if other.Symbol == c.Symbol {
 				exposure += other.Reserved
 			}
@@ -244,6 +293,24 @@ func (s *State) Fill(id string, price int64, confirmation string, now time.Time)
 	if err != nil {
 		return Recommendation{}, err
 	}
+	equity := a.Cash
+	var exposure int64
+	for _, p := range s.Positions {
+		if p.AccountID == a.ID {
+			equity += p.Cost
+			if p.Symbol == r.Symbol {
+				exposure += p.Cost
+			}
+		}
+	}
+	for _, pending := range s.Recommendations {
+		if pending.AccountID == a.ID && pending.Symbol == r.Symbol && active(pending.Status) {
+			exposure += pending.Reserved
+		}
+	}
+	if s.projectedOpenRisk(a.ID, nil) > equity*3/100 || r.Quantity*(r.Entry-r.Stop) > equity/100 || exposure > equity/5 {
+		return Recommendation{}, Fail("PAPER_RISK_RECHECK_FAILED", "Current merged-position risk or exposure exceeds the paper test budget", 409)
+	}
 	cost := price * r.Quantity
 	if cost > r.Reserved || cost > a.Cash {
 		return Recommendation{}, Fail("INSUFFICIENT_CASH", "Paper fill exceeds reserved cash", 409)
@@ -255,9 +322,13 @@ func (s *State) Fill(id string, price int64, confirmation string, now time.Time)
 	for i := range s.Positions {
 		p := &s.Positions[i]
 		if p.AccountID == a.ID && p.Symbol == r.Symbol {
+			if p.Quantity == 0 {
+				p.Stop = r.Stop
+			} else {
+				p.Stop = min(p.Stop, r.Stop)
+			}
 			p.Quantity += r.Quantity
 			p.Cost += cost
-			p.Stop = min(p.Stop, r.Stop)
 			found = true
 		}
 	}

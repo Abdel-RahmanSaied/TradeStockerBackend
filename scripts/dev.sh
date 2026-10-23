@@ -5,13 +5,10 @@ cd "$(dirname "$0")/.."
 TS_REPO_ROOT=$(pwd)
 TS_FRONTEND_ROOT="${TS_FRONTEND_ROOT:-$(dirname "$TS_REPO_ROOT")/TradeStockerFrontend}"
 [ -f "$TS_FRONTEND_ROOT/package-lock.json" ] || { printf 'Sibling frontend not found. Set TS_FRONTEND_ROOT.\n' >&2; exit 1; }
-python3 -B - <<'PY'
-import socket
-for port in (8080,5173):
-    with socket.socket() as s:
-        try: s.bind(('127.0.0.1',port))
-        except OSError: raise SystemExit('Port %s is busy. Stop the previous local server first.' % port)
-PY
+# Port check only: it connects, so a live server is refused but leftover TIME_WAIT
+# sockets from a finished run are not. The normal app keeps its .env.local token.
+. ./scripts/disposable-api.sh
+disposable_api_preflight 8080 5173
 ./scripts/setup-local.sh
 set -a
 . ./.env.local
@@ -38,7 +35,7 @@ for _ in range(100):
     except OSError: time.sleep(.1)
 else: raise SystemExit('API not ready; inspect .local/api.log')
 PY
-(cd "$TS_FRONTEND_ROOT" && exec node node_modules/vite/bin/vite.js --host 127.0.0.1) >.local/frontend.log 2>&1 &
+(cd "$TS_FRONTEND_ROOT" && exec node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort) >.local/frontend.log 2>&1 &
 TS_FRONT_PID=$!
 printf '\nTradeStocker: http://127.0.0.1:5173\nUse Access and the TS_LOCAL_DEV_TOKEN value from backend/.env.local.\nOptional demo data: scripts/seed-paper.sh in a second terminal.\nApp logs: .local/api.log and .local/frontend.log\nCtrl-C stops the app; database data is preserved.\n'
 while kill -0 "$TS_API_PID" 2>/dev/null && kill -0 "$TS_FRONT_PID" 2>/dev/null; do sleep 1; done

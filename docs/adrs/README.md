@@ -22,3 +22,5 @@ These capture the agreed direction and proposed implementation choices. **Accept
 | [ADR-016](ADR-016.md) | Version-control bootstrap and repository boundary | Proposed; owner decision pending | S00-T01 |
 
 Local prototype proposal: [ADR-017](ADR-017.md). This does not change production architecture approvals.
+
+SEC research design proposal: [ADR-018](ADR-018.md). Local prototype for S07-T07; not a production approval.

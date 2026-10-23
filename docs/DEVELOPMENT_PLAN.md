@@ -2,7 +2,7 @@
 
 > ملف مولّد من `state/task_catalog.json`. لا تعدّل تفاصيله يدويًا؛ استخدم `planctl.py render`.
 
-**Baseline:** `1.0.0` · **16 سبرينت أساسي + 1 اختياري** · **104 تاسك**.
+**Baseline:** `1.0.0` · **16 سبرينت أساسي + 1 اختياري** · **106 تاسك**.
 
 ## طريقة استخدام الخطة
 
@@ -16,14 +16,14 @@
 
 | Sprint | النطاق | Tasks | بوابة الخروج |
 |---|---|---:|---|
-| [S00](sprints/S00.md) | اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية | 8 | A repository inventory, explicit scope, provider evidence and an actionable unresolved-decision register exist. No live lane is enabled. |
+| [S00](sprints/S00.md) | اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية | 9 | A repository inventory, explicit scope, provider evidence and an actionable unresolved-decision register exist. No live lane is enabled. |
 | [S01](sprints/S01.md) | أساس المشروع والأمان وCI | 6 | Go core, Go ingestion and Python worker boot locally; CI runs baseline checks; secrets and service identities are separated. |
 | [S02](sprints/S02.md) | العقود وقاعدة البيانات واعتمادية الأحداث | 6 | Schema migrations, instrument/time rules and event contracts pass integration and duplicate-delivery tests. |
 | [S03](sprints/S03.md) | بيانات السوق الأمريكي والمصري وجودتها | 6 | Synthetic adapters pass all gates; each real feed has separately recorded coverage, entitlements and validation evidence. |
 | [S04](sprints/S04.md) | سجل المحفظة والتنفيذ الفعلي والتسوية | 6 | Account-scoped cash, positions and manual fills reconcile; duplicate and concurrent events cannot create money or double-spend available cash. |
 | [S05](sprints/S05.md) | محرك المخاطر ودورة حياة التوصية | 6 | Live and replay use the same risk implementation; stale/unfunded/unauthorized advice is rejected; pausing entries preserves position monitoring. |
 | [S06](sprints/S06.md) | المحاكاة التاريخية وخطوط الأساس والتقييم | 6 | Leakage tests, deterministic baselines and realistic execution assumptions are documented; no result is treated as evidence of guaranteed returns. |
-| [S07](sprints/S07.md) | القوائم المالية وتاريخ السهم والأدلة | 6 | Evidence-backed assessments exist with publication timing and accounting context; missing material inputs block new entries. |
+| [S07](sprints/S07.md) | القوائم المالية وتاريخ السهم والأدلة | 7 | Evidence-backed assessments exist with publication timing and accounting context; missing material inputs block new entries. |
 | [S08](sprints/S08.md) | لجنة المستشارين وتقييم النماذج | 6 | Committee outputs are structured and auditable; no model output can mutate financial state or bypass policy. |
 | [S09](sprints/S09.md) | استراتيجيات Swing ومتابعة المراكز | 6 | Both swing lanes have reproducible evaluation artifacts; each remains disabled until its independent activation gates pass. |
 | [S10](sprints/S10.md) | Telegram والتنفيذ البشري والتشغيل الورقي | 6 | Authenticated Telegram interactions, expiry, delivery ambiguity and paper-versus-actual separation pass end-to-end tests. |

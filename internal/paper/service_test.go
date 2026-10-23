@@ -1,6 +1,8 @@
 package paper
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -165,6 +167,80 @@ func TestExpiryAndCancelReleaseOnlyReservation(t *testing.T) {
 		check(t, &s)
 	}
 }
+
+// ExpiryDue must say "due" exactly when Expire would change the state, so a read
+// that skips the locked path never skips an expiry.
+func TestExpiryDueMatchesExpire(t *testing.T) {
+	s, a := setup(t)
+	proposed, e := s.Evaluate(candidate(a), now)
+	if e != nil {
+		t.Fatal(e)
+	}
+	acknowledged, e := s.Evaluate(candidate(a), now.Add(time.Minute))
+	if e == nil {
+		_, e = s.Acknowledge(acknowledged.ID, now.Add(time.Minute))
+	}
+	if e != nil {
+		t.Fatal(e)
+	}
+	cancelled, e := s.Evaluate(candidate(a), now)
+	if e == nil {
+		_, e = s.Cancel(cancelled.ID, now)
+	}
+	if e != nil {
+		t.Fatal(e)
+	}
+	empty := NewState()
+	for _, tc := range []struct {
+		name  string
+		state State
+		at    time.Time
+		due   bool
+	}{
+		{"no recommendations", empty, now.Add(time.Hour), false},
+		{"before expiry", s, proposed.ExpiresAt.Add(-time.Nanosecond), false},
+		{"exactly at expiry", s, proposed.ExpiresAt, true},
+		{"acknowledged also expires", s, acknowledged.ExpiresAt, true},
+		{"long after expiry", s, now.Add(24 * time.Hour), true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			state := clone(t, tc.state)
+			before := fmt.Sprintf("%+v", state)
+			if got := state.ExpiryDue(tc.at); got != tc.due {
+				t.Fatalf("ExpiryDue=%v want %v", got, tc.due)
+			}
+			if fmt.Sprintf("%+v", state) != before {
+				t.Fatal("ExpiryDue changed the state")
+			}
+			state.Expire(tc.at)
+			if changed := fmt.Sprintf("%+v", state) != before; changed != tc.due {
+				t.Fatalf("Expire changed=%v but ExpiryDue said %v", changed, tc.due)
+			}
+			check(t, &state)
+		})
+	}
+	// Cancelled and expired decisions are never due again.
+	s.Expire(now.Add(24 * time.Hour))
+	if s.ExpiryDue(now.Add(48 * time.Hour)) {
+		t.Fatal("terminal decisions reported as due")
+	}
+}
+
+// clone deep-copies a state through JSON, as the store does on every load.
+func clone(t *testing.T, s State) State {
+	t.Helper()
+	b, err := json.Marshal(Persisted{State: s, Receipts: s.Receipts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var p Persisted
+	if err = json.Unmarshal(b, &p); err != nil {
+		t.Fatal(err)
+	}
+	p.State.Receipts = p.Receipts
+	return p.State
+}
+
 func TestPaperFillGates(t *testing.T) {
 	for _, tc := range []struct {
 		price   int64
@@ -232,4 +308,141 @@ func TestCorruptFinancialStateRefused(t *testing.T) {
 		t.Fatal("live accepted")
 	}
 	_ = a
+}
+
+func TestMergedStopRiskIncludesHeldAndPendingShares(t *testing.T) {
+	for _, held := range []bool{false, true} {
+		t.Run(fmt.Sprintf("held_%v", held), func(t *testing.T) {
+			s, a := setup(t)
+			c := candidate(a)
+			c.Quantity = 9
+			c.Stop = 19999
+			first, e := s.Evaluate(c, now)
+			if e != nil || first.Status != "PROPOSED" {
+				t.Fatal(first, e)
+			}
+			if held {
+				s.Acknowledge(first.ID, now)
+				if _, e = s.Fill(first.ID, 20000, "PAPER_ONLY", now); e != nil {
+					t.Fatal(e)
+				}
+			}
+			c.Quantity = 1
+			c.Stop = 10000
+			r, e := s.Evaluate(c, now)
+			if e != nil || r.Status != "NO_TRADE" || !strings.Contains(strings.Join(r.Reasons, " "), "TOTAL_OPEN_RISK") {
+				t.Fatalf("merged stop risk bypass: %+v %v", r, e)
+			}
+			check(t, &s)
+		})
+	}
+}
+func TestReopenedPositionUsesNewStop(t *testing.T) {
+	s, a := setup(t)
+	c := candidate(a)
+	c.Stop = 10000
+	r, _ := s.Evaluate(c, now)
+	s.Acknowledge(r.ID, now)
+	s.Fill(r.ID, 20000, "PAPER_ONLY", now)
+	s.Sell(a.ID, "AAPL", 1, 20000, "PAPER_ONLY", now)
+	c.Quantity = 9
+	c.Stop = 19999
+	r, e := s.Evaluate(c, now)
+	if e != nil || r.Status != "PROPOSED" {
+		t.Fatal(r, e)
+	}
+	s.Acknowledge(r.ID, now)
+	if _, e = s.Fill(r.ID, 20000, "PAPER_ONLY", now); e != nil {
+		t.Fatal(e)
+	}
+	if s.Positions[0].Stop != 19999 {
+		t.Fatalf("closed position stop leaked: %+v", s.Positions[0])
+	}
+	check(t, &s)
+}
+func TestFillRechecksLegacyPendingMergedRisk(t *testing.T) {
+	s, a := setup(t)
+	c := candidate(a)
+	c.Quantity = 9
+	c.Stop = 19999
+	r, _ := s.Evaluate(c, now)
+	s.Acknowledge(r.ID, now)
+	s.Fill(r.ID, 20000, "PAPER_ONLY", now)
+	c.Quantity = 1
+	r, _ = s.Evaluate(c, now)
+	s.Acknowledge(r.ID, now)
+	// Simulate a still-open proposal persisted by the older buggy implementation.
+	legacy, _ := s.Recommendation(r.ID)
+	legacy.Stop = 10000
+	before := s.Accounts[0].Cash
+	if _, e := s.Fill(r.ID, 20000, "PAPER_ONLY", now); e == nil {
+		t.Fatal("legacy risk was not rechecked")
+	}
+	if s.Accounts[0].Cash != before || s.Positions[0].Quantity != 9 {
+		t.Fatal("rejected fill changed portfolio")
+	}
+	check(t, &s)
+}
+
+func TestSafeMergedStopsWorkInEitherFillOrder(t *testing.T) {
+	for _, reverse := range []bool{false, true} {
+		t.Run(fmt.Sprintf("reverse_%v", reverse), func(t *testing.T) {
+			s, a := setup(t)
+			c := candidate(a)
+			c.Quantity = 9
+			c.Stop = 19999
+			first, e := s.Evaluate(c, now)
+			if e != nil || first.Status != "PROPOSED" {
+				t.Fatal(first, e)
+			}
+			c.Quantity = 1
+			c.Stop = 19900
+			second, e := s.Evaluate(c, now)
+			if e != nil || second.Status != "PROPOSED" {
+				t.Fatal(second, e)
+			}
+			ids := []string{first.ID, second.ID}
+			if reverse {
+				ids[0], ids[1] = ids[1], ids[0]
+			}
+			for _, id := range ids {
+				s.Acknowledge(id, now)
+				if _, e = s.Fill(id, 20000, "PAPER_ONLY", now); e != nil {
+					t.Fatal(e)
+				}
+			}
+			p := s.Positions[0]
+			if p.Quantity != 10 || p.Stop != 19900 || s.projectedOpenRisk(a.ID, nil) != 1000 {
+				t.Fatal(p)
+			}
+			check(t, &s)
+		})
+	}
+}
+func TestFillRechecksEquityAfterHumanPaperLoss(t *testing.T) {
+	s, a := setup(t)
+	c := candidate(a)
+	c.Symbol = "MSFT"
+	c.Entry = 40000
+	c.Stop = 39999
+	owned, e := s.Evaluate(c, now)
+	if e != nil || owned.Status != "PROPOSED" {
+		t.Fatal(owned, e)
+	}
+	s.Acknowledge(owned.ID, now)
+	s.Fill(owned.ID, 40000, "PAPER_ONLY", now)
+	c = candidate(a)
+	c.Stop = 10000
+	r, e := s.Evaluate(c, now)
+	if e != nil || r.Status != "PROPOSED" {
+		t.Fatal(r, e)
+	}
+	s.Acknowledge(r.ID, now)
+	if _, e = s.Sell(a.ID, "MSFT", 1, 1, "PAPER_ONLY", now); e != nil {
+		t.Fatal(e)
+	}
+	if _, e = s.Fill(r.ID, 20000, "PAPER_ONLY", now); e == nil {
+		t.Fatal("fill ignored reduced equity")
+	}
+	check(t, &s)
 }

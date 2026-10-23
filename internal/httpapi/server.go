@@ -20,16 +20,39 @@ import (
 
 type Executor interface {
 	Execute(context.Context, string, string, func(*paper.State, time.Time) (any, error)) ([]byte, error)
+	// Read serves GET routes from committed state without rewriting it.
+	Read(context.Context, func(*paper.State, time.Time) (any, error)) ([]byte, error)
 }
 type API struct {
-	Store Executor
-	Token string
+	Store    Executor
+	Token    string
+	Research http.Handler
+	// Origins the local dashboard may send. Empty means the default dev ports.
+	Origins []string
+}
+
+var defaultOrigins = []string{"http://127.0.0.1:5173", "http://localhost:5173"}
+
+func (a *API) originAllowed(origin string) bool {
+	allowed := a.Origins
+	if len(allowed) == 0 {
+		allowed = defaultOrigins
+	}
+	for _, o := range allowed {
+		if origin == o {
+			return true
+		}
+	}
+	return false
 }
 
 var keyPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]{8,128}$`)
 
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
+	if a.Research != nil {
+		mux.Handle("/api/v1/research/", a.Research)
+	}
 	mux.HandleFunc("GET /api/v1/health", a.handle(func(s *paper.State, _ *http.Request, _ []byte, _ time.Time) (any, error) {
 		return map[string]any{"status": "ok", "storage": "postgresql", "mode": "PAPER", "live_advisory_enabled": false}, nil
 	}))
@@ -128,7 +151,7 @@ func (a *API) Handler() http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
 		// No credentialed CORS. The local frontend uses its same-origin proxy.
-		if origin := r.Header.Get("Origin"); origin != "" && origin != "http://127.0.0.1:5173" && origin != "http://localhost:5173" {
+		if origin := r.Header.Get("Origin"); origin != "" && !a.originAllowed(origin) {
 			writeError(w, paper.Fail("ORIGIN_DENIED", "Origin is not the local dashboard", 403))
 			return
 		}
@@ -170,7 +193,16 @@ func (a *API) handle(fn operation) http.HandlerFunc {
 			h := sha256.Sum256(append([]byte(r.Method+" "+r.URL.RequestURI()+"\n"), body...))
 			hash = hex.EncodeToString(h[:])
 		}
-		result, err := a.Store.Execute(ctx, key, hash, func(s *paper.State, n time.Time) (any, error) { return fn(s, r, body, n) })
+		op := func(s *paper.State, n time.Time) (any, error) { return fn(s, r, body, n) }
+		var result []byte
+		var err error
+		// Only POST may write. Every other method that reaches a handler reads;
+		// this includes HEAD, which Go's router also sends to GET routes.
+		if r.Method == http.MethodPost {
+			result, err = a.Store.Execute(ctx, key, hash, op)
+		} else {
+			result, err = a.Store.Read(ctx, op)
+		}
 		if err != nil {
 			writeError(w, err)
 			return

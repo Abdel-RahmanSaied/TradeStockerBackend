@@ -26,6 +26,7 @@ jobs:
         env:
           TEST_DATABASE_URL: postgres://paper_test:disposable_ci_only@127.0.0.1:5432/tradestocker_test_ci?sslmode=disable
       - run: python3 -B -m unittest discover -s research -p 'test_*.py'
+      - run: python3 -B scripts/test_disposable_api.py
       - run: python3 -B docs/tools/planctl.py validate
       - run: python3 -B docs/tools/planctl.py render --check
       - run: python3 -B docs/tools/test_planctl.py

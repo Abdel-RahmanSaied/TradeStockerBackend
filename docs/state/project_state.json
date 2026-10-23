@@ -1,21 +1,21 @@
 {
   "schema_version": "1.0",
   "plan_version": "1.0.0",
-  "revision": 43,
-  "updated_at": "2026-10-23T07:04:52Z",
+  "revision": 55,
+  "updated_at": "2026-10-23T09:01:23Z",
   "repo_observation": {
     "status": "VERIFIED",
-    "root": "/Users/asaied/WorkDir/TradeStocker/TradeStockerServices/TradeStockerBackend",
+    "root": "/Users/asaied/Documents/Codex/2026-10-23/referenced-chatgpt-conversation-this-is-an-4/work/recovery/incident-20261023T074552Z/backend-recovered",
     "branch": "main",
-    "head": "c211be09256fdc78431b856cf40deb921099bcba",
-    "working_tree": "Clean at independent review start. Planning pack only; frontend sibling empty, not yet a Git repository. Existing origin configured; no push performed.",
-    "observed_by_session": "2026-10-23-codex-increment",
-    "evidence": "evidence/repository-review.md",
-    "recorded_at": "2026-10-22T23:33:06Z"
+    "head": "7c5a675b61fa2f7de424a8b19416600b922e0b7c",
+    "working_tree": "Exact159-file accepted source restored on surviving older history; planning/evidence reconstruction is a separate docs-only change. Canonical path restoration pending. Frontend9c75c918 intact. No push.",
+    "observed_by_session": "2026-10-23-codex-recovery",
+    "evidence": "evidence/recovery-independent-review.md",
+    "recorded_at": "2026-10-23T09:01:23Z"
   },
-  "active_sprint": "S00",
-  "last_session": "2026-10-23-claude-development-coordination",
-  "last_handoff": "sessions/2026-10-23-compatibility-review-and-read-fix.md",
+  "active_sprint": "S01",
+  "last_session": "2026-10-23-codex-recovery",
+  "last_handoff": "sessions/2026-10-23-recovery.md",
   "live_advisory_enabled": false,
   "lanes": {
     "EGX_SWING": {
@@ -127,11 +127,11 @@
       "completion_summary": null
     },
     "S00-T04": {
-      "status": "TODO",
-      "owner": null,
-      "session_id": null,
-      "started_at": null,
-      "updated_at": null,
+      "status": "IN_PROGRESS",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T07:23:53Z",
+      "updated_at": "2026-10-23T07:23:53Z",
       "blocked_reason": null,
       "evidence": [],
       "verified_commit": null,
@@ -169,11 +169,11 @@
       "completion_summary": "Separate reviewer verified preserved instructions, canonical state, isolated transitions, review identity and evidence-backed continuity against exact commit."
     },
     "S01-T01": {
-      "status": "TODO",
-      "owner": null,
-      "session_id": null,
-      "started_at": null,
-      "updated_at": null,
+      "status": "IN_PROGRESS",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T07:24:21Z",
+      "updated_at": "2026-10-23T07:24:21Z",
       "blocked_reason": null,
       "evidence": [],
       "verified_commit": null,
@@ -1371,13 +1371,32 @@
       "owner": "claude-code-agent",
       "session_id": "2026-10-23-development-8da61cee",
       "started_at": "2026-10-23T06:59:53Z",
-      "updated_at": "2026-10-23T06:59:53Z",
+      "updated_at": "2026-10-23T07:26:54Z",
       "blocked_reason": null,
-      "verified_commit": null,
-      "reviewed_by": null,
-      "completion_summary": null,
-      "status": "IN_PROGRESS",
-      "evidence": []
+      "verified_commit": "55d98746e24dca141b2985aa73d5b65ff60f96b7",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Independent PostgreSQL/race/HTTP GET+HEAD, expiry/concurrent financial safety, isolated browser and fixed400-history measurement accepted backend55d9874/frontend9c75c91. Unchanged reads produce zero financial UPDATEs; local prototype limits remain.",
+      "status": "DONE",
+      "evidence": [
+        "evidence/paper-read-performance.md",
+        "evidence/paper-read-independent-review.md"
+      ]
+    },
+    "S00-T10": {
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "started_at": "2026-10-23T07:24:21Z",
+      "updated_at": "2026-10-23T07:24:21Z",
+      "blocked_reason": null,
+      "verified_commit": "1e778e4497fbcd2bb70cfc06cf9c820d5694395a",
+      "reviewed_by": "independent-review-agent",
+      "completion_summary": "Reuse the actual independently accepted isolated local toolchain/client/checkpoint subset. Split reviewed separately; only S01-T01 is unblocked. No production decision, original S00-T05 completion or S01 implementation acceptance is inferred.",
+      "status": "DONE",
+      "evidence": [
+        "evidence/compatibility-independent-review.md",
+        "adrs/ADR-019.md",
+        "evidence/compatibility-matrix.md"
+      ]
     }
   },
   "history": [
@@ -1745,6 +1764,107 @@
       "action": "handoff",
       "session_id": "2026-10-23-claude-development-coordination",
       "file": "sessions/2026-10-23-compatibility-review-and-read-fix.md"
+    },
+    {
+      "at": "2026-10-23T07:20:12Z",
+      "action": "transition",
+      "task_id": "S00-T09",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T07:20:12Z",
+      "action": "transition",
+      "task_id": "S00-T09",
+      "from_status": "IN_REVIEW",
+      "to_status": "IN_PROGRESS",
+      "reason": "Independent actual PostgreSQL HTTP review reproduced three unchanged HEAD requests writing financial state because Go GET routes accept HEAD but dispatch used Execute. Claude is fixing routing/coverage and stale ADR wording before re-review.",
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T07:23:53Z",
+      "action": "claim",
+      "task_id": "S00-T04",
+      "from_status": "TODO",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T07:23:53Z",
+      "action": "plan_extension",
+      "task_id": "S00-T10",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "note": "Independently reviewed split reuses accepted isolated compatibility at1e778e4. Only S01-T01 changes prerequisite to local subset. Original S00-T05, S01-T04/S06-T04/S14-T01 dependencies and all decision/live/risk gates remain intact. ADR-019 records scope."
+    },
+    {
+      "at": "2026-10-23T07:24:21Z",
+      "action": "claim",
+      "task_id": "S00-T10",
+      "from_status": "TODO",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T07:24:21Z",
+      "action": "transition",
+      "task_id": "S00-T10",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T07:24:21Z",
+      "action": "transition",
+      "task_id": "S00-T10",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T07:24:21Z",
+      "action": "claim",
+      "task_id": "S01-T01",
+      "from_status": "TODO",
+      "owner": "claude-code-agent",
+      "session_id": "2026-10-23-development-8da61cee",
+      "to_status": "IN_PROGRESS"
+    },
+    {
+      "at": "2026-10-23T07:26:54Z",
+      "action": "transition",
+      "task_id": "S00-T09",
+      "from_status": "IN_PROGRESS",
+      "to_status": "IN_REVIEW",
+      "reason": null,
+      "reviewed_by": null
+    },
+    {
+      "at": "2026-10-23T07:26:54Z",
+      "action": "transition",
+      "task_id": "S00-T09",
+      "from_status": "IN_REVIEW",
+      "to_status": "DONE",
+      "reason": null,
+      "reviewed_by": "independent-review-agent"
+    },
+    {
+      "at": "2026-10-23T07:26:54Z",
+      "action": "handoff",
+      "session_id": "2026-10-23-claude-development-coordination",
+      "file": "sessions/2026-10-23-first-advisory-path.md"
+    },
+    {
+      "at": "2026-10-23T09:01:23Z",
+      "action": "handoff",
+      "session_id": "2026-10-23-codex-recovery",
+      "file": "sessions/2026-10-23-recovery.md"
     }
-  ]
+  ],
+  "recovery_provenance": "evidence/recovery-state-provenance.json"
 }

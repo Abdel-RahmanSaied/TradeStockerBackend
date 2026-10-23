@@ -1,0 +1,41 @@
+{
+  "source": "Captured actual revision54 stdout from own chat; one persistence gap was restored using unchanged task records in exact55d source archive revision43. Not a byte-exact recovery of the original file.",
+  "missing_task_records": [
+    "S04-T06",
+    "S05-T01",
+    "S05-T02",
+    "S05-T03",
+    "S05-T04",
+    "S05-T05",
+    "S05-T06",
+    "S06-T01",
+    "S06-T02",
+    "S06-T03",
+    "S06-T04",
+    "S06-T05",
+    "S06-T06",
+    "S07-T01",
+    "S07-T02",
+    "S07-T03",
+    "S07-T04",
+    "S07-T05",
+    "S07-T06",
+    "S08-T01",
+    "S08-T02",
+    "S08-T03",
+    "S08-T04",
+    "S08-T05",
+    "S08-T06",
+    "S09-T01",
+    "S09-T02",
+    "S09-T03"
+  ],
+  "unchanged_done_records_reused": [],
+  "counts_match_observed_preincident_planctl": {
+    "BLOCKED": 2,
+    "DONE": 8,
+    "IN_PROGRESS": 2,
+    "TODO": 95
+  },
+  "sha256": "121e7f508c6151dc83c472a3cb4115c5a4b719739c724bbd8f1b5906c048f517"
+}

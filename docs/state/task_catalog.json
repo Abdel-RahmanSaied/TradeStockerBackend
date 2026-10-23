@@ -20,7 +20,8 @@
         "S00-T06",
         "S00-T07",
         "S00-T08",
-        "S00-T09"
+        "S00-T09",
+        "S00-T10"
       ],
       "title_ar": "اكتشاف المستودع وتثبيت النطاق والمتطلبات الخارجية"
     },
@@ -499,7 +500,7 @@
       "size": "M",
       "depends_on": [
         "S00-T01",
-        "S00-T05"
+        "S00-T10"
       ],
       "scope": "Create or adapt the monorepo skeleton. Keep Go business modules inside a single Go module initially; create one Python research package and generated-contract locations.",
       "deliverables": [
@@ -3873,6 +3874,40 @@
         "REQ-08",
         "REQ-12",
         "REQ-15"
+      ],
+      "decision_dependencies": [],
+      "optional": false
+    },
+    {
+      "id": "S00-T10",
+      "sprint_id": "S00",
+      "title": "Verify the local toolchain compatibility prerequisite",
+      "owner_role": "Platform Engineer",
+      "priority": "P0",
+      "size": "M",
+      "depends_on": [
+        "S00-T01",
+        "S00-T02"
+      ],
+      "scope": "Split only the independently verified local technical compatibility subset from original S00-T05, reusing actual isolated spike evidence. Permits original local module scaffolding; does not approve identity, production topology, budgets, evaluation thresholds, migrations or live data use. Original S00-T05 remains intact and gated.",
+      "deliverables": [
+        "spikes/s00-t05/",
+        "docs/evidence/compatibility-matrix.md",
+        "docs/evidence/compatibility-independent-review.md",
+        "docs/adrs/ADR-019.md"
+      ],
+      "acceptance_criteria": [
+        "Record exact supported Go/Python/library versions, locked package hashes and container digests for an isolated local compatibility run.",
+        "Verify actual Go and Python PostgreSQL/JetStream clients and a PostgreSQL LangGraph checkpoint resumed in a separate process.",
+        "Keep normal application data/resources separate; record actual cleanup, failures and dated dependency checks.",
+        "State untested production components and all unresolved D-05/D-06/D-07 gates explicitly; make no producer/outbox atomicity or relay recovery claim from simulated repeats."
+      ],
+      "validation": [
+        "Independent exact-commit spike run, adverse result-validator controls, source/pinning/limits review, and normal data/resource preservation checks. Actual S01 binaries/package/build/CI still need their own independent validation."
+      ],
+      "requirement_ids": [
+        "REQ-01",
+        "REQ-12"
       ],
       "decision_dependencies": [],
       "optional": false

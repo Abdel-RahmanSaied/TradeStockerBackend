@@ -21,3 +21,11 @@ Independent review accepted repaired paper backend/dashboard. Add S07-T07 for re
 ## 2026-10-23 — measured local read-performance follow-up
 
 Added S00-T09 after the S00-T05 local profile showed that every paper read rewrites the complete aggregate. The owner renewed continued local development without per-step approvals. Claude owns the bounded fix; Codex coordinates tests and independent review. Preserve expiry, audit, ledger, idempotency, authentication and concurrency semantics. Record a controlled before/after measurement and actual database writes. This does not complete original S00-T05 or S02, approve D-05/D-06/D-07, change risk limits or authorize production. Evidence will be in evidence/paper-read-performance.md; no completion is inferred from this new task.
+
+## 2026-10-23 — precise local foundation prerequisite split
+
+ADR-019 and S00-T10 record the already implemented, independently accepted local compatibility subset. Only S01-T01 replaces its full S00-T05 prerequisite with this bounded subset; its actual product acceptance criteria do not change. Original S00-T05 remains BLOCKED, and S01-T04/S06-T04/S14-T01 keep the full-task dependency and decision gates. This independently reviewed planning change enables authorized local module/build/CI work without approving production identity, infrastructure, budgets, data entitlements, evaluation thresholds or live recommendations.
+
+## 2026-10-23 — verified recovery and planning provenance
+
+Restore accepted159-file source after the destructive local S01 test incident, followed by preserved ADR019/planning/evidence. Revision54 was reconstructed with28unchanged TODO records from43 and explicit provenance; no fabricated task completion. Owner authorized Codex recovery only. Product development remains with the existing Claude session. Exact source tree, independent test results, history limits and next safe steps are in evidence/recovery-independent-review.md and sessions/2026-10-23-recovery.md.

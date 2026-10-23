@@ -1,9 +1,15 @@
-# uv for the product toolchain, installed into .tools/ only (never globally).
-# Hashes from https://pypi.org/pypi/uv/0.13.0/json (fetched 2026-10-23): macOS
-# arm64/x86_64 and manylinux x86_64/aarch64 wheels. pip refuses any other file.
-uv==0.13.0 \
-    --hash=sha256:93265932cb2efd1486d4d182211281b3f0b31637e2fc160c4c8d7b15294188d1 \
-    --hash=sha256:a5f93ae362b751737cecef0bbc0294624be68a843ff9b32d86e6862a26101630 \
-    --hash=sha256:5163a516b9a488bccb4001f727720b775719dfb6dcb144a9bc0ef23e5cfdd269 \
-    --hash=sha256:52c7da0fd9056d9551124777ec77de53f0df7017daf8f98a19e947b7837416ed \
-    --hash=sha256:f840e640fe16591f6d71a94e8863707b7ba43c5786d1fe662868a9fb44c53e50
+# uv for the product toolchain, installed into .tools/uv-<version>/ only (never
+# globally). Hashes from https://pypi.org/pypi/uv/0.13.4/json (fetched
+# 2026-10-23): macOS arm64/x86_64 and manylinux x86_64/aarch64 wheels. pip
+# refuses any other file.
+#
+# Security exception to the 14-day cooldown: 0.13.4 (released 2026-10-20) is
+# the first version fixed for GHSA-hq85-5cpj-mr62 / PYSEC-2026-4321, where
+# uv's bundled CA store trusted the emSign ECC Root CA - G3 whose intermediate
+# keys are compromised. Found by the CI OSV scan on 0.13.0.
+uv==0.13.4 \
+    --hash=sha256:b4bbacea78c9db136cd2ec3147cbfd9ed910b4db5e1877109bd74d0e73bb2eaf \
+    --hash=sha256:95f4eb2b991b53b50ec2b18ab612fca8ba1e7a75a47af0331fb8bcd21da3eb03 \
+    --hash=sha256:e90ab42825587821096cb0d071e387468da38cfa22818c91f9c0b3c0453048e8 \
+    --hash=sha256:05e4332791b4d55b6dde8695b7fa6079b26991519f44760887c5dfbd5ca4fe53 \
+    --hash=sha256:7b3cdf868e5415631fe797b648c0d6945d38d388f23367bdd0b6332e80a1fcb0

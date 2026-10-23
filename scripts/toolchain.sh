@@ -13,6 +13,7 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 . "$ROOT/scripts/toolchain-paths.sh"
+[ -n "$UV_VERSION" ] || { echo "no uv==<version> line in tools/uv-requirements.txt" >&2; exit 1; }
 WANT=$(cat "$ROOT/research/.python-version")
 
 interpreter() {
@@ -31,9 +32,13 @@ case "${1:-install}" in
 esac
 
 if [ ! -x "$UV" ]; then
-  python3 -m venv "$TOOLS/uv-venv"
-  "$TOOLS/uv-venv/bin/pip" install --quiet --disable-pip-version-check --no-cache-dir --require-hashes --only-binary :all: -r "$ROOT/tools/uv-requirements.txt"
+  python3 -m venv "$TOOLS/uv-$UV_VERSION"
+  "$TOOLS/uv-$UV_VERSION/bin/pip" install --quiet --disable-pip-version-check --no-cache-dir --require-hashes --only-binary :all: -r "$ROOT/tools/uv-requirements.txt"
 fi
+case "$("$UV" --version)" in
+  "uv $UV_VERSION "*) ;;
+  *) echo "$UV is not uv $UV_VERSION" >&2; exit 1 ;;
+esac
 "$UV" python install "$WANT" --no-bin >&2
 "$UV" sync --project "$ROOT/research" --locked --python "$WANT" >&2
 echo "toolchain ready: $("$UV" --version), CPython $WANT at $(interpreter)" >&2

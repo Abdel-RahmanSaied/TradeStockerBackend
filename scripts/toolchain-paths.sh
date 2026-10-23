@@ -1,8 +1,11 @@
 # Sourced by scripts/toolchain.sh and scripts/package.sh after they set ROOT.
 # The toolchain locations under .tools/. Plain assignments only (no eval and no
-# printed shell code), so any characters in ROOT stay plain text.
+# printed shell code), so any characters in ROOT stay plain text. Each uv
+# version has its own folder, so a version change installs fresh and never
+# reuses or replaces an older install.
 TOOLS="$ROOT/.tools"
-UV="$TOOLS/uv-venv/bin/uv"
+UV_VERSION=$(sed -n 's/^uv==\([0-9][0-9.]*\)[ \\]*$/\1/p' "$ROOT/tools/uv-requirements.txt")
+UV="$TOOLS/uv-$UV_VERSION/bin/uv"
 UV_CACHE_DIR="$TOOLS/uv-cache"
 UV_PYTHON_INSTALL_DIR="$TOOLS/python"
 UV_PYTHON_PREFERENCE=only-managed

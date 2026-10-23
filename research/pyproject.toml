@@ -10,9 +10,19 @@ dependencies = []
 research-worker = "tradestocker_research.worker:main"
 
 [build-system]
-# Matches the pinned uv, so `uv build` uses its built-in backend.
-requires = ["uv_build==0.13.0"]
+# Matches the pinned uv (tools/uv-requirements.txt), so `uv build` uses its
+# built-in backend.
+requires = ["uv_build==0.13.4"]
 build-backend = "uv_build"
+
+[dependency-groups]
+# Development checks only (CI lint and type checks); never part of the wheel.
+dev = ["ruff==0.16.10", "mypy==2.4.0"]
+
+[tool.uv]
+# Cooldown: nothing released after this date is used. Moved forward on
+# purpose, with a new lock and its own review.
+exclude-newer = "2026-10-09T00:00:00Z"
 
 # Deterministic research has no network or financial-state client. Model
 # orchestration and full historical analysis remain future tasks.

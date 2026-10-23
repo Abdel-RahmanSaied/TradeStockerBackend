@@ -19,6 +19,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 MARKER = "INJECTED"
+UV_VERSION = re.search(r"^uv==([0-9.]+)", (ROOT / "tools" / "uv-requirements.txt").read_text(), re.M).group(1)
 MARKER_CODE = "$(printf INJ%sCTED E >&2)"
 FAKE_UV = """#!/bin/sh
 # Fake uv: "python find" prints the fake interpreter in this checkout's .tools.
@@ -34,6 +35,8 @@ def fake_checkout(parent, version="3.14.8", with_uv=True):
     (root / "scripts").mkdir(parents=True)
     for name in ["toolchain.sh", "toolchain-paths.sh"]:
         shutil.copy2(ROOT / "scripts" / name, root / "scripts" / name)
+    (root / "tools").mkdir()
+    shutil.copy2(ROOT / "tools" / "uv-requirements.txt", root / "tools" / "uv-requirements.txt")
     (root / "research").mkdir()
     (root / "research" / ".python-version").write_text("3.14.8\n")
     python = root / ".tools" / "python" / "bin" / "python3.14"
@@ -41,7 +44,7 @@ def fake_checkout(parent, version="3.14.8", with_uv=True):
     python.write_text("#!/bin/sh\necho %s\n" % version)
     python.chmod(0o700)
     if with_uv:
-        uv = root / ".tools" / "uv-venv" / "bin" / "uv"
+        uv = root / ".tools" / ("uv-%s" % UV_VERSION) / "bin" / "uv"
         uv.parent.mkdir(parents=True)
         uv.write_text(FAKE_UV)
         uv.chmod(0o700)
@@ -63,7 +66,7 @@ class ToolchainPathTests(unittest.TestCase):
 
     def test_paths_with_quotes_and_shell_syntax_stay_text(self):
         root, python = fake_checkout(self.tmp)
-        for mode, want in [("python", python), ("uv", root / ".tools" / "uv-venv" / "bin" / "uv")]:
+        for mode, want in [("python", python), ("uv", root / ".tools" / ("uv-%s" % UV_VERSION) / "bin" / "uv")]:
             with self.subTest(mode=mode):
                 result = subprocess.run([str(root / "scripts" / "toolchain.sh"), mode], capture_output=True, text=True, timeout=30)
                 self.assertEqual((result.returncode, result.stdout), (0, "%s\n" % want), result.stderr)
@@ -79,7 +82,7 @@ class ToolchainPathTests(unittest.TestCase):
         root, _ = fake_checkout(self.tmp)
         result = sh('ROOT=$1; . "$ROOT/scripts/toolchain-paths.sh"; printf "%s\\n%s\\n%s\\n" "$UV" "$UV_CACHE_DIR" "$UV_PROJECT_ENVIRONMENT"', root)
         tools = root / ".tools"
-        self.assertEqual(result.stdout.splitlines(), [str(tools / "uv-venv" / "bin" / "uv"), str(tools / "uv-cache"), str(tools / "research-venv")])
+        self.assertEqual(result.stdout.splitlines(), [str(tools / ("uv-%s" % UV_VERSION) / "bin" / "uv"), str(tools / "uv-cache"), str(tools / "research-venv")])
         self.assertNoInjection(result)
 
     def test_missing_or_wrong_toolchain_stops_the_launcher(self):

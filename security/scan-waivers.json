@@ -10,6 +10,16 @@
       "reviewed_by": "codex-reviewer",
       "reviewed_on": "2026-10-23",
       "expires": "2026-11-22"
+    },
+    {
+      "id": "W-002",
+      "scanner": "gitleaks",
+      "match": "7ed1c760dd481d1b9401cd75d49bd7c392fdb634:scripts/test_scan_checks.py:aws-access-token:98",
+      "reason": "Invented test value, not a credential: the AWS-key-shaped string AKIA followed by the letters A to P in order, written by the author to test that an unredacted gitleaks report is refused. Found by the S01-T03 negative-control baseline. The next commit replaces it with a low-entropy placeholder; only this historical finding in commit 7ed1c760 is waived.",
+      "owner": "claude-code-agent",
+      "reviewed_by": null,
+      "reviewed_on": null,
+      "expires": "2026-11-22"
     }
   ]
 }

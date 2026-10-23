@@ -1,0 +1,9 @@
+# uv for the product toolchain, installed into .tools/ only (never globally).
+# Hashes from https://pypi.org/pypi/uv/0.13.0/json (fetched 2026-10-23): macOS
+# arm64/x86_64 and manylinux x86_64/aarch64 wheels. pip refuses any other file.
+uv==0.13.0 \
+    --hash=sha256:93265932cb2efd1486d4d182211281b3f0b31637e2fc160c4c8d7b15294188d1 \
+    --hash=sha256:a5f93ae362b751737cecef0bbc0294624be68a843ff9b32d86e6862a26101630 \
+    --hash=sha256:5163a516b9a488bccb4001f727720b775719dfb6dcb144a9bc0ef23e5cfdd269 \
+    --hash=sha256:52c7da0fd9056d9551124777ec77de53f0df7017daf8f98a19e947b7837416ed \
+    --hash=sha256:f840e640fe16591f6d71a94e8863707b7ba43c5786d1fe662868a9fb44c53e50

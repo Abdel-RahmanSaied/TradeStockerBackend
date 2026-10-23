@@ -8,6 +8,10 @@
 set -eu
 cd "$(dirname "$0")/.."
 ROOT=$(pwd)
+# The pinned research Python (platform-core refuses any other). A plain
+# assignment, never eval, so a missing toolchain stops this script.
+TS_PYTHON=$(./scripts/toolchain.sh python)
+export TS_PYTHON
 BASE_REF="${1:?usage: scripts/paper-read-bench.sh <base-git-ref>}"
 WORK="$ROOT/.local/paper-read-bench"
 . ./scripts/disposable-api.sh

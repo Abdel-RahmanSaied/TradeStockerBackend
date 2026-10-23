@@ -6,6 +6,10 @@
 set -eu
 cd "$(dirname "$0")/.."
 TS_REPO_ROOT=$(pwd)
+# The pinned research Python (platform-core refuses any other). A plain
+# assignment, never eval, so a missing toolchain stops this script.
+TS_PYTHON=$(./scripts/toolchain.sh python)
+export TS_PYTHON
 set -a
 . ./.env.local
 set +a

@@ -12,5 +12,6 @@ Path('.env.local').write_text('TS_DB_PASSWORD='+password+'\nTS_LOCAL_DEV_TOKEN='
 PY
 fi
 chmod 600 .env.local
+./scripts/toolchain.sh
 docker compose --env-file .env.local up -d --wait postgres
 printf 'Local database ready. Run scripts/run-local.sh, then start the frontend. API token is in .env.local (keep private).\n'

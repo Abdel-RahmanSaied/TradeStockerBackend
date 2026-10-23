@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os/exec"
+	"strings"
 	"time"
 
 	researchworker "tradestocker/research"
@@ -36,20 +37,42 @@ func (b *boundedBuffer) Bytes() []byte  { return b.buf.Bytes() }
 func (b *boundedBuffer) String() string { return b.buf.String() }
 func (b *boundedBuffer) Len() int       { return b.buf.Len() }
 
-// pythonCommand starts the parser isolated (-I) with a fixed environment, so no
+// defaultPython is used when Service.Python is empty. platform-core always sets
+// Python explicitly after CheckPython.
+var defaultPython = "python3"
+
+// isolatedPython runs python isolated (-I) with a fixed environment, so no
 // database URL, API token or SEC contact from this process reaches Python.
-func (s *Service) pythonCommand(ctx context.Context) *exec.Cmd {
-	python, script := s.Python, s.Script
-	if python == "" {
-		python = "python3"
-	}
-	if script == "" {
-		script = researchworker.Financials
-	}
+func isolatedPython(ctx context.Context, python, script string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, python, "-I", "-c", script)
 	cmd.Env = []string{"PATH=/usr/bin:/bin:/usr/local/bin", "LANG=C.UTF-8"}
 	cmd.WaitDelay = 2 * time.Second
 	return cmd
+}
+
+func (s *Service) pythonCommand(ctx context.Context) *exec.Cmd {
+	python, script := s.Python, s.Script
+	if python == "" {
+		python = defaultPython
+	}
+	if script == "" {
+		script = researchworker.Financials
+	}
+	return isolatedPython(ctx, python, script)
+}
+
+// CheckPython confirms python is exactly the CPython release the research
+// package is tested on (research/.python-version) and returns what it found.
+func CheckPython(ctx context.Context, python string) (string, error) {
+	out, err := isolatedPython(ctx, python, `import platform,sys; print(platform.python_implementation(), "%d.%d.%d" % sys.version_info[:3])`).Output()
+	if err != nil {
+		return "", fmt.Errorf("research Python %q did not run: %w", python, err)
+	}
+	got := strings.TrimSpace(string(out))
+	if want := "CPython " + researchworker.PythonVersion; got != want {
+		return got, fmt.Errorf("research Python %q is %q, want %q: run scripts/toolchain.sh and set TS_PYTHON", python, got, want)
+	}
+	return got, nil
 }
 
 func (s *Service) analyze(ctx context.Context, j Job, sources []Source) ([]byte, error) {

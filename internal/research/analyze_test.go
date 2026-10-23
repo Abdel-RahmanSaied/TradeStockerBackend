@@ -5,16 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
 	"time"
+
+	researchworker "tradestocker/research"
 )
+
+// Parser tests run on TS_PYTHON (make test and CI set it to the pinned CPython).
+// Without a supported interpreter they skip, unless TS_REQUIRE_PYTHON=1 makes
+// that a failure.
+func TestMain(m *testing.M) {
+	if python := os.Getenv("TS_PYTHON"); python != "" {
+		defaultPython = python
+	}
+	os.Exit(m.Run())
+}
 
 func requirePython(t *testing.T) {
 	t.Helper()
-	if _, err := exec.LookPath("python3"); err != nil {
-		t.Skip("python3 not installed")
+	if _, err := CheckPython(context.Background(), defaultPython); err != nil {
+		if os.Getenv("TS_REQUIRE_PYTHON") == "1" {
+			t.Fatal(err)
+		}
+		t.Skip(err)
 	}
 }
 
@@ -191,7 +207,7 @@ func TestAsOfAlwaysHasSixFractionalDigits(t *testing.T) {
 		if len(text) != len("2026-10-23T06:11:24.000000Z") || !strings.HasPrefix(text, "2026-10-23T06:11:24.") || !strings.HasSuffix(text, "Z") {
 			t.Fatalf("as_of %q", text)
 		}
-		check := exec.Command("python3", "-I", "-c", "import datetime,sys; datetime.datetime.fromisoformat(sys.argv[1].replace('Z','+00:00'))", text)
+		check := exec.Command(defaultPython, "-I", "-c", "import datetime,sys; datetime.datetime.fromisoformat(sys.argv[1].replace('Z','+00:00'))", text)
 		if out, err := check.CombinedOutput(); err != nil {
 			t.Fatalf("Python rejected %q: %s", text, out)
 		}
@@ -201,5 +217,29 @@ func TestAsOfAlwaysHasSixFractionalDigits(t *testing.T) {
 func TestRetryDelays(t *testing.T) {
 	if retryDelay("SEC_REQUEST_FAILED", 1) != 30*time.Second || retryDelay("SEC_HTTP_ERROR", 2) != 2*time.Minute || retryDelay("SEC_ACCESS_LIMITED", 1) != 10*time.Minute {
 		t.Fatal("unexpected retry schedule")
+	}
+}
+
+func TestCheckPythonAcceptsOnlyThePinnedRelease(t *testing.T) {
+	requirePython(t)
+	if got, err := CheckPython(context.Background(), defaultPython); err != nil || got != "CPython "+researchworker.PythonVersion {
+		t.Fatalf("pinned interpreter: %q, %v", got, err)
+	}
+	dir := t.TempDir()
+	for name, output := range map[string]string{
+		"other release":        "CPython 3.9.6",
+		"other implementation": "PyPy " + researchworker.PythonVersion,
+		"extra text":           "CPython " + researchworker.PythonVersion + " debug",
+	} {
+		fake := dir + "/" + strings.ReplaceAll(name, " ", "-")
+		if err := os.WriteFile(fake, []byte("#!/bin/sh\necho '"+output+"'\n"), 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if got, err := CheckPython(context.Background(), fake); err == nil {
+			t.Fatalf("%s accepted as %q", name, got)
+		}
+	}
+	if _, err := CheckPython(context.Background(), dir+"/missing"); err == nil {
+		t.Fatal("missing interpreter accepted")
 	}
 }

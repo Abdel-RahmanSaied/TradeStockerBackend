@@ -6,7 +6,7 @@ import subprocess
 import sys
 import unittest
 
-import financials
+from tradestocker_research import financials
 
 SHA_A = "a" * 64
 SHA_B = "b" * 64

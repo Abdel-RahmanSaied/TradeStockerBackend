@@ -57,6 +57,17 @@ func run() error {
 		}
 		origins = []string{origin}
 	}
+	// The research parser runs only on the exact CPython it is tested on.
+	python := os.Getenv("TS_PYTHON")
+	if python == "" {
+		python = "python3"
+	}
+	check, cancelCheck := context.WithTimeout(context.Background(), 10*time.Second)
+	pythonVersion, err := research.CheckPython(check, python)
+	cancelCheck()
+	if err != nil {
+		return err
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	start, cancel := context.WithTimeout(ctx, 15*time.Second)
@@ -70,14 +81,14 @@ func run() error {
 		return err
 	}
 	provider := research.NewSEC(os.Getenv("TS_SEC_USER_AGENT"))
-	researchService := &research.Service{Pool: db.Pool, Provider: provider, Configured: provider.Configured()}
+	researchService := &research.Service{Pool: db.Pool, Provider: provider, Configured: provider.Configured(), Python: python}
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); researchService.Run(ctx) }()
 	defer func() { stop(); <-workerDone }()
 	server := &http.Server{Addr: bind, Handler: (&httpapi.API{Store: db, Token: token, Research: researchService.Handler(), Origins: origins}).Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 16 * 1024}
 	result := make(chan error, 1)
 	go func() {
-		slog.Info("local paper API ready", "address", bind, "mode", "PAPER", "live_advisory_enabled", false)
+		slog.Info("local paper API ready", "address", bind, "mode", "PAPER", "live_advisory_enabled", false, "research_python", pythonVersion)
 		result <- server.ListenAndServe()
 	}()
 	select {

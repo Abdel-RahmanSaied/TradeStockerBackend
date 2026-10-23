@@ -1,4 +1,6 @@
-// market-ingestion is a fixture-only adapter. It cannot request a real feed.
+// market-ingestion is a fixture-only adapter. It cannot request a real feed:
+// no provider is qualified (S00-T03), so every real feed stays disabled until
+// its adapter task (S03-T02/T03) and data decision (D-01/D-02) are complete.
 package main
 
 import (
@@ -19,7 +21,18 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+// qualifiedProviders lists the sources this binary may use. Only the synthetic
+// fixture source exists; adding a provider needs its qualification evidence.
+var qualifiedProviders = map[string]bool{"fixture": true}
+
 func run() error {
+	if len(os.Args) > 1 {
+		return errors.New("usage: market-ingestion (loads synthetic paper fixtures; takes no arguments)")
+	}
+	if provider := os.Getenv("TS_MARKET_PROVIDER"); provider != "" && !qualifiedProviders[provider] {
+		return fmt.Errorf("market data provider %q is not qualified; real feeds stay disabled", provider)
+	}
 	base := os.Getenv("TS_API_URL")
 	if base == "" {
 		base = "http://127.0.0.1:8080"

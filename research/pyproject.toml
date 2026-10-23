@@ -1,8 +1,18 @@
 [project]
 name = "tradestocker-research"
 version = "0.1.0"
-requires-python = ">=3.9"
+description = "TradeStocker research worker: analysis code with no network or database client"
+# Tested only on the exact CPython in .python-version. 3.9 is end-of-life.
+requires-python = ">=3.14"
 dependencies = []
 
-# Deterministic financial research has no network or financial-state client.
-# Model orchestration and full historical analysis remain future tasks.
+[project.scripts]
+research-worker = "tradestocker_research.worker:main"
+
+[build-system]
+# Matches the pinned uv, so `uv build` uses its built-in backend.
+requires = ["uv_build==0.13.0"]
+build-backend = "uv_build"
+
+# Deterministic research has no network or financial-state client. Model
+# orchestration and full historical analysis remain future tasks.

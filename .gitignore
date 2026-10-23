@@ -14,3 +14,7 @@ coverage.out
 # S00-T05 spike: project-local tools, caches and outputs
 spikes/*/.tools/
 spikes/*/.local/
+
+# Product toolchain (scripts/toolchain.sh) and build outputs
+.tools/
+dist/

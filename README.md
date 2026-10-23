@@ -36,17 +36,42 @@ Use only a contact the owner approved; restart the API after setting it. Without
 
 `./scripts/research-smoke.sh [SYMBOL] [CIK]` runs one real SEC job through the real API on a disposable database and port 18080, then verifies the downloaded originals. It makes two SEC requests.
 
-## Verify
+## Build and test
+
+Three entrypoints, one Go module (`go.mod`, module `tradestocker`) and one Python package:
+
+| Entrypoint | Source | What it does today |
+|---|---|---|
+| `platform-core` (Go) | `cmd/platform-core` | Local PAPER API, paper state, SEC research jobs |
+| `market-ingestion` (Go) | `cmd/market-ingestion` | Loads synthetic fixtures only; every real feed is refused until a provider is qualified |
+| `research-worker` (Python) | `research/src/tradestocker_research/worker.py` | JSON lines in, typed research results out (`contracts/research-worker.md`) |
+
+Supported toolchains, pinned exactly:
+
+| Tool | Version | Where it comes from |
+|---|---|---|
+| Go | the release on `go.mod`'s `go` line (1.26.10) | `make` sets `GOTOOLCHAIN` to it; the go command downloads and verifies it if needed |
+| CPython | `research/.python-version` (3.14.8) | `scripts/toolchain.sh`, into `.tools/` only |
+| uv | 0.13.0 | `tools/uv-requirements.txt`, hash-checked, into `.tools/` only |
+
+platform-core refuses to start unless `TS_PYTHON` (default `python3`) is exactly that CPython; the scripts set it for you. Python 3.9 is end-of-life and no longer supported.
 
 ```sh
-go test -race ./...
+./scripts/toolchain.sh      # once: uv, CPython and the research package, inside .tools/
+make check                  # gofmt, go vet, plan validation and generated-docs check
+make test                   # Go race tests, research package tests, launcher helper tests
+make test-package           # package output guard and toolchain path tests (temporary folders only)
+make arch                   # dependency direction (Go) and import boundary (Python)
+make build                  # bin/platform-core, bin/market-ingestion
+make package                # dist/: both binaries, the research wheel, SHA256SUMS, smoke checks
+make reproducible           # packages twice and requires byte-identical results
 ./scripts/test-integration.sh
-python3 -B -m unittest discover -s research -p 'test_*.py'
 python3 -B docs/tools/test_planctl.py
 python3 -B test_install_docs.py
-go vet ./...
 go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 ```
+
+`scripts/package.sh <folder>` never deletes anything: the folder must be new or empty, and the repository, home and their parent folders are refused. `make package` therefore needs `dist/` to be absent or empty. Domain code (`internal/paper`) may use only pure standard-library packages; `tests/architecture` enforces this and the closed set of entrypoints.
 
 In the frontend: `npm test`, `npm run build`, `npm audit --audit-level=high`.
 

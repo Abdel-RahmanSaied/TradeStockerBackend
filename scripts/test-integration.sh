@@ -1,6 +1,11 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
+# The pinned research Python (platform-core refuses any other). A plain
+# assignment, never eval, so a missing toolchain stops this script.
+TS_PYTHON=$(./scripts/toolchain.sh python)
+export TS_PYTHON
+export TS_REQUIRE_PYTHON=1
 set -a
 . ./.env.local
 set +a

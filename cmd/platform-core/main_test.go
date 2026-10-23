@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -39,5 +40,24 @@ func TestDashboardOriginMustBeLoopback(t *testing.T) {
 				t.Fatalf("non-loopback dashboard origin accepted: %v", e)
 			}
 		})
+	}
+}
+
+// The startup check runs before any database connection.
+func TestUnsupportedResearchPythonRefused(t *testing.T) {
+	fake := t.TempDir() + "/python"
+	if err := os.WriteFile(fake, []byte("#!/bin/sh\necho 'CPython 3.9.6'\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, python := range []string{fake, t.TempDir() + "/missing"} {
+		t.Setenv("TS_LOCAL_DEV_TOKEN", strings.Repeat("t", 32))
+		t.Setenv("TS_MODE", "PAPER")
+		t.Setenv("DATABASE_URL", "postgres://127.0.0.1:1/unused")
+		t.Setenv("TS_BIND", "127.0.0.1:8080")
+		t.Setenv("TS_DASHBOARD_ORIGIN", "")
+		t.Setenv("TS_PYTHON", python)
+		if e := run(); e == nil || !strings.Contains(e.Error(), "research Python") {
+			t.Fatalf("unsupported research Python %s accepted: %v", python, e)
+		}
 	}
 }

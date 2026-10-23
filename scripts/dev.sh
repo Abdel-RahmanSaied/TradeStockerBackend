@@ -10,6 +10,10 @@ TS_FRONTEND_ROOT="${TS_FRONTEND_ROOT:-$(dirname "$TS_REPO_ROOT")/TradeStockerFro
 . ./scripts/disposable-api.sh
 disposable_api_preflight 8080 5173
 ./scripts/setup-local.sh
+# The pinned research Python (platform-core refuses any other). A plain
+# assignment, never eval, so a missing toolchain stops this script.
+TS_PYTHON=$(./scripts/toolchain.sh python)
+export TS_PYTHON
 set -a
 . ./.env.local
 set +a

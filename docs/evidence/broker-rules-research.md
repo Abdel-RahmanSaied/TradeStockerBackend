@@ -128,6 +128,8 @@ Only short, non-secret answers are needed. No account numbers, passwords, keys o
    - (c) The public or paying clients.
 
    Choosing (b) or (c) means a qualified legal review comes first. This research does not say which rules apply, and a model's analysis is not legal approval. Until the review is recorded, delivery stays owner-only.
+
+   **Answered on 2026-10-24: (b).** The coordinator relayed the owner's answer: «لمجموعة مغلقة من أشخاص محددين» ("for a closed group of specified people"). What it settles, what it leaves open, and its effects on review, data rights and security are in the [distribution scope review](distribution-scope-review.md). D-08 stays OPEN.
 6. **Statements.** Can each broker export statements or trade confirmations? CSV / PDF / neither.
 
 Timezone, data-provider signups and the SEC contact address are not used to guess the answers.
@@ -136,7 +138,7 @@ Timezone, data-provider signups and the SEC contact address are not used to gues
 
 This research can complete the sourcing method, the dated public-rule rows in section 1, the list of blockers, the account-data intake rule and the owner questions. It cannot complete the parts that need the owner's answers:
 
-- **Acceptance criterion 3** ("Determine whether the pilot remains private and whether commercial advisory review is required") needs the owner's answer to question 5. Until then D-08 stays OPEN, and the evidence only says that delivery stays owner-only.
+- **Acceptance criterion 3** ("Determine whether the pilot remains private and whether commercial advisory review is required"). The owner answered question 5 on 2026-10-24: a closed group of specified people. The author's assessment, for review, is in the [distribution scope review](distribution-scope-review.md): the pilot does not stay private to the owner, and a scoped legal review is required before any delivery to the group. That review has not been done; D-08 stays OPEN and delivery stays owner-only. Whether this satisfies the criterion is for the reviewer and the coordinator to judge.
 - **D-03** (brokers, account types, same-session capability) stays OPEN until questions 1–4 and 6 are answered and broker documents confirm them.
 - **Official reads still missing:**
   - EGX session, holidays and price limits (the EGX site is unreachable);
